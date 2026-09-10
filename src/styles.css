@@ -1,0 +1,104 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@theme {
+  --font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Instrument Serif", ui-serif, Georgia, serif;
+
+  --color-paper: #f1eee6;
+  --color-paper-elevated: #f8f5ee;
+  --color-ink: #1c1916;
+  --color-ink-muted: #6a645c;
+  --color-ink-faint: #9a948c;
+  --color-line: #e4dfd4;
+  --color-line-strong: #cfc8bb;
+  --color-south: #8a4b3a;
+  --color-south-fg: #3f241c;
+  --color-south-fill: #f1e2d9;
+  --color-north: #3c4e5c;
+  --color-north-fg: #1c2a34;
+  --color-north-fill: #dde6ec;
+
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+
+  --shadow-border:
+    0 0 0 1px rgb(28 25 22 / 0.06),
+    0 1px 2px -1px rgb(28 25 22 / 0.06),
+    0 2px 8px rgb(28 25 22 / 0.04);
+  --shadow-border-hover:
+    0 0 0 1px rgb(28 25 22 / 0.1),
+    0 1px 2px -1px rgb(28 25 22 / 0.08),
+    0 8px 20px rgb(28 25 22 / 0.08);
+
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-smooth-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background: var(--color-paper);
+    color: var(--color-ink);
+  }
+
+  body {
+    min-height: 100dvh;
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    line-height: 1.5;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background: var(--color-south-fill);
+    color: var(--color-ink);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@media print {
+  :root {
+    --color-paper: #ffffff;
+  }
+
+  body {
+    background: #fff;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .print-show {
+    display: block !important;
+  }
+}
