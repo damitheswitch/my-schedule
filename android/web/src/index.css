@@ -1,0 +1,8 @@
+@import "@/styles.css";
+
+/* The classes Tailwind needs to see live in the my-schedule checkout, outside
+   this project root — point the scanner at them explicitly. `../src` covers
+   this folder living inside the my-schedule repo, `../../my-schedule/src` a
+   sibling checkout. */
+@source "../../../src";
+@source "../../../my-schedule/src";
