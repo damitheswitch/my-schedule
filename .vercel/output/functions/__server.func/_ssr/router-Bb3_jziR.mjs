@@ -7,7 +7,7 @@ import { n as require_jsx_runtime } from "../_libs/radix-ui__react-context+react
 import { n as auth } from "./server-BGzN9ETo.mjs";
 import { D as normalizeAiOutput, O as normalizeAskOutput, f as clampWeek, k as requestCompletion, l as buildAskMessages, u as buildParseMessages } from "./schedule-ai-BcRRaj_R.mjs";
 import { r as TriangleAlert } from "../_libs/lucide-react.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/router-Dr_npMIy.js
+//#region node_modules/.nitro/vite/services/ssr/assets/router-Bb3_jziR.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var FALLBACK_MESSAGE = "An unexpected error occurred. Try reloading the page.";
@@ -365,7 +365,7 @@ var Route$4 = createRootRoute({
 		] })]
 	})
 });
-var $$splitComponentImporter$1 = () => import("./routes-O36NfBVb.mjs");
+var $$splitComponentImporter$1 = () => import("./routes-YZIgawrw.mjs");
 var Route$3 = createFileRoute("/")({
 	validateSearch: (search) => {
 		const raw = Number(search.week);
@@ -437,7 +437,10 @@ var Route$1 = createFileRoute("/api/ai")({ server: { handlers: {
 		headers: corsHeaders(request)
 	}),
 	POST: async ({ request }) => {
-		if (request.headers.get("content-type")?.includes("application/json") !== true) return json(request, 415, {
+		const contentType = request.headers.get("content-type") ?? "";
+		const isJson = contentType.includes("application/json");
+		const isPlain = contentType.includes("text/plain");
+		if (!isJson && !isPlain) return json(request, 415, {
 			ok: false,
 			error: "Expected a JSON request."
 		});

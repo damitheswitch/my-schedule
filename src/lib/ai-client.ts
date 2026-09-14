@@ -35,7 +35,10 @@ export async function requestAi(
   try {
     res = await fetch(aiEndpoint(), {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      // text/plain keeps this a CORS "simple request": the WebView then skips
+      // the OPTIONS preflight (answered by the platform's default CORS handler
+      // without an allow-origin) and the POST's own allow-origin is enough.
+      headers: { "Content-Type": "text/plain;charset=UTF-8" },
       body: JSON.stringify({
         mode,
         text,

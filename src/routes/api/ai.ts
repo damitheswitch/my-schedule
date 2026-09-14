@@ -85,7 +85,14 @@ export const Route = createFileRoute("/api/ai")({
         new Response(null, { status: 204, headers: corsHeaders(request) }),
 
       POST: async ({ request }) => {
-        if (request.headers.get("content-type")?.includes("application/json") !== true) {
+        // The body is JSON either way. `text/plain` is accepted because the
+        // APK sends it deliberately: a text/plain POST is a CORS "simple
+        // request", so the WebView skips the OPTIONS preflight that the
+        // platform's default CORS handler answers without an allow-origin.
+        const contentType = request.headers.get("content-type") ?? "";
+        const isJson = contentType.includes("application/json");
+        const isPlain = contentType.includes("text/plain");
+        if (!isJson && !isPlain) {
           return json(request, 415, { ok: false, error: "Expected a JSON request." });
         }
 

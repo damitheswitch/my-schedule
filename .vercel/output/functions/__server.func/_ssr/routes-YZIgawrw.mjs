@@ -8,14 +8,14 @@ import { a as getServerFnById, i as TSS_SERVER_FUNCTION, r as createServerFn } f
 import { a as hasGateSessionMarker } from "./server-BGzN9ETo.mjs";
 import { A as sectionsLabel, C as formatWeekRange, E as nextUp, F as weekHasClasses, I as weekLoad, M as shanghaiParts, N as termWeekFromDate, P as toMinutes, S as formatShortDate, T as maxWeekLoad, _ as dateOf, a as TERM, b as firstBusyDay, c as blocksForWeek, d as buildScheduleData, f as clampWeek, g as courseMeetings, h as courseHours, i as DEFAULT_SCHEDULE, j as serializeWeek, m as commuteDays, n as DAYS, o as bandOf, p as commuteCopy, r as DAY_LABEL, s as bandPosition, t as BANDS, v as defaultWeek, w as holidayName, x as formatDuration, y as durationMinutes } from "./schedule-ai-BcRRaj_R.mjs";
 import { _ as ChevronRight, a as Smartphone, c as Printer, d as MessageCircleQuestion, f as MapPin, g as Clock, h as Download, i as Sparkles, l as Mic, m as GraduationCap, n as Users, o as Share2, p as LoaderCircle, s as RotateCcw, t as X, u as MicOff, v as ChevronLeft, y as ArrowRight } from "../_libs/lucide-react.mjs";
-import { n as Route$3 } from "./router-Dr_npMIy.mjs";
+import { n as Route$3 } from "./router-Bb3_jziR.mjs";
 import { t as authMiddleware } from "./middleware-BWLq4NPP.mjs";
 import { n as toast, t as Toaster } from "../_libs/sonner.mjs";
 import { _ as Slot, a as DialogOverlay$1, c as DialogTrigger$1, i as DialogDescription$1, n as DialogClose, o as DialogPortal$1, r as DialogContent$1, s as DialogTitle$1, t as Dialog$1 } from "../_libs/@radix-ui/react-dialog+[...].mjs";
 import { n as clsx, t as cva } from "../_libs/class-variance-authority+clsx.mjs";
 import { t as twMerge } from "../_libs/tailwind-merge.mjs";
 import { a as Trigger, i as Root3, n as Portal, r as Provider, t as Content2 } from "../_libs/@radix-ui/react-tooltip+[...].mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/routes-O36NfBVb.js
+//#region node_modules/.nitro/vite/services/ssr/assets/routes-YZIgawrw.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function cn(...inputs) {
@@ -141,7 +141,7 @@ async function requestAi(mode, text, current) {
 	try {
 		res = await fetch(aiEndpoint(), {
 			method: "POST",
-			headers: { "Content-Type": "application/json" },
+			headers: { "Content-Type": "text/plain;charset=UTF-8" },
 			body: JSON.stringify({
 				mode,
 				text,
