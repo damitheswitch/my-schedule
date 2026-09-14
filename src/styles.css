@@ -8,21 +8,14 @@
   /* The Real China brand palette — seal red + gold on rice paper. */
   --color-paper: #faf6ef;
   --color-paper-elevated: #fffdf7;
-  --color-paper-deep: #efe7d5;
   --color-ink: #1a1613;
   --color-ink-muted: #4a413b;
   --color-ink-faint: #8a7f76;
   --color-line: #d9d0c2;
-  --color-line-strong: #c4b9a6;
 
   --color-seal: #a6192e;
-  --color-seal-light: #c44554;
   --color-seal-dark: #7a0f20;
   --color-seal-tint: #f7e8ea;
-
-  --color-gold: #c9a227;
-  --color-gold-dark: #9a7a1a;
-  --color-gold-tint: #f8f0da;
 
   /* Campus accents — warm gold for South, cool slate for North. */
   --color-south: #9a7a1a;
@@ -108,9 +101,5 @@
 
   .no-print {
     display: none !important;
-  }
-
-  .print-show {
-    display: block !important;
   }
 }

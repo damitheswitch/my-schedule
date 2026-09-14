@@ -11,7 +11,7 @@ import { a as utf8ToBytes, i as managedNonce, n as bytesToHex, r as hexToBytes, 
 import { n as string$1, t as boolean$1 } from "../_libs/zod.mjs";
 import { t as Pool } from "../_libs/pg.mjs";
 import { randomBytes } from "node:crypto";
-//#region node_modules/.nitro/vite/services/ssr/assets/server-BGzN9ETo.js
+//#region node_modules/.nitro/vite/services/ssr/assets/server-05qNg1Dj.js
 function tryDecode$1(str) {
 	if (str.indexOf("%") === -1) return str;
 	try {
@@ -190,7 +190,7 @@ var GROK_PROVIDERS = [{
 	idp: "twitter",
 	label: "X"
 }];
-function env$2(key) {
+function env$1(key) {
 	return process.env[key]?.trim() || void 0;
 }
 /**
@@ -200,7 +200,7 @@ function env$2(key) {
 * key off this predicate.
 */
 function isWorkspacePreview() {
-	return !env$2("GROK_PROJECT_ID");
+	return !env$1("GROK_PROJECT_ID");
 }
 var GATE_IDENTITY_HEADER = "x-grok-identity";
 var GATE_JWKS_PATH = "/__gate/identity-key";
@@ -210,11 +210,11 @@ var PREVIEW_GATE_ORIGIN = "http://127.0.0.1:6014";
 var FALLBACK_EMAIL_DOMAIN = "viewer.grok.invalid";
 var FALLBACK_NAME = "Grok user";
 function gateIdentityEnabled() {
-	return env$2("VITE_AUTH_ENABLED") !== "false";
+	return env$1("VITE_AUTH_ENABLED") !== "false";
 }
 function gateTokenAudience() {
 	if (isWorkspacePreview()) return PREVIEW_AUDIENCE;
-	return `app:${env$2("GROK_PROJECT_ID")}`;
+	return `app:${env$1("GROK_PROJECT_ID")}`;
 }
 async function defaultJwksFetch(url) {
 	try {
@@ -287,7 +287,7 @@ async function verifyGateIdentityToken(token, options) {
 	}
 }
 function resolveGateEndpoints(headers) {
-	const explicit = env$2("GROK_GATE_ORIGIN");
+	const explicit = env$1("GROK_GATE_ORIGIN");
 	if (explicit) {
 		const origin = explicit.replace(/\/+$/, "");
 		return {
@@ -8884,11 +8884,6 @@ function previewAuthSecret() {
 	globalAuthRef.__grokAuthPreviewSecret__ ??= randomBytes(32).toString("hex");
 	return globalAuthRef.__grokAuthPreviewSecret__;
 }
-/** Read an env var, treating empty/whitespace as unset. */
-var env$1 = (key) => {
-	const value = process.env[key]?.trim();
-	return value ? value : void 0;
-};
 var authDisabled = env$1("VITE_AUTH_ENABLED") === "false";
 var grokIssuer = env$1("GROK_AUTH_ISSUER") ?? "https://auth.grok.me";
 var grokClientId = env$1("GROK_AUTH_CLIENT_ID") ?? "grok_preview";

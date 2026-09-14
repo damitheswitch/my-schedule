@@ -103,8 +103,7 @@ npm run dev        # serves on 0.0.0.0:8080
 ```
 
 `npm run dev` runs Vite through `scripts/with-app-env.mjs`, which applies
-`.grok/app-env.json`. On Windows that wrapper can't spawn `vite` — run
-`node node_modules/vite/bin/vite.js dev --host 0.0.0.0 --port 8080` instead.
+`.grok/app-env.json` — works on POSIX and Windows.
 
 Other scripts: `npm run build` · `npm run typecheck` · `npm run lint` ·
 `npm test` · `npm run check:auth` · `node scripts/render-brand-assets.mjs`.

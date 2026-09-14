@@ -1,5 +1,5 @@
 import { F as object, P as number, R as string, k as array } from "../_libs/@better-auth/core+[...].mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/schedule-ai-owSWeblb.js
+//#region node_modules/.nitro/vite/services/ssr/assets/schedule-ai-UYQHUZYf.js
 var DAYS = [
 	"Mon",
 	"Tue",
@@ -20,8 +20,6 @@ var TERM = {
 	tz: "Asia/Shanghai",
 	week1Monday: "2026-09-07"
 };
-var COURSES = [];
-var COURSE_BY_ID = Object.fromEntries(COURSES.map((c) => [c.id, c]));
 /** Fallback course for a meeting whose courseId is missing from the catalog. */
 function makeStubCourse(id) {
 	return {
@@ -34,9 +32,9 @@ function makeStubCourse(id) {
 	};
 }
 var DEFAULT_SCHEDULE = {
-	courses: COURSES,
+	courses: [],
 	meetings: [],
-	courseById: COURSE_BY_ID
+	courseById: {}
 };
 var BANDS = [
 	{

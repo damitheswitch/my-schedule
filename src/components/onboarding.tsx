@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { Sparkles, Loader2, Mic, MicOff, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
-import { PreviewCard } from "@/components/ai-update-panel";
+import { PreviewCard } from "@/components/preview-card";
 import { requestAi } from "@/lib/ai-client";
 import { buildScheduleData } from "@/lib/schedule-ai";
 import { TERM, type Course, type Meeting, type ScheduleData } from "@/lib/schedule";

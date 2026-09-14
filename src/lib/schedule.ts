@@ -57,19 +57,12 @@ export type Block = {
   flags: MeetingFlag[];
 };
 
-export const COURSES: Course[] = [];
-
-export const COURSE_BY_ID: Record<string, Course> = Object.fromEntries(
-  COURSES.map((c) => [c.id, c]),
-);
-
-
 /**
- * The schedule data a view is built from. Defaults to the hardcoded base
- * schedule below; the AI/persistence layer swaps in a user's saved courses +
- * meetings (see `src/lib/schedule-data.ts`). Threading this through the
- * data functions keeps a per-user schedule isolated server-side (no shared
- * module state) while leaving the static call sites working unchanged.
+ * The schedule data a view is built from. Empty by default; the AI/persistence
+ * layer swaps in a user's saved courses + meetings (see
+ * `src/lib/schedule-data.ts`). Threading this through the data functions keeps
+ * a per-user schedule isolated server-side (no shared module state) while
+ * leaving the static call sites working unchanged.
  */
 export type ScheduleData = {
   courses: Course[];
@@ -89,12 +82,10 @@ function makeStubCourse(id: string): Course {
   };
 }
 
-export const MEETINGS: Meeting[] = [];
-
 export const DEFAULT_SCHEDULE: ScheduleData = {
-  courses: COURSES,
-  meetings: MEETINGS,
-  courseById: COURSE_BY_ID,
+  courses: [],
+  meetings: [],
+  courseById: {},
 };
 
 export const BANDS = [
@@ -272,7 +263,7 @@ function utcCivil(year: number, month: number, day: number) {
   return Date.UTC(year, month - 1, day);
 }
 
-export function weekMonday(week: number) {
+function weekMonday(week: number) {
   const base = utcCivil(2026, 9, 7) + (week - 1) * 7 * 86400000;
   const d = new Date(base);
   return {
@@ -324,7 +315,7 @@ export function formatShortDate(week: number, day: DayKey): string {
   return `${d.day} ${MONTHS[d.month - 1]}`;
 }
 
-export function mergeMeetings(
+function mergeMeetings(
   meetings: Meeting[],
   data: ScheduleData = DEFAULT_SCHEDULE,
 ): Block[] {
@@ -381,7 +372,7 @@ export function mergeMeetings(
   });
 }
 
-export function meetingsInWeek(
+function meetingsInWeek(
   week: number,
   data: ScheduleData = DEFAULT_SCHEDULE,
 ): Meeting[] {

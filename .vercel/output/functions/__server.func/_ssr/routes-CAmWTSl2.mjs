@@ -5,17 +5,17 @@ import { i as signOut, t as authClient } from "./client-CVqXY6bk.mjs";
 import { _ as Link, v as useNavigate } from "../_libs/@tanstack/react-router+[...].mjs";
 import { n as require_jsx_runtime } from "../_libs/radix-ui__react-context+react.mjs";
 import { a as getServerFnById, i as TSS_SERVER_FUNCTION, r as createServerFn } from "./ssr.mjs";
-import { a as hasGateSessionMarker } from "./server-BGzN9ETo.mjs";
-import { C as formatDuration, D as maxWeekLoad, E as holidayName, F as shanghaiParts, I as termWeekFromDate, L as toMinutes, M as sectionsForTime, N as sectionsLabel, O as nextUp, P as serializeWeek, R as weekHasClasses, S as firstBusyDay, T as formatWeekRange, _ as courseMeetings, a as TERM, b as durationMinutes, c as blocksForWeek, d as buildScheduleData, f as clampWeek, g as courseHours, h as compressWeeks, i as DEFAULT_SCHEDULE, m as commuteDays, n as DAYS, o as bandOf, p as commuteCopy, r as DAY_LABEL, s as bandPosition, t as BANDS, v as dateOf, w as formatShortDate, x as expandWeeks, y as defaultWeek, z as weekLoad } from "./schedule-ai-owSWeblb.mjs";
+import { a as hasGateSessionMarker } from "./server-05qNg1Dj.mjs";
+import { C as formatDuration, D as maxWeekLoad, E as holidayName, F as shanghaiParts, I as termWeekFromDate, L as toMinutes, M as sectionsForTime, N as sectionsLabel, O as nextUp, P as serializeWeek, R as weekHasClasses, S as firstBusyDay, T as formatWeekRange, _ as courseMeetings, a as TERM, b as durationMinutes, c as blocksForWeek, d as buildScheduleData, f as clampWeek, g as courseHours, h as compressWeeks, i as DEFAULT_SCHEDULE, m as commuteDays, n as DAYS, o as bandOf, p as commuteCopy, r as DAY_LABEL, s as bandPosition, t as BANDS, v as dateOf, w as formatShortDate, x as expandWeeks, y as defaultWeek, z as weekLoad } from "./schedule-ai-UYQHUZYf.mjs";
 import { S as ArrowRight, _ as GraduationCap, a as Sparkles, b as ChevronRight, c as RotateCcw, d as Pencil, f as Mic, g as LoaderCircle, h as MapPin, i as Trash2, l as Printer, m as MessageCircleQuestion, n as Users, o as Smartphone, p as MicOff, s as Share2, t as X, u as Plus, v as Download, x as ChevronLeft, y as Clock } from "../_libs/lucide-react.mjs";
-import { n as Route$3 } from "./router-CUcMUQnH.mjs";
-import { t as authMiddleware } from "./middleware-BWLq4NPP.mjs";
+import { n as Route$3 } from "./router-CxNO-Z53.mjs";
+import { t as authMiddleware } from "./middleware-9I338-o_.mjs";
 import { n as toast, t as Toaster } from "../_libs/sonner.mjs";
 import { _ as Slot, a as DialogOverlay$1, c as DialogTrigger$1, i as DialogDescription$1, n as DialogClose, o as DialogPortal$1, r as DialogContent$1, s as DialogTitle$1, t as Dialog$1 } from "../_libs/@radix-ui/react-dialog+[...].mjs";
 import { n as clsx, t as cva } from "../_libs/class-variance-authority+clsx.mjs";
 import { t as twMerge } from "../_libs/tailwind-merge.mjs";
 import { a as Trigger, i as Root3, n as Portal, r as Provider, t as Content2 } from "../_libs/@radix-ui/react-tooltip+[...].mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/routes-5Z4AEzrd.js
+//#region node_modules/.nitro/vite/services/ssr/assets/routes-CAmWTSl2.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function cn(...inputs) {
@@ -89,6 +89,88 @@ function DialogDescription({ className, ...props }) {
 }
 function DialogTrigger({ ...props }) {
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogTrigger$1, { ...props });
+}
+/** Read-only summary of an AI-drafted schedule, shown before it's applied. */
+function PreviewCard({ schedule, summary }) {
+	const byDay = /* @__PURE__ */ new Map();
+	for (const m of schedule.meetings) {
+		const list = byDay.get(m.day) ?? [];
+		list.push(m);
+		byDay.set(m.day, list);
+	}
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+		className: "rounded-md border border-line bg-paper-elevated p-4 shadow-[var(--shadow-border)]",
+		children: [
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+				className: "text-sm font-medium text-ink",
+				children: summary
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
+				className: "mt-1 text-xs text-ink-muted",
+				children: [
+					schedule.courses.length,
+					" courses · ",
+					schedule.meetings.length,
+					" meetings"
+				]
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+				className: "mt-3 max-h-64 overflow-y-auto pr-1",
+				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", {
+					className: "flex flex-col gap-2",
+					children: [
+						"Mon",
+						"Tue",
+						"Wed",
+						"Thu",
+						"Fri"
+					].map((d) => {
+						const list = (byDay.get(d) ?? []).slice().sort((a, b) => a.start.localeCompare(b.start));
+						if (list.length === 0) return null;
+						return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", {
+							className: "flex flex-col gap-1",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+								className: "text-xs font-medium tracking-wide text-ink-muted uppercase",
+								children: DAY_LABEL[d]
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", {
+								className: "flex flex-col gap-1 pl-3",
+								children: list.map((m) => {
+									const course = schedule.courseById[m.courseId];
+									return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", {
+										className: "flex items-baseline gap-2 text-xs text-ink",
+										children: [
+											/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+												className: "tabular-nums text-ink-muted",
+												children: [
+													m.start,
+													"–",
+													m.end
+												]
+											}),
+											/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+												className: "font-medium",
+												children: course?.short ?? m.courseId
+											}),
+											/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+												className: "text-ink-faint",
+												children: [
+													m.campus,
+													" ",
+													m.room,
+													" · wks ",
+													m.weeksLabel
+												]
+											})
+										]
+									}, m.id);
+								})
+							})]
+						}, d);
+					})
+				})
+			})
+		]
+	});
 }
 var APP_VERSION = "1.3.0";
 var APK_FILENAME = `kebiao-${APP_VERSION}.apk`;
@@ -233,7 +315,7 @@ function AiUpdatePanel({ schedule, onApply, onReset }) {
 			if (!result.ok) setError(result.error);
 			else if (result.kind === "answer") setAnswer(result.answer);
 			else {
-				setPreview(buildPreview(result.schedule));
+				setPreview(buildScheduleData(result.schedule.courses, result.schedule.meetings));
 				setSummary(result.summary);
 			}
 		} catch {
@@ -384,97 +466,6 @@ function ModeButton({ active, onClick, label, hint }) {
 		title: hint,
 		className: cn("flex-1 cursor-pointer rounded-sm px-3 py-2 text-sm font-medium transition-colors duration-150", active ? "bg-seal text-white shadow-[var(--shadow-seal)]" : "text-ink-muted hover:text-ink"),
 		children: label
-	});
-}
-/** Rebuild ScheduleData (with courseById) from the API's plain arrays. */
-function buildPreview(raw) {
-	const courseById = {};
-	for (const c of raw.courses) courseById[c.id] = c;
-	return {
-		courses: raw.courses,
-		meetings: raw.meetings,
-		courseById
-	};
-}
-function PreviewCard({ schedule, summary }) {
-	const byDay = /* @__PURE__ */ new Map();
-	for (const m of schedule.meetings) {
-		const list = byDay.get(m.day) ?? [];
-		list.push(m);
-		byDay.set(m.day, list);
-	}
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-		className: "rounded-md border border-line bg-paper-elevated p-4 shadow-[var(--shadow-border)]",
-		children: [
-			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-				className: "text-sm font-medium text-ink",
-				children: summary
-			}),
-			/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
-				className: "mt-1 text-xs text-ink-muted",
-				children: [
-					schedule.courses.length,
-					" courses · ",
-					schedule.meetings.length,
-					" meetings"
-				]
-			}),
-			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-				className: "mt-3 max-h-64 overflow-y-auto pr-1",
-				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", {
-					className: "flex flex-col gap-2",
-					children: [
-						"Mon",
-						"Tue",
-						"Wed",
-						"Thu",
-						"Fri"
-					].map((d) => {
-						const list = (byDay.get(d) ?? []).slice().sort((a, b) => a.start.localeCompare(b.start));
-						if (list.length === 0) return null;
-						return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", {
-							className: "flex flex-col gap-1",
-							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-								className: "text-xs font-medium tracking-wide text-ink-muted uppercase",
-								children: DAY_LABEL[d]
-							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", {
-								className: "flex flex-col gap-1 pl-3",
-								children: list.map((m) => {
-									const course = schedule.courseById[m.courseId];
-									return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", {
-										className: "flex items-baseline gap-2 text-xs text-ink",
-										children: [
-											/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-												className: "tabular-nums text-ink-muted",
-												children: [
-													m.start,
-													"–",
-													m.end
-												]
-											}),
-											/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-												className: "font-medium",
-												children: course?.short ?? m.courseId
-											}),
-											/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-												className: "text-ink-faint",
-												children: [
-													m.campus,
-													" ",
-													m.room,
-													" · wks ",
-													m.weeksLabel
-												]
-											})
-										]
-									}, m.id);
-								})
-							})]
-						}, d);
-					})
-				})
-			})
-		]
 	});
 }
 var SEEN_KEY = "my-schedule-seen-version";
@@ -1540,6 +1531,15 @@ function useCurrentUser() {
 var subscribeToNothing = () => () => {};
 var noGateSessionOnServer = () => false;
 /**
+* Auth state components — plain wrappers around `useCurrentUserState()`.
+*
+* With auth on, visitors are signed out until they authenticate — in the sandbox
+* live preview too, which does real sign-in. The shared dev user appears only
+* when auth is disabled (`VITE_AUTH_ENABLED=false`, the shipped default).
+* While the session is still resolving, gates that care about signed-out state
+* render nothing so there's no signed-out flash on hard reload.
+*/
+/**
 * Render children only once we KNOW the visitor is signed out (`isPending` has
 * cleared and there is no user). Hidden while the session is still loading.
 */
@@ -1753,7 +1753,7 @@ function ScheduleApp({ weekParam }) {
 	const navigate = useNavigate({ from: "/" });
 	const { user, isPending: sessionPending } = useCurrentUserState();
 	const canSync = user !== null;
-	const isApk = typeof window !== "undefined" && window.location.hostname === "appassets.androidplatform.net";
+	const isApk = isApkRuntime();
 	const [schedule, setSchedule] = (0, import_react.useState)(null);
 	const [mounted, setMounted] = (0, import_react.useState)(false);
 	const [onboarded, setOnboarded] = (0, import_react.useState)(true);
@@ -1848,6 +1848,14 @@ function ScheduleApp({ weekParam }) {
 		day,
 		schedule
 	]);
+	const goWeek = (0, import_react.useCallback)((next) => {
+		const w = clampWeek(next);
+		setWeekState(w);
+		navigate({
+			search: { week: w },
+			replace: true
+		});
+	}, [navigate]);
 	(0, import_react.useEffect)(() => {
 		function onKey(event) {
 			const target = event.target;
@@ -1863,15 +1871,7 @@ function ScheduleApp({ weekParam }) {
 		}
 		window.addEventListener("keydown", onKey);
 		return () => window.removeEventListener("keydown", onKey);
-	}, [week]);
-	function goWeek(next) {
-		const w = clampWeek(next);
-		setWeekState(w);
-		navigate({
-			search: { week: w },
-			replace: true
-		});
-	}
+	}, [week, goWeek]);
 	async function shareWeek() {
 		if (!schedule) return;
 		const text = serializeWeek(week, schedule);

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, Link } from "@tanstack/react-router";
 import { ChevronLeft, ChevronRight, Plus, Printer, Share2 } from "lucide-react";
 import { toast, Toaster } from "sonner";
@@ -15,6 +15,7 @@ import { WeekGrid } from "@/components/week-grid";
 import { UserButton, SignedOut } from "@/lib/auth/gates";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { authEnabled } from "@/lib/auth/client";
+import { isApkRuntime } from "@/lib/ai-client";
 import { buildScheduleData } from "@/lib/schedule-ai";
 import {
   applySchedule,
@@ -65,9 +66,7 @@ export function ScheduleApp({ weekParam }: ScheduleAppProps) {
   const canSync = user !== null;
   // The Android wrapper serves the bundle from app assets — no server exists,
   // so auth and sync controls are pointless there.
-  const isApk =
-    typeof window !== "undefined" &&
-    window.location.hostname === "appassets.androidplatform.net";
+  const isApk = isApkRuntime();
 
   // Local-first: the schedule renders from this device's localStorage, then
   // converges with the cloud copy when signed in on the hosted app.
@@ -178,6 +177,15 @@ export function ScheduleApp({ weekParam }: ScheduleAppProps) {
     }
   }, [week, blocks, day, schedule]);
 
+  const goWeek = useCallback(
+    (next: number) => {
+      const w = clampWeek(next);
+      setWeekState(w);
+      void navigate({ search: { week: w }, replace: true });
+    },
+    [navigate],
+  );
+
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
       const target = event.target as HTMLElement | null;
@@ -195,13 +203,7 @@ export function ScheduleApp({ weekParam }: ScheduleAppProps) {
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [week]);
-
-  function goWeek(next: number) {
-    const w = clampWeek(next);
-    setWeekState(w);
-    void navigate({ search: { week: w }, replace: true });
-  }
+  }, [week, goWeek]);
 
   async function shareWeek() {
     if (!schedule) return;

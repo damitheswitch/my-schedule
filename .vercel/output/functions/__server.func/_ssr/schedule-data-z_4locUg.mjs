@@ -1,8 +1,8 @@
 import { D as _enum, F as object, P as number, R as string, k as array } from "../_libs/@better-auth/core+[...].mjs";
 import { i as TSS_SERVER_FUNCTION, r as createServerFn } from "./ssr.mjs";
-import { d as buildScheduleData } from "./schedule-ai-owSWeblb.mjs";
-import { t as authMiddleware } from "./middleware-BWLq4NPP.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/schedule-data-BDP3VXuR.js
+import { d as buildScheduleData } from "./schedule-ai-UYQHUZYf.mjs";
+import { t as authMiddleware } from "./middleware-9I338-o_.mjs";
+//#region node_modules/.nitro/vite/services/ssr/assets/schedule-data-z_4locUg.js
 var createServerRpc = (serverFnMeta, splitImportFn) => {
 	const url = "/_serverFn/" + serverFnMeta.id;
 	return Object.assign(splitImportFn, {

@@ -4,10 +4,10 @@ import { B as unknown, D as _enum, F as object, L as record, M as literal, P as 
 import { u as require_react } from "../_libs/@floating-ui/react-dom+[...].mjs";
 import { f as createRouter, g as createRootRoute, h as createFileRoute, l as Scripts, m as lazyRouteComponent, p as Outlet, u as HeadContent, y as useRouter } from "../_libs/@tanstack/react-router+[...].mjs";
 import { n as require_jsx_runtime } from "../_libs/radix-ui__react-context+react.mjs";
-import { n as auth } from "./server-BGzN9ETo.mjs";
-import { A as normalizeAskOutput, f as clampWeek, j as requestCompletion, k as normalizeAiOutput, l as buildAskMessages, u as buildParseMessages } from "./schedule-ai-owSWeblb.mjs";
+import { n as auth } from "./server-05qNg1Dj.mjs";
+import { A as normalizeAskOutput, f as clampWeek, j as requestCompletion, k as normalizeAiOutput, l as buildAskMessages, u as buildParseMessages } from "./schedule-ai-UYQHUZYf.mjs";
 import { r as TriangleAlert } from "../_libs/lucide-react.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/router-CUcMUQnH.js
+//#region node_modules/.nitro/vite/services/ssr/assets/router-CxNO-Z53.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var FALLBACK_MESSAGE = "An unexpected error occurred. Try reloading the page.";
@@ -52,7 +52,6 @@ function AppErrorComponent({ error }) {
 function AuthProvider({ children }) {
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, { children });
 }
-var CONNECTOR_TOKEN_READY_EVENT = "grok:connector-token-ready";
 function isGrokEmbedderOrigin(origin) {
 	try {
 		const url = new URL(origin);
@@ -96,6 +95,8 @@ function resolveParentEmbedderOrigin(parentIsSelf, referrer, ancestorOrigin, gue
 * Top-level runs (download/export, local `npm run dev`, deployed sites) noop.
 */
 var PREVIEW_BRIDGE_CHANNEL = "grok-preview-bridge";
+/** Browser event re-dispatched when the host signals a connector token landed. */
+var CONNECTOR_TOKEN_READY_EVENT = "grok:connector-token-ready";
 var EnvelopeSchema = object({
 	channel: literal(PREVIEW_BRIDGE_CHANNEL),
 	version: number().int().positive(),
@@ -301,7 +302,7 @@ function PreviewHostBridge() {
 	}, [router]);
 	return null;
 }
-var styles_default = "/assets/styles-HmnMKDII.css";
+var styles_default = "/assets/styles-CWYlDnj0.css";
 var APP_NAME = "Kebiao";
 var Route$4 = createRootRoute({
 	head: () => ({
@@ -365,7 +366,7 @@ var Route$4 = createRootRoute({
 		] })]
 	})
 });
-var $$splitComponentImporter$1 = () => import("./routes-5Z4AEzrd.mjs");
+var $$splitComponentImporter$1 = () => import("./routes-CAmWTSl2.mjs");
 var Route$3 = createFileRoute("/")({
 	validateSearch: (search) => {
 		const raw = Number(search.week);
@@ -374,7 +375,7 @@ var Route$3 = createFileRoute("/")({
 	},
 	component: lazyRouteComponent($$splitComponentImporter$1, "component")
 });
-var $$splitComponentImporter = () => import("./login-CAA27Knr.mjs");
+var $$splitComponentImporter = () => import("./login-BzHnvjwQ.mjs");
 var Route$2 = createFileRoute("/login")({ component: lazyRouteComponent($$splitComponentImporter, "component") });
 /**
 * Public AI endpoint — POST /api/ai.
