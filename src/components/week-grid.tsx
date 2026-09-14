@@ -15,6 +15,7 @@ import {
   type Band,
   type Block,
   type DayKey,
+  type ScheduleData,
 } from "@/lib/schedule";
 import { cn } from "@/lib/utils";
 
@@ -29,16 +30,17 @@ type WeekGridProps = {
   blocks: Block[];
   focusCourseId: string | null;
   onSelect: (block: Block) => void;
+  schedule: ScheduleData;
 };
 
-export function WeekGrid({ week, blocks, focusCourseId, onSelect }: WeekGridProps) {
+export function WeekGrid({ week, blocks, focusCourseId, onSelect, schedule }: WeekGridProps) {
   const now = shanghaiParts();
   const currentWeek = termWeekFromDate();
   const isCurrentWeek = currentWeek === week;
   const today = isCurrentWeek && DAYS.includes(now.weekday as DayKey)
     ? (now.weekday as DayKey)
     : null;
-  const commute = new Set(commuteDays(week));
+  const commute = new Set(commuteDays(week, schedule));
   const nowMins = now.hour * 60 + now.minute;
 
   return (

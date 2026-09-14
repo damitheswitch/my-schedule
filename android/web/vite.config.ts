@@ -18,7 +18,17 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   base: "./",
   resolve: {
-    alias: { "@": appSrc },
+    // Ordered: the specific stub must win over the `@` -> appSrc catch-all.
+    alias: [
+      // The APK has no server — swap the server-function module for a stub so
+      // `@/lib/db`, the auth middleware and other server-only code never reach
+      // the WebView bundle.
+      {
+        find: "@/lib/schedule-data",
+        replacement: resolve(here, "src/schedule-data-stub.ts"),
+      },
+      { find: "@", replacement: appSrc },
+    ],
     // The app sources live outside this project; dedupe so every file shares
     // one copy of React and the router instead of resolving into
     // my-schedule/node_modules a second time.

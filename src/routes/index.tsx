@@ -15,6 +15,8 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
+// The schedule is local-first (localStorage) so it renders for everyone —
+// signed-out visitors, the APK WebView — and sign-in only adds cloud sync.
 function Home() {
   const { week } = Route.useSearch();
   return <ScheduleApp weekParam={week} />;

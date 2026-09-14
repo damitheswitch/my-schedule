@@ -10,6 +10,7 @@ import {
   sectionsLabel,
   type Block,
   type DayKey,
+  type ScheduleData,
 } from "@/lib/schedule";
 import { cn } from "@/lib/utils";
 
@@ -20,6 +21,7 @@ type DayAgendaProps = {
   focusCourseId: string | null;
   onSelect: (block: Block) => void;
   onDayChange: (day: DayKey) => void;
+  schedule: ScheduleData;
 };
 
 export function DayAgenda({
@@ -29,11 +31,12 @@ export function DayAgenda({
   focusCourseId,
   onSelect,
   onDayChange,
+  schedule,
 }: DayAgendaProps) {
   const dayBlocks = blocks.filter((b) => b.day === day);
   const date = dateOf(week, day);
   const holiday = holidayName(date.iso);
-  const commute = commuteCopy(week, day);
+  const commute = commuteCopy(week, day, schedule);
   const busyDays = new Set(blocks.map((b) => b.day));
 
   return (

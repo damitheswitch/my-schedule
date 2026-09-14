@@ -84,4 +84,10 @@ function DialogDescription({
   );
 }
 
-export { Dialog, DialogContent, DialogTitle, DialogDescription };
+function DialogTrigger({
+  ...props
+}: React.ComponentProps<typeof DialogPrimitive.Trigger>) {
+  return <DialogPrimitive.Trigger {...props} />;
+}
+
+export { Dialog, DialogContent, DialogTitle, DialogDescription, DialogTrigger };

@@ -28,3 +28,17 @@ on any Android 8.0+ device.
 The Vite config resolves app sources from a sibling `../my-schedule` checkout
 (or `../src` when this folder lives inside the my-schedule repo on the
 `android-apk` branch).
+
+## No server, no sign-in
+
+The APK bundles the client only. `web/vite.config.ts` aliases
+`@/lib/schedule-data` to `web/src/schedule-data-stub.ts` so server functions,
+`@/lib/db` and the auth middleware never reach the WebView bundle. Consequences:
+
+- The schedule lives in the WebView's `localStorage` — edits persist on-device
+  but do not sync to the hosted app's database.
+- "AI update" skips the server-side call and asks for your own xAI API key
+  (stored on-device), calling `api.x.ai` directly. On the hosted site the
+  built-in key is used instead when signed in.
+- Sign-in controls are hidden — the app detects the
+  `appassets.androidplatform.net` origin.

@@ -1,22 +1,34 @@
-import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate, Link } from "@tanstack/react-router";
 import { ChevronLeft, ChevronRight, Printer, Share2 } from "lucide-react";
 import { toast, Toaster } from "sonner";
+import { AiUpdatePanel } from "@/components/ai-update-panel";
+import { AppInfo } from "@/components/app-info";
 import { DayAgenda } from "@/components/day-agenda";
 import { MeetingPanel } from "@/components/meeting-panel";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { WeekGrid } from "@/components/week-grid";
+import { UserButton, SignedOut } from "@/lib/auth/gates";
+import { useCurrentUserState } from "@/lib/auth/use-current-user";
+import { authEnabled } from "@/lib/auth/client";
+import { buildScheduleData } from "@/lib/schedule-ai";
 import {
-  COURSES,
+  applySchedule,
+  BASE_SCHEDULE,
+  readLocalSchedule,
+  resetScheduleEverywhere,
+  syncSchedule,
+} from "@/lib/schedule-store";
+import {
   DAYS,
   TERM,
-  TOTAL_CREDITS,
   blocksForWeek,
   clampWeek,
   commuteDays,
   courseMeetings,
   defaultWeek,
+  DEFAULT_SCHEDULE,
   DAY_LABEL,
   firstBusyDay,
   formatDuration,
@@ -29,7 +41,10 @@ import {
   weekHasClasses,
   maxWeekLoad,
   type Block,
+  type Course,
   type DayKey,
+  type Meeting,
+  type ScheduleData,
 } from "@/lib/schedule";
 import { cn } from "@/lib/utils";
 
@@ -39,22 +54,91 @@ type ScheduleAppProps = {
 
 export function ScheduleApp({ weekParam }: ScheduleAppProps) {
   const navigate = useNavigate({ from: "/" });
-  const liveWeek = defaultWeek();
+  const { user, isPending: sessionPending } = useCurrentUserState();
+  // Any resolved user can sync — the signed-in user on the hosted app, or the
+  // shared dev user when auth is off locally. Signed-out visitors stay local.
+  const canSync = user !== null;
+  // The Android wrapper serves the bundle from app assets — no server exists,
+  // so auth and sync controls are pointless there.
+  const isApk =
+    typeof window !== "undefined" &&
+    window.location.hostname === "appassets.androidplatform.net";
+
+  // Local-first: the schedule renders from this device's localStorage, then
+  // converges with the cloud copy when signed in on the hosted app.
+  const [schedule, setSchedule] = useState<ScheduleData | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const local = readLocalSchedule() ?? BASE_SCHEDULE;
+    setSchedule(buildScheduleData(local.courses, local.meetings));
+    setMounted(true);
+  }, []);
+
+  // Once the session resolves, reconcile localStorage with the cloud copy —
+  // newest wins, written back to the stale side. No-op offline / on the APK.
+  useEffect(() => {
+    if (!mounted || sessionPending) return;
+    let cancelled = false;
+    void syncSchedule(canSync).then((win) => {
+      if (!cancelled) setSchedule(buildScheduleData(win.courses, win.meetings));
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [mounted, sessionPending, canSync]);
+
+  const liveWeek = defaultWeek(undefined, schedule ?? DEFAULT_SCHEDULE);
   const [week, setWeekState] = useState(() => weekParam ?? liveWeek);
   const [focusCourseId, setFocusCourseId] = useState<string | null>(null);
   const [selected, setSelected] = useState<Block | null>(null);
   const [day, setDay] = useState<DayKey>(() => {
     const parts = shanghaiParts();
     if (DAYS.includes(parts.weekday as DayKey)) return parts.weekday as DayKey;
-    return firstBusyDay(weekParam ?? liveWeek);
+    return firstBusyDay(weekParam ?? liveWeek, DEFAULT_SCHEDULE);
   });
+  // After the real schedule loads, re-derive week/day once (stored schedules
+  // can be busier on different weeks than the built-in base).
+  const initialized = useRef(false);
+  useEffect(() => {
+    if (!schedule || initialized.current) return;
+    initialized.current = true;
+    if (weekParam === undefined) {
+      const w = defaultWeek(undefined, schedule);
+      setWeekState(w);
+      const parts = shanghaiParts();
+      setDay(DAYS.includes(parts.weekday as DayKey) ? (parts.weekday as DayKey) : firstBusyDay(w, schedule));
+    }
+  }, [schedule, weekParam]);
 
-  const blocks = useMemo(() => blocksForWeek(week), [week]);
-  const load = weekLoad(week);
-  const commutes = commuteDays(week);
-  const upcoming = nextUp();
+  const blocks = useMemo(
+    () => (schedule ? blocksForWeek(week, schedule) : []),
+    [week, schedule],
+  );
+  const load = schedule ? weekLoad(week, schedule) : { south: 0, north: 0, total: 0, count: 0 };
+  const commutes = schedule ? commuteDays(week, schedule) : [];
+  const upcoming = schedule ? nextUp(undefined, schedule) : null;
   const currentTermWeek = termWeekFromDate();
-  const peak = maxWeekLoad();
+  const peak = schedule ? maxWeekLoad(schedule) : 1;
+  const totalCredits = schedule
+    ? schedule.courses.reduce((sum, c) => sum + c.credits, 0)
+    : 0;
+
+  async function handleApply(courses: Course[], meetings: Meeting[]) {
+    const next = await applySchedule(courses, meetings, canSync);
+    setSchedule(next);
+    setFocusCourseId(null);
+    setSelected(null);
+    toast("Schedule updated");
+  }
+
+  async function handleReset() {
+    const next = await resetScheduleEverywhere(canSync);
+    setSchedule(next);
+    setFocusCourseId(null);
+    setSelected(null);
+    toast("Back to the original schedule");
+  }
 
   useEffect(() => {
     if (weekParam !== undefined && weekParam !== week) {
@@ -71,10 +155,10 @@ export function ScheduleApp({ weekParam }: ScheduleAppProps) {
   }, []);
 
   useEffect(() => {
-    if (!blocks.some((b) => b.day === day)) {
-      setDay(firstBusyDay(week));
+    if (schedule && !blocks.some((b) => b.day === day)) {
+      setDay(firstBusyDay(week, schedule));
     }
-  }, [week, blocks, day]);
+  }, [week, blocks, day, schedule]);
 
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
@@ -102,7 +186,8 @@ export function ScheduleApp({ weekParam }: ScheduleAppProps) {
   }
 
   async function shareWeek() {
-    const text = serializeWeek(week);
+    if (!schedule) return;
+    const text = serializeWeek(week, schedule);
     const url = window.location.href;
     if (navigator.share) {
       try {
@@ -120,6 +205,14 @@ export function ScheduleApp({ weekParam }: ScheduleAppProps) {
     toast("This week copied — send it to anyone");
   }
 
+  if (!mounted || !schedule) {
+    return (
+      <div className="grid min-h-dvh place-items-center bg-paper text-ink-muted">
+        <p className="text-sm">Loading your schedule…</p>
+      </div>
+    );
+  }
+
   return (
     <TooltipProvider>
       <Toaster
@@ -134,7 +227,7 @@ export function ScheduleApp({ weekParam }: ScheduleAppProps) {
           <header className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <p className="text-xs font-medium tracking-[0.18em] text-ink-muted uppercase">
-                {TERM.label} · {TOTAL_CREDITS} credits · {COURSES.length} courses
+                {TERM.label} · {totalCredits} credits · {schedule.courses.length} courses
               </p>
               <h1 className="mt-2 font-serif text-4xl leading-none sm:text-5xl">
                 North{" "}
@@ -151,6 +244,12 @@ export function ScheduleApp({ weekParam }: ScheduleAppProps) {
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2 no-print">
+              <AiUpdatePanel
+                schedule={schedule}
+                canSync={canSync}
+                onApply={handleApply}
+                onReset={handleReset}
+              />
               <Button variant="outline" onClick={() => void shareWeek()}>
                 <Share2 className="size-4" />
                 Share week
@@ -159,6 +258,18 @@ export function ScheduleApp({ weekParam }: ScheduleAppProps) {
                 <Printer className="size-4" />
                 Print
               </Button>
+              <AppInfo isApk={isApk} />
+              <UserButton />
+              <SignedOut>
+                {authEnabled && !isApk ? (
+                  <Link
+                    to="/login"
+                    className="text-sm font-medium text-ink-muted underline-offset-4 hover:text-ink hover:underline"
+                  >
+                    Sign in to sync
+                  </Link>
+                ) : null}
+              </SignedOut>
             </div>
           </header>
 
@@ -215,7 +326,7 @@ export function ScheduleApp({ weekParam }: ScheduleAppProps) {
               </div>
             </div>
 
-            <Heatmap week={week} peak={peak} currentTermWeek={currentTermWeek} onSelect={goWeek} />
+            <Heatmap week={week} peak={peak} currentTermWeek={currentTermWeek} onSelect={goWeek} schedule={schedule} />
 
             {currentTermWeek !== null && currentTermWeek !== week ? (
               <p className="text-sm text-ink-muted">
@@ -238,7 +349,7 @@ export function ScheduleApp({ weekParam }: ScheduleAppProps) {
               </p>
             ) : null}
 
-            {!weekHasClasses(week) ? (
+            {!weekHasClasses(week, schedule) ? (
               <p className="rounded-md bg-paper-elevated px-4 py-3 text-sm text-ink-muted shadow-[var(--shadow-border)]">
                 No classes this week.
                 {week < TERM.weeks ? (
@@ -260,6 +371,7 @@ export function ScheduleApp({ weekParam }: ScheduleAppProps) {
               blocks={blocks}
               focusCourseId={focusCourseId}
               onSelect={setSelected}
+              schedule={schedule}
             />
           </div>
 
@@ -271,6 +383,7 @@ export function ScheduleApp({ weekParam }: ScheduleAppProps) {
               focusCourseId={focusCourseId}
               onSelect={setSelected}
               onDayChange={setDay}
+              schedule={schedule}
             />
           </div>
 
@@ -290,8 +403,8 @@ export function ScheduleApp({ weekParam }: ScheduleAppProps) {
               ) : null}
             </div>
             <ul className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-              {COURSES.map((course) => {
-                const meetings = courseMeetings(course.id);
+              {schedule.courses.map((course) => {
+                const meetings = courseMeetings(course.id, schedule);
                 const campuses = [...new Set(meetings.map((m) => m.campus))];
                 const active = focusCourseId === course.id;
                 const campus = campuses.length === 1 ? campuses[0] : null;
@@ -351,6 +464,7 @@ export function ScheduleApp({ weekParam }: ScheduleAppProps) {
         week={week}
         block={selected}
         open={selected !== null}
+        schedule={schedule}
         onOpenChange={(open) => {
           if (!open) setSelected(null);
         }}
@@ -386,11 +500,13 @@ function Heatmap({
   peak,
   currentTermWeek,
   onSelect,
+  schedule,
 }: {
   week: number;
   peak: number;
   currentTermWeek: number | null;
   onSelect: (week: number) => void;
+  schedule: ScheduleData;
 }) {
   return (
     <div
@@ -399,7 +515,7 @@ function Heatmap({
     >
       {Array.from({ length: TERM.weeks }, (_, i) => {
         const w = i + 1;
-        const load = weekLoad(w);
+        const load = weekLoad(w, schedule);
         const height = Math.max(6, Math.round((load.total / peak) * 44));
         const southH = load.total ? Math.round((load.south / load.total) * height) : 0;
         const northH = height - southH;

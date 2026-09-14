@@ -8,6 +8,7 @@ import {
   formatDuration,
   sectionsLabel,
   type Block,
+  type ScheduleData,
 } from "@/lib/schedule";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
@@ -16,13 +17,14 @@ type MeetingPanelProps = {
   week: number;
   block: Block | null;
   open: boolean;
+  schedule: ScheduleData;
   onOpenChange: (open: boolean) => void;
 };
 
-export function MeetingPanel({ week, block, open, onOpenChange }: MeetingPanelProps) {
+export function MeetingPanel({ week, block, open, schedule, onOpenChange }: MeetingPanelProps) {
   const course = block?.course;
-  const hours = course ? courseHours(course.id) : 0;
-  const others = course ? courseMeetings(course.id) : [];
+  const hours = course ? courseHours(course.id, schedule) : 0;
+  const others = course ? courseMeetings(course.id, schedule) : [];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

@@ -130,6 +130,31 @@ export const COURSE_BY_ID: Record<string, Course> = Object.fromEntries(
 
 export const TOTAL_CREDITS = COURSES.reduce((sum, c) => sum + c.credits, 0);
 
+/**
+ * The schedule data a view is built from. Defaults to the hardcoded base
+ * schedule below; the AI/persistence layer swaps in a user's saved courses +
+ * meetings (see `src/lib/schedule-data.ts`). Threading this through the
+ * data functions keeps a per-user schedule isolated server-side (no shared
+ * module state) while leaving the static call sites working unchanged.
+ */
+export type ScheduleData = {
+  courses: Course[];
+  meetings: Meeting[];
+  courseById: Record<string, Course>;
+};
+
+/** Fallback course for a meeting whose courseId is missing from the catalog. */
+function makeStubCourse(id: string): Course {
+  return {
+    id,
+    name: id,
+    short: id,
+    code: id,
+    credits: 0,
+    teachers: [],
+  };
+}
+
 export const MEETINGS: Meeting[] = [
   {
     id: "chinese-mon",
@@ -318,6 +343,12 @@ export const MEETINGS: Meeting[] = [
   },
 ];
 
+export const DEFAULT_SCHEDULE: ScheduleData = {
+  courses: COURSES,
+  meetings: MEETINGS,
+  courseById: COURSE_BY_ID,
+};
+
 export const BANDS = [
   { id: "morning", label: "Morning", start: "08:30", end: "12:00" },
   { id: "afternoon", label: "Afternoon", start: "14:00", end: "17:30" },
@@ -487,7 +518,10 @@ export function formatShortDate(week: number, day: DayKey): string {
   return `${d.day} ${MONTHS[d.month - 1]}`;
 }
 
-export function mergeMeetings(meetings: Meeting[]): Block[] {
+export function mergeMeetings(
+  meetings: Meeting[],
+  data: ScheduleData = DEFAULT_SCHEDULE,
+): Block[] {
   const groups = new Map<string, Meeting[]>();
   for (const meeting of meetings) {
     const key = `${meeting.courseId}|${meeting.day}|${meeting.campus}|${meeting.room}`;
@@ -503,7 +537,7 @@ export function mergeMeetings(meetings: Meeting[]): Block[] {
     const flush = () => {
       const first = run[0];
       const last = run[run.length - 1];
-      const course = COURSE_BY_ID[first.courseId];
+      const course = data.courseById[first.courseId] ?? makeStubCourse(first.courseId);
       const flags = (["biweekly", "once"] as MeetingFlag[]).filter((flag) =>
         run.every((m) => m.flag === flag),
       );
@@ -541,20 +575,29 @@ export function mergeMeetings(meetings: Meeting[]): Block[] {
   });
 }
 
-export function meetingsInWeek(week: number): Meeting[] {
-  return MEETINGS.filter((m) => m.weeks.includes(week));
+export function meetingsInWeek(
+  week: number,
+  data: ScheduleData = DEFAULT_SCHEDULE,
+): Meeting[] {
+  return data.meetings.filter((m) => m.weeks.includes(week));
 }
 
-export function blocksForWeek(week: number): Block[] {
-  return mergeMeetings(meetingsInWeek(week));
+export function blocksForWeek(
+  week: number,
+  data: ScheduleData = DEFAULT_SCHEDULE,
+): Block[] {
+  return mergeMeetings(meetingsInWeek(week, data), data);
 }
 
-export function weekHasClasses(week: number): boolean {
-  return MEETINGS.some((m) => m.weeks.includes(week));
+export function weekHasClasses(
+  week: number,
+  data: ScheduleData = DEFAULT_SCHEDULE,
+): boolean {
+  return data.meetings.some((m) => m.weeks.includes(week));
 }
 
-export function weekLoad(week: number) {
-  const blocks = blocksForWeek(week);
+export function weekLoad(week: number, data: ScheduleData = DEFAULT_SCHEDULE) {
+  const blocks = blocksForWeek(week, data);
   let south = 0;
   let north = 0;
   for (const block of blocks) {
@@ -565,17 +608,17 @@ export function weekLoad(week: number) {
   return { south, north, total: south + north, count: blocks.length };
 }
 
-export function maxWeekLoad(): number {
+export function maxWeekLoad(data: ScheduleData = DEFAULT_SCHEDULE): number {
   let max = 1;
   for (let w = 1; w <= TERM.weeks; w += 1) {
-    max = Math.max(max, weekLoad(w).total);
+    max = Math.max(max, weekLoad(w, data).total);
   }
   return max;
 }
 
-export function commuteDays(week: number): DayKey[] {
+export function commuteDays(week: number, data: ScheduleData = DEFAULT_SCHEDULE): DayKey[] {
   const byDay = new Map<DayKey, Set<Campus>>();
-  for (const block of blocksForWeek(week)) {
+  for (const block of blocksForWeek(week, data)) {
     const set = byDay.get(block.day) ?? new Set<Campus>();
     set.add(block.campus);
     byDay.set(block.day, set);
@@ -583,8 +626,12 @@ export function commuteDays(week: number): DayKey[] {
   return DAYS.filter((day) => (byDay.get(day)?.size ?? 0) > 1);
 }
 
-export function commuteCopy(week: number, day: DayKey): string | null {
-  const blocks = blocksForWeek(week).filter((b) => b.day === day);
+export function commuteCopy(
+  week: number,
+  day: DayKey,
+  data: ScheduleData = DEFAULT_SCHEDULE,
+): string | null {
+  const blocks = blocksForWeek(week, data).filter((b) => b.day === day);
   const campuses = new Set(blocks.map((b) => b.campus));
   if (campuses.size < 2) return null;
   const first = [...blocks].sort((a, b) => toMinutes(a.start) - toMinutes(b.start))[0];
@@ -592,20 +639,20 @@ export function commuteCopy(week: number, day: DayKey): string | null {
   return `${DAY_LABEL[day]} starts on ${first.campus}, then ${later}`;
 }
 
-export function firstBusyDay(week: number): DayKey {
-  const blocks = blocksForWeek(week);
+export function firstBusyDay(week: number, data: ScheduleData = DEFAULT_SCHEDULE): DayKey {
+  const blocks = blocksForWeek(week, data);
   return blocks[0]?.day ?? "Mon";
 }
 
-export function defaultWeek(date = new Date()): number {
+export function defaultWeek(date = new Date(), data: ScheduleData = DEFAULT_SCHEDULE): number {
   const current = termWeekFromDate(date);
-  if (current && weekHasClasses(current)) return current;
+  if (current && weekHasClasses(current, data)) return current;
   if (current) {
     for (let w = current; w <= TERM.weeks; w += 1) {
-      if (weekHasClasses(w)) return w;
+      if (weekHasClasses(w, data)) return w;
     }
     for (let w = current; w >= 1; w -= 1) {
-      if (weekHasClasses(w)) return w;
+      if (weekHasClasses(w, data)) return w;
     }
   }
   const parts = shanghaiParts(date);
@@ -613,7 +660,7 @@ export function defaultWeek(date = new Date()): number {
   const now = utcCivil(parts.year, parts.month, parts.day);
   if (now < start) {
     for (let w = 1; w <= TERM.weeks; w += 1) {
-      if (weekHasClasses(w)) return w;
+      if (weekHasClasses(w, data)) return w;
     }
   }
   return 2;
@@ -623,7 +670,7 @@ export type NextUp =
   | { status: "now"; block: Block; week: number; ends: string }
   | { status: "later"; block: Block; week: number };
 
-export function nextUp(date = new Date()): NextUp | null {
+export function nextUp(date = new Date(), data: ScheduleData = DEFAULT_SCHEDULE): NextUp | null {
   const parts = shanghaiParts(date);
   const currentWeek = termWeekFromDate(date);
   const nowMins = parts.hour * 60 + parts.minute;
@@ -641,7 +688,7 @@ export function nextUp(date = new Date()): NextUp | null {
   }
 
   for (let week = startWeek; week <= TERM.weeks; week += 1) {
-    const blocks = blocksForWeek(week);
+    const blocks = blocksForWeek(week, data);
     for (const block of blocks) {
       const bDay = DAYS.indexOf(block.day);
       if (week === currentWeek) {
@@ -657,21 +704,21 @@ export function nextUp(date = new Date()): NextUp | null {
   return null;
 }
 
-export function courseHours(courseId: string): number {
+export function courseHours(courseId: string, data: ScheduleData = DEFAULT_SCHEDULE): number {
   let mins = 0;
-  for (const meeting of MEETINGS) {
+  for (const meeting of data.meetings) {
     if (meeting.courseId !== courseId) continue;
     mins += durationMinutes(meeting.start, meeting.end) * meeting.weeks.length;
   }
   return mins;
 }
 
-export function courseMeetings(courseId: string): Meeting[] {
-  return MEETINGS.filter((m) => m.courseId === courseId);
+export function courseMeetings(courseId: string, data: ScheduleData = DEFAULT_SCHEDULE): Meeting[] {
+  return data.meetings.filter((m) => m.courseId === courseId);
 }
 
-export function serializeWeek(week: number): string {
-  const blocks = blocksForWeek(week);
+export function serializeWeek(week: number, data: ScheduleData = DEFAULT_SCHEDULE): string {
+  const blocks = blocksForWeek(week, data);
   const lines = [
     `North & South · ${TERM.label}`,
     `Week ${week} · ${formatWeekRange(week)}`,
@@ -695,7 +742,7 @@ export function serializeWeek(week: number): string {
       `  ${block.start}–${block.end}  ${block.course.short}  ${block.campus} ${block.room}`,
     );
   }
-  const commutes = commuteDays(week);
+  const commutes = commuteDays(week, data);
   if (commutes.length) {
     lines.push("");
     lines.push(
