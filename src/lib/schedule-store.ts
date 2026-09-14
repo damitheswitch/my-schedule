@@ -1,5 +1,5 @@
 import { buildScheduleData } from "@/lib/schedule-ai";
-import { COURSES, MEETINGS, type Course, type Meeting, type ScheduleData } from "@/lib/schedule";
+import { type Course, type Meeting, type ScheduleData } from "@/lib/schedule";
 import { getSchedule, saveSchedule, resetSchedule } from "@/lib/schedule-data";
 
 /**
@@ -8,14 +8,18 @@ import { getSchedule, saveSchedule, resetSchedule } from "@/lib/schedule-data";
  * user is signed in on the hosted app, the Neon DB acts as a best-effort sync
  * layer so the same schedule follows them across browsers. The APK never
  * reaches the server functions, so it stays a purely local copy.
+ *
+ * A brand-new visitor has no stored schedule: they get an empty base and the
+ * onboarding flow, not a seeded timetable.
  */
 
 const STORAGE_KEY = "my-schedule";
+const ONBOARDED_KEY = "my-schedule-onboarded";
 
 export type LocalSchedule = {
   courses: Course[];
   meetings: Meeting[];
-  /** Epoch ms when this copy was last written. 0 = untouched defaults. */
+  /** Epoch ms when this copy was last written. 0 = never saved. */
   updatedAt: number;
 };
 
@@ -57,8 +61,30 @@ export function clearLocalSchedule(): void {
   }
 }
 
-/** The effective schedule for a not-yet-stored device is the built-in base. */
-export const BASE_SCHEDULE: LocalSchedule = { courses: COURSES, meetings: MEETINGS, updatedAt: 0 };
+/**
+ * Whether this device has finished the first-run onboarding. Tracked
+ * separately from the schedule itself so "start empty" counts as onboarded,
+ * while a reset clears both flags and re-runs onboarding.
+ */
+export function hasOnboarded(): boolean {
+  if (typeof window === "undefined") return false;
+  return window.localStorage.getItem(ONBOARDED_KEY) === "1";
+}
+
+export function markOnboarded(): void {
+  if (typeof window !== "undefined") {
+    window.localStorage.setItem(ONBOARDED_KEY, "1");
+  }
+}
+
+export function clearOnboarded(): void {
+  if (typeof window !== "undefined") {
+    window.localStorage.removeItem(ONBOARDED_KEY);
+  }
+}
+
+/** A new device starts from an empty schedule — the user builds their own. */
+export const BASE_SCHEDULE: LocalSchedule = { courses: [], meetings: [], updatedAt: 0 };
 
 /**
  * One-shot reconciliation on app load for a signed-in user. Returns the
@@ -107,9 +133,10 @@ export async function applySchedule(
   return buildScheduleData(courses, meetings);
 }
 
-/** Reset localStorage and the cloud copy back to the built-in schedule. */
+/** Clear the schedule everywhere and send the user back through onboarding. */
 export async function resetScheduleEverywhere(canSync: boolean): Promise<ScheduleData> {
   clearLocalSchedule();
+  clearOnboarded();
   if (canSync) {
     try {
       await resetSchedule();
@@ -117,5 +144,5 @@ export async function resetScheduleEverywhere(canSync: boolean): Promise<Schedul
       /* best-effort */
     }
   }
-  return buildScheduleData(COURSES, MEETINGS);
+  return buildScheduleData([], []);
 }

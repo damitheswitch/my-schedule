@@ -5,17 +5,17 @@ import { i as signOut, t as authClient } from "./client-CVqXY6bk.mjs";
 import { _ as Link, v as useNavigate } from "../_libs/@tanstack/react-router+[...].mjs";
 import { n as require_jsx_runtime } from "../_libs/radix-ui__react-context+react.mjs";
 import { a as getServerFnById, i as TSS_SERVER_FUNCTION, r as createServerFn } from "./ssr.mjs";
-import { a as hasGateSessionMarker } from "./server-CzMxKS_a.mjs";
-import { A as toMinutes, C as holidayName, D as serializeWeek, E as sectionsLabel, M as weekLoad, O as shanghaiParts, S as formatWeekRange, T as nextUp, _ as defaultWeek, a as DEFAULT_SCHEDULE, b as formatDuration, c as bandOf, d as clampWeek, f as commuteCopy, g as dateOf, h as courseMeetings, i as DAY_LABEL, j as weekHasClasses, k as termWeekFromDate, l as bandPosition, m as courseHours, n as COURSES, o as MEETINGS, p as commuteDays, r as DAYS, s as TERM, t as BANDS, u as blocksForWeek, v as durationMinutes, w as maxWeekLoad, x as formatShortDate, y as firstBusyDay } from "./schedule-B0yyZU-a.mjs";
-import { a as Smartphone, c as Printer, d as KeyRound, f as GraduationCap, g as ChevronLeft, h as ChevronRight, i as Sparkles, l as MapPin, m as Clock, n as Users, o as Share2, p as Download, s as RotateCcw, t as X, u as LoaderCircle } from "../_libs/lucide-react.mjs";
-import { n as Route$2 } from "./router-jfjmvTQw.mjs";
-import { a as requestCompletion, i as normalizeAiOutput, n as buildParseMessages, r as buildScheduleData, t as authMiddleware } from "./schedule-ai-ThVoJL0j.mjs";
+import { a as hasGateSessionMarker } from "./server-BGzN9ETo.mjs";
+import { A as sectionsLabel, C as formatWeekRange, E as nextUp, F as weekHasClasses, I as weekLoad, M as shanghaiParts, N as termWeekFromDate, P as toMinutes, S as formatShortDate, T as maxWeekLoad, _ as dateOf, a as TERM, b as firstBusyDay, c as blocksForWeek, d as buildScheduleData, f as clampWeek, g as courseMeetings, h as courseHours, i as DEFAULT_SCHEDULE, j as serializeWeek, m as commuteDays, n as DAYS, o as bandOf, p as commuteCopy, r as DAY_LABEL, s as bandPosition, t as BANDS, v as defaultWeek, w as holidayName, x as formatDuration, y as durationMinutes } from "./schedule-ai-BcRRaj_R.mjs";
+import { _ as ChevronRight, a as Smartphone, c as Printer, d as MessageCircleQuestion, f as MapPin, g as Clock, h as Download, i as Sparkles, l as Mic, m as GraduationCap, n as Users, o as Share2, p as LoaderCircle, s as RotateCcw, t as X, u as MicOff, v as ChevronLeft, y as ArrowRight } from "../_libs/lucide-react.mjs";
+import { n as Route$3 } from "./router-Dr_npMIy.mjs";
+import { t as authMiddleware } from "./middleware-BWLq4NPP.mjs";
 import { n as toast, t as Toaster } from "../_libs/sonner.mjs";
 import { _ as Slot, a as DialogOverlay$1, c as DialogTrigger$1, i as DialogDescription$1, n as DialogClose, o as DialogPortal$1, r as DialogContent$1, s as DialogTitle$1, t as Dialog$1 } from "../_libs/@radix-ui/react-dialog+[...].mjs";
 import { n as clsx, t as cva } from "../_libs/class-variance-authority+clsx.mjs";
 import { t as twMerge } from "../_libs/tailwind-merge.mjs";
 import { a as Trigger, i as Root3, n as Portal, r as Provider, t as Content2 } from "../_libs/@radix-ui/react-tooltip+[...].mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/routes-P7lOPUsA.js
+//#region node_modules/.nitro/vite/services/ssr/assets/routes-O36NfBVb.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function cn(...inputs) {
@@ -90,165 +90,168 @@ function DialogDescription({ className, ...props }) {
 function DialogTrigger({ ...props }) {
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogTrigger$1, { ...props });
 }
-var createSsrRpc = (functionId) => {
-	const url = "/_serverFn/" + functionId;
-	const serverFnMeta = { id: functionId };
-	const fn = async (...args) => {
-		return (await getServerFnById(functionId, { origin: "server" }))(...args);
-	};
-	return Object.assign(fn, {
-		url,
-		serverFnMeta,
-		[TSS_SERVER_FUNCTION]: true
-	});
-};
-/** Read the signed-in user's saved schedule. Returns null when none is saved —
-*  the client keeps its localStorage copy in that case. */
-var getSchedule = createServerFn({ method: "GET" }).middleware([authMiddleware]).handler(createSsrRpc("da68ad683b6506403824f4548aa048531cf35a6ff6c597ce4068c249747161de"));
-var saveInput = object({
-	courses: array(object({
-		id: string().max(80),
-		name: string().max(200),
-		short: string().max(80),
-		code: string().max(40),
-		credits: number(),
-		teachers: array(string().max(120)).max(12)
-	})).max(60),
-	meetings: array(object({
-		id: string().max(120),
-		courseId: string().max(80),
-		campus: _enum(["South", "North"]),
-		day: _enum([
-			"Mon",
-			"Tue",
-			"Wed",
-			"Thu",
-			"Fri"
-		]),
-		sectionStart: number(),
-		sectionEnd: number(),
-		start: string().max(8),
-		end: string().max(8),
-		weeks: array(number()).max(30),
-		weeksLabel: string().max(60),
-		room: string().max(80),
-		flag: _enum(["biweekly", "once"]).optional()
-	})).max(400)
-});
-/** Persist the signed-in user's schedule (sync layer for the hosted app). */
-var saveSchedule = createServerFn({ method: "POST" }).middleware([authMiddleware]).validator(saveInput).handler(createSsrRpc("0ed26409b7181a11164c7c16fa6a998c8ca2ba41d2eac28f760e4712291f1938"));
-/** Drop the saved schedule so the hosted app falls back to localStorage/base. */
-var resetSchedule = createServerFn({ method: "POST" }).middleware([authMiddleware]).handler(createSsrRpc("ec8769b0d06b23951eb6cb1ea2e21c41812962d203589200f97e70b6cc4cd1b3"));
-var parseInput = object({
-	text: string().min(1).max(8e3),
-	mode: _enum(["merge", "replace"])
-});
 /**
-* Ask Grok to turn a pasted school notice into a structured schedule. In
-* `merge` mode it applies the notice to the caller's current schedule; in
-* `replace` mode it rebuilds from the notice. The caller sends the schedule it
-* is starting from so the server never has to round-trip the DB — and so the
-* same code path works whether the local copy came from localStorage or Neon.
-* Returns a proposal for preview; nothing is persisted here.
+* Single source of truth for the app version, release notes, the deployed
+* site, and the Android APK the site serves. Bump `APP_VERSION` per release —
+* the what's-new dialog re-announces itself once per version (tracked in
+* localStorage), and the APK filename is derived here so the download link
+* never drifts.
+*
+* Keep `versionName`/`versionCode` in `android/app/build.gradle` in sync.
 */
-var parseScheduleUpdate = createServerFn({ method: "POST" }).middleware([authMiddleware]).validator(parseInput.extend({
-	courses: saveInput.shape.courses,
-	meetings: saveInput.shape.meetings
-})).handler(createSsrRpc("1cc2b2a94b30a1cdf4ecf91405a679e264278c81487f05906977984d39526062"));
-var API_KEY_STORAGE = "my-schedule-ai-key";
-var NEEDS_KEY = "__needs_key__";
-function readStoredKey() {
-	if (typeof window === "undefined") return "";
-	return window.localStorage.getItem(API_KEY_STORAGE) ?? "";
+var APP_VERSION = "1.2.0";
+var APK_FILENAME = `north-south-${APP_VERSION}.apk`;
+var APK_PATH = `/${APK_FILENAME}`;
+/**
+* The deployed site the APK calls for AI. The WebView bundle has no backend,
+* so it posts to this origin's `/api/ai` (allowlisted in the endpoint's CORS).
+*/
+var PUBLIC_SITE_URL = "https://my-schedule-xi-one.vercel.app";
+var WHATS_NEW = [
+	{
+		title: "Craft your schedule with AI",
+		detail: "Describe your classes in plain words — or paste a school notice — and the assistant builds your schedule for you. Works on the website and the Android app, no account or API key needed."
+	},
+	{
+		title: "Ask your schedule anything",
+		detail: "\"What do I have next Monday?\" — the new Ask mode answers questions about your classes without changing anything."
+	},
+	{
+		title: "Sync when you want it",
+		detail: "Everything works anonymously and offline. Sign in only if you want your schedule to follow you across devices."
+	}
+];
+/**
+* Client for the public `/api/ai` endpoint. Every surface — hosted site,
+* signed-out browser, and the Android WebView — goes through here, so the
+* owner key stays server-side and nobody ever pastes an API key.
+*
+* The APK is bundled and served from `appassets.androidplatform.net`, so it
+* has no same-origin backend: it calls the deployed site directly (allowed by
+* the endpoint's CORS allowlist).
+*/
+function isApkRuntime() {
+	return typeof window !== "undefined" && window.location.host.includes("appassets");
 }
-function AiUpdatePanel({ schedule, canSync, onApply, onReset }) {
+function aiEndpoint() {
+	return isApkRuntime() ? `${PUBLIC_SITE_URL}/api/ai` : "/api/ai";
+}
+async function requestAi(mode, text, current) {
+	let res;
+	try {
+		res = await fetch(aiEndpoint(), {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				mode,
+				text,
+				schedule: {
+					courses: current.courses,
+					meetings: current.meetings
+				}
+			})
+		});
+	} catch {
+		return {
+			ok: false,
+			error: "Couldn't reach the assistant — check your connection."
+		};
+	}
+	let body = {};
+	try {
+		body = await res.json();
+	} catch {}
+	if (!res.ok || body.ok === false) return {
+		ok: false,
+		error: typeof body.error === "string" ? body.error : `Something went wrong (${res.status}).`
+	};
+	if (mode === "ask") return typeof body.answer === "string" ? {
+		ok: true,
+		kind: "answer",
+		answer: body.answer
+	} : {
+		ok: false,
+		error: "The assistant returned something unreadable. Try again."
+	};
+	const schedule = body.schedule;
+	if (!schedule) return {
+		ok: false,
+		error: "The assistant returned something unreadable. Try again."
+	};
+	return {
+		ok: true,
+		kind: "schedule",
+		schedule,
+		summary: typeof body.summary === "string" ? body.summary : "Schedule ready."
+	};
+}
+var MODES = [
+	{
+		id: "merge",
+		label: "Merge",
+		hint: "Apply a notice to your current schedule"
+	},
+	{
+		id: "replace",
+		label: "Rebuild",
+		hint: "Recreate the schedule from a description"
+	},
+	{
+		id: "ask",
+		label: "Ask",
+		hint: "Answer a question about your schedule"
+	}
+];
+var PLACEHOLDERS = {
+	merge: "e.g. Tomorrow's Machine Learning class is moved to room B-120, and next week's Computer Vision is cancelled.",
+	replace: "e.g. Full schedule for this semester: Monday 08:30 Comprehensive Chinese in G-514, weeks 2-4 and 6-17…",
+	ask: "e.g. What do I have next Monday? When is my Machine Learning exam week?"
+};
+function AiUpdatePanel({ schedule, onApply, onReset }) {
 	const [open, setOpen] = (0, import_react.useState)(false);
 	const [text, setText] = (0, import_react.useState)("");
 	const [mode, setMode] = (0, import_react.useState)("merge");
-	const [apiKey, setApiKey] = (0, import_react.useState)(readStoredKey);
-	const [parsing, setParsing] = (0, import_react.useState)(false);
-	const [applying, setApplying] = (0, import_react.useState)(false);
+	const [busy, setBusy] = (0, import_react.useState)(false);
 	const [resetting, setResetting] = (0, import_react.useState)(false);
 	const [preview, setPreview] = (0, import_react.useState)(null);
+	const [answer, setAnswer] = (0, import_react.useState)(null);
 	const [summary, setSummary] = (0, import_react.useState)("");
 	const [error, setError] = (0, import_react.useState)(null);
-	const [needsKey, setNeedsKey] = (0, import_react.useState)(false);
 	function reset() {
 		setPreview(null);
+		setAnswer(null);
 		setSummary("");
 		setError(null);
 	}
-	function persistKey(key) {
-		setApiKey(key);
-		if (typeof window !== "undefined") {
-			if (key) window.localStorage.setItem(API_KEY_STORAGE, key);
-			else window.localStorage.removeItem(API_KEY_STORAGE);
-		}
-	}
-	async function runParse() {
-		const payload = {
-			text,
-			mode,
-			courses: schedule.courses,
-			meetings: schedule.meetings
-		};
-		if (canSync) try {
-			const res = await parseScheduleUpdate({ data: payload });
-			if (res.ok) return res;
-		} catch {}
-		const key = apiKey.trim();
-		if (!key) return {
-			ok: false,
-			error: NEEDS_KEY
-		};
-		const { system, user } = buildParseMessages(text, mode, schedule);
-		const completion = await requestCompletion(system, user, key);
-		if (!completion.ok) return {
-			ok: false,
-			error: completion.error
-		};
-		const normalized = normalizeAiOutput(completion.text);
-		if (!normalized) return {
-			ok: false,
-			error: "The AI response was not valid schedule JSON."
-		};
-		return {
-			ok: true,
-			schedule: normalized.schedule,
-			summary: normalized.summary
-		};
-	}
-	async function handlePreview() {
+	async function handleSubmit() {
 		if (!text.trim()) {
-			setError("Paste the school's schedule notice first.");
+			setError(mode === "ask" ? "Ask a question about your schedule first." : "Paste the school's notice or describe your schedule first.");
 			return;
 		}
-		setParsing(true);
+		setBusy(true);
 		setError(null);
 		setPreview(null);
+		setAnswer(null);
 		try {
-			const result = await runParse();
-			if (!result.ok) {
-				if (result.error === NEEDS_KEY) {
-					setNeedsKey(true);
-					setError("Paste your xAI API key below — this device has no built-in AI.");
-				} else {
-					if (result.error === "AI is not available in this environment.") setNeedsKey(true);
-					setError(result.error);
-				}
-			} else {
-				setPreview(result.schedule);
+			const result = await requestAi(mode, text.trim(), {
+				courses: schedule.courses,
+				meetings: schedule.meetings
+			});
+			if (!result.ok) setError(result.error);
+			else if (result.kind === "answer") setAnswer(result.answer);
+			else {
+				setPreview(buildPreview(result.schedule));
 				setSummary(result.summary);
 			}
 		} catch {
-			setError("Something went wrong talking to the AI. Try again.");
+			setError("Something went wrong talking to the assistant. Try again.");
 		} finally {
-			setParsing(false);
+			setBusy(false);
 		}
 	}
 	async function handleApply() {
 		if (!preview) return;
-		setApplying(true);
+		setBusy(true);
 		setError(null);
 		try {
 			await onApply(preview.courses, preview.meetings);
@@ -258,7 +261,7 @@ function AiUpdatePanel({ schedule, canSync, onApply, onReset }) {
 		} catch {
 			setError("Could not save the schedule. Try again.");
 		} finally {
-			setApplying(false);
+			setBusy(false);
 		}
 	}
 	async function handleResetClick() {
@@ -285,7 +288,7 @@ function AiUpdatePanel({ schedule, canSync, onApply, onReset }) {
 			asChild: true,
 			children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
 				variant: "outline",
-				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Sparkles, { className: "size-4" }), "AI update"]
+				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Sparkles, { className: "size-4" }), "AI assistant"]
 			})
 		}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogContent, {
 			className: "max-w-2xl",
@@ -294,59 +297,48 @@ function AiUpdatePanel({ schedule, canSync, onApply, onReset }) {
 				children: [
 					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogTitle, {
 						className: "font-serif text-2xl",
-						children: "Update with AI"
+						children: "AI assistant"
 					}),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogDescription, {
 						className: "mt-2",
-						children: "Paste a schedule notice from your class group. The AI reads it and updates your schedule — review the preview before applying."
+						children: "Merge a group-chat notice into your schedule, rebuild it from a description, or just ask a question — the assistant only works on schedules, and you review every change before it's saved."
 					}),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 						className: "mt-5 flex flex-col gap-4",
 						children: [
-							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
 								className: "flex items-center gap-1 rounded-md bg-paper-elevated p-1 shadow-[var(--shadow-border)]",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(ModeButton, {
-									active: mode === "merge",
-									onClick: () => setMode("merge"),
-									label: "Merge",
-									hint: "Apply the notice to your current schedule"
-								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ModeButton, {
-									active: mode === "replace",
-									onClick: () => setMode("replace"),
-									label: "Replace",
-									hint: "Rebuild the schedule from the notice"
-								})]
+								children: MODES.map((m) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ModeButton, {
+									active: mode === m.id,
+									onClick: () => {
+										setMode(m.id);
+										reset();
+									},
+									label: m.label,
+									hint: m.hint
+								}, m.id))
 							}),
 							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("textarea", {
 								value: text,
 								onChange: (e) => setText(e.target.value),
-								placeholder: mode === "merge" ? "e.g. Tomorrow's Machine Learning class is moved to room B-120, and next week's Computer Vision is cancelled." : "e.g. Full schedule for this semester: Monday 08:30 Comprehensive Chinese in G-514, weeks 2-4 and 6-17…",
-								rows: 6,
+								placeholder: PLACEHOLDERS[mode],
+								rows: mode === "ask" ? 3 : 6,
+								maxLength: 4e3,
 								className: "w-full resize-y rounded-md border border-line bg-paper px-3 py-2 text-sm text-ink shadow-[var(--shadow-border)] outline-none placeholder:text-ink-faint focus-visible:ring-2 focus-visible:ring-ink/30"
 							}),
-							needsKey || !canSync ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
-								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
-									htmlFor: "ai-key",
-									className: "flex items-center gap-1.5 text-xs font-medium text-ink-muted",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(KeyRound, { className: "size-3.5" }), "Your xAI API key"]
-								}),
-								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
-									id: "ai-key",
-									type: "password",
-									value: apiKey,
-									onChange: (e) => persistKey(e.target.value),
-									placeholder: "xai-…",
-									autoComplete: "off",
-									className: "mt-1.5 w-full rounded-md border border-line bg-paper px-3 py-2 text-sm text-ink shadow-[var(--shadow-border)] outline-none placeholder:text-ink-faint focus-visible:ring-2 focus-visible:ring-ink/30"
-								}),
-								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-									className: "mt-1.5 text-xs text-ink-faint",
-									children: "Stored only on this device. Get one at console.x.ai — on the signed-in website the built-in AI is used instead."
-								})
-							] }) : null,
 							error ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
 								className: "rounded-md bg-south-fill px-3 py-2 text-sm text-south-fg",
 								children: error
+							}) : null,
+							answer ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "rounded-md border border-line bg-paper-elevated p-4 shadow-[var(--shadow-border)]",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
+									className: "flex items-center gap-2 text-xs font-medium tracking-wide text-ink-muted uppercase",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(MessageCircleQuestion, { className: "size-3.5" }), "Answer"]
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+									className: "mt-2 text-sm text-ink",
+									children: answer
+								})]
 							}) : null,
 							preview ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PreviewCard, {
 								schedule: preview,
@@ -359,25 +351,23 @@ function AiUpdatePanel({ schedule, canSync, onApply, onReset }) {
 									disabled: resetting,
 									onClick: () => void handleResetClick(),
 									className: "inline-flex items-center gap-1.5 text-xs font-medium text-ink-muted underline-offset-2 hover:underline disabled:opacity-50",
-									children: [resetting ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(LoaderCircle, { className: "size-3.5 animate-spin" }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(RotateCcw, { className: "size-3.5" }), "Reset to default schedule"]
-								}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+									children: [resetting ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(LoaderCircle, { className: "size-3.5 animate-spin" }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(RotateCcw, { className: "size-3.5" }), "Start over"]
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
 									className: "flex items-center gap-2",
-									children: [preview ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
+									children: preview ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
 										variant: "ghost",
-										onClick: () => {
-											reset();
-										},
-										disabled: applying,
+										onClick: reset,
+										disabled: busy,
 										children: "Discard"
-									}) : null, preview ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
+									}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
 										onClick: () => void handleApply(),
-										disabled: applying,
-										children: [applying ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(LoaderCircle, { className: "size-4 animate-spin" }) : null, "Apply changes"]
-									}) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
-										onClick: () => void handlePreview(),
-										disabled: parsing || !text.trim(),
-										children: [parsing ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(LoaderCircle, { className: "size-4 animate-spin" }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Sparkles, { className: "size-4" }), "Preview changes"]
-									})]
+										disabled: busy,
+										children: [busy ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(LoaderCircle, { className: "size-4 animate-spin" }) : null, "Apply changes"]
+									})] }) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
+										onClick: () => void handleSubmit(),
+										disabled: busy || !text.trim(),
+										children: [busy ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(LoaderCircle, { className: "size-4 animate-spin" }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Sparkles, { className: "size-4" }), mode === "ask" ? "Ask" : "Preview changes"]
+									})
 								})]
 							})
 						]
@@ -395,6 +385,16 @@ function ModeButton({ active, onClick, label, hint }) {
 		className: cn("flex-1 cursor-pointer rounded-sm px-3 py-2 text-sm font-medium transition-colors duration-150", active ? "bg-ink text-paper shadow-[var(--shadow-border)]" : "text-ink-muted hover:text-ink"),
 		children: label
 	});
+}
+/** Rebuild ScheduleData (with courseById) from the API's plain arrays. */
+function buildPreview(raw) {
+	const courseById = {};
+	for (const c of raw.courses) courseById[c.id] = c;
+	return {
+		courses: raw.courses,
+		meetings: raw.meetings,
+		courseById
+	};
 }
 function PreviewCard({ schedule, summary }) {
 	const byDay = /* @__PURE__ */ new Map();
@@ -477,31 +477,6 @@ function PreviewCard({ schedule, summary }) {
 		]
 	});
 }
-/**
-* Single source of truth for the app version, release notes, and the Android
-* APK the site serves. Bump `APP_VERSION` per release — the what's-new dialog
-* re-announces itself once per version (tracked in localStorage), and the APK
-* filename is derived here so the download link never drifts.
-*
-* Keep `versionName`/`versionCode` in `android/app/build.gradle` in sync.
-*/
-var APP_VERSION = "1.1.0";
-var APK_FILENAME = `north-south-${APP_VERSION}.apk`;
-var APK_PATH = `/${APK_FILENAME}`;
-var WHATS_NEW = [
-	{
-		title: "Update with AI",
-		detail: "Paste a schedule notice from your class group — the AI reads it, shows a preview, and applies it on confirm. Merge keeps untouched classes; Replace rebuilds the week plan."
-	},
-	{
-		title: "Sign in to sync",
-		detail: "Optional sign-in keeps your schedule in sync across browsers via the cloud. Signed out (or on the Android app), everything still works — stored locally on the device."
-	},
-	{
-		title: "Android app",
-		detail: "A sideloadable APK packages the whole schedule for your phone. The AI update works there too — bring your own xAI key."
-	}
-];
 var SEEN_KEY = "my-schedule-seen-version";
 /**
 * "What's new" + Android-app dialog. Announces itself once per app version
@@ -518,7 +493,7 @@ function AppInfo({ isApk }) {
 		} catch {
 			return;
 		}
-		if (seen === "1.1.0") return;
+		if (seen === "1.2.0") return;
 		const t = window.setTimeout(() => setOpen(true), 900);
 		return () => window.clearTimeout(t);
 	}, []);
@@ -849,6 +824,183 @@ function WeekDots({ weeks, current }) {
 		})
 	});
 }
+function getSpeechRecognition() {
+	if (typeof window === "undefined") return null;
+	const w = window;
+	return w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null;
+}
+var EXAMPLE = "Machine Learning Mon 08:30–10:05 G-514 South weeks 2–17, Computer Vision Tue 14:00–15:35 A-203 North, Algorithms Thu 10:25–12:00 …";
+function Onboarding({ onDone }) {
+	const [text, setText] = (0, import_react.useState)("");
+	const [busy, setBusy] = (0, import_react.useState)(false);
+	const [listening, setListening] = (0, import_react.useState)(false);
+	const [preview, setPreview] = (0, import_react.useState)(null);
+	const [summary, setSummary] = (0, import_react.useState)("");
+	const [error, setError] = (0, import_react.useState)(null);
+	const recognitionRef = (0, import_react.useRef)(null);
+	const SpeechRecognition = getSpeechRecognition();
+	function toggleListening() {
+		if (!SpeechRecognition) return;
+		if (listening) {
+			recognitionRef.current?.stop();
+			setListening(false);
+			return;
+		}
+		const rec = new SpeechRecognition();
+		rec.lang = "en-US";
+		rec.interimResults = false;
+		rec.continuous = false;
+		rec.onresult = (e) => {
+			const transcript = Array.from(e.results).map((r) => r[0]?.transcript ?? "").join(" ");
+			setText((t) => t ? `${t.trim()} ${transcript}` : transcript);
+		};
+		rec.onend = () => setListening(false);
+		rec.onerror = () => setListening(false);
+		recognitionRef.current = rec;
+		setListening(true);
+		rec.start();
+	}
+	async function handleCreate() {
+		if (!text.trim()) {
+			setError("Describe your schedule first — or paste the school's notice.");
+			return;
+		}
+		setBusy(true);
+		setError(null);
+		setPreview(null);
+		try {
+			const result = await requestAi("replace", text.trim(), {
+				courses: [],
+				meetings: []
+			});
+			if (!result.ok) setError(result.error);
+			else if (result.kind === "schedule") {
+				setPreview(buildScheduleData(result.schedule.courses, result.schedule.meetings));
+				setSummary(result.summary);
+			} else setError("The assistant returned something unexpected. Try again.");
+		} catch {
+			setError("Something went wrong talking to the assistant. Try again.");
+		} finally {
+			setBusy(false);
+		}
+	}
+	async function finish(courses, meetings) {
+		setBusy(true);
+		setError(null);
+		try {
+			await onDone(courses, meetings);
+		} catch {
+			setError("Could not save the schedule. Try again.");
+			setBusy(false);
+		}
+	}
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+		className: "grid min-h-dvh place-items-center bg-paper px-4 py-10 text-ink",
+		children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+			className: "w-full max-w-xl",
+			children: [
+				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
+					className: "text-xs font-medium tracking-[0.18em] text-ink-muted uppercase",
+					children: [
+						TERM.label,
+						" · ",
+						TERM.weeks,
+						" weeks"
+					]
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("h1", {
+					className: "mt-2 font-serif text-4xl leading-none sm:text-5xl",
+					children: [
+						"North ",
+						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+							className: "italic text-ink-muted",
+							children: "&"
+						}),
+						" South"
+					]
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+					className: "mt-4 text-sm leading-relaxed text-ink-muted",
+					children: "A class schedule you never have to type twice. Describe your courses in plain words — or paste the notice your school dropped in the group chat — and the assistant builds the whole term for you."
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					className: "mt-8 rounded-xl bg-paper-elevated p-5 shadow-[var(--shadow-border)]",
+					children: [
+						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
+							htmlFor: "onboarding-text",
+							className: "text-xs font-medium tracking-wide text-ink-muted uppercase",
+							children: "Your schedule, in your own words"
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							className: "relative mt-2",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("textarea", {
+								id: "onboarding-text",
+								value: text,
+								onChange: (e) => setText(e.target.value),
+								placeholder: EXAMPLE,
+								rows: 5,
+								maxLength: 4e3,
+								className: "w-full resize-y rounded-md border border-line bg-paper px-3 py-2 pr-10 text-sm text-ink shadow-[var(--shadow-border)] outline-none placeholder:text-ink-faint focus-visible:ring-2 focus-visible:ring-ink/30"
+							}), SpeechRecognition ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+								type: "button",
+								onClick: toggleListening,
+								title: listening ? "Stop dictating" : "Dictate your schedule",
+								"aria-label": listening ? "Stop dictating" : "Dictate your schedule",
+								className: listening ? "absolute top-2 right-2 rounded-md p-1.5 text-south-fg bg-south-fill" : "absolute top-2 right-2 rounded-md p-1.5 text-ink-faint hover:text-ink",
+								children: listening ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MicOff, { className: "size-4" }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Mic, { className: "size-4" })
+							}) : null]
+						}),
+						listening ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+							className: "mt-1.5 text-xs text-south-fg",
+							children: "Listening… speak your schedule."
+						}) : null,
+						error ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+							className: "mt-3 rounded-md bg-south-fill px-3 py-2 text-sm text-south-fg",
+							children: error
+						}) : null,
+						preview ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+							className: "mt-4",
+							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PreviewCard, {
+								schedule: preview,
+								summary
+							})
+						}) : null,
+						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							className: "mt-5 flex flex-wrap items-center justify-between gap-3",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+								type: "button",
+								disabled: busy,
+								onClick: () => void finish([], []),
+								className: "inline-flex items-center gap-1.5 text-sm font-medium text-ink-muted underline-offset-2 hover:text-ink hover:underline disabled:opacity-50",
+								children: ["Start empty", /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ArrowRight, { className: "size-3.5" })]
+							}), preview ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "flex items-center gap-2",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
+									variant: "ghost",
+									onClick: () => setPreview(null),
+									disabled: busy,
+									children: "Discard"
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
+									onClick: () => void finish(preview.courses, preview.meetings),
+									disabled: busy,
+									children: [busy ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(LoaderCircle, { className: "size-4 animate-spin" }) : null, "Use this schedule"]
+								})]
+							}) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
+								onClick: () => void handleCreate(),
+								disabled: busy || !text.trim(),
+								children: [busy ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(LoaderCircle, { className: "size-4 animate-spin" }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Sparkles, { className: "size-4" }), "Create my schedule"]
+							})]
+						})
+					]
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+					className: "mt-4 text-xs leading-relaxed text-ink-faint",
+					children: "No account needed — your schedule lives on this device and works offline. Sign in later if you want it synced across devices."
+				})
+			]
+		})
+	});
+}
 function TooltipProvider({ delayDuration = 200, ...props }) {
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Provider, {
 		delayDuration,
@@ -1122,14 +1274,67 @@ function UserButton() {
 		]
 	});
 }
+var createSsrRpc = (functionId) => {
+	const url = "/_serverFn/" + functionId;
+	const serverFnMeta = { id: functionId };
+	const fn = async (...args) => {
+		return (await getServerFnById(functionId, { origin: "server" }))(...args);
+	};
+	return Object.assign(fn, {
+		url,
+		serverFnMeta,
+		[TSS_SERVER_FUNCTION]: true
+	});
+};
+/** Read the signed-in user's saved schedule. Returns null when none is saved —
+*  the client keeps its localStorage copy in that case. */
+var getSchedule = createServerFn({ method: "GET" }).middleware([authMiddleware]).handler(createSsrRpc("da68ad683b6506403824f4548aa048531cf35a6ff6c597ce4068c249747161de"));
+var saveInput = object({
+	courses: array(object({
+		id: string().max(80),
+		name: string().max(200),
+		short: string().max(80),
+		code: string().max(40),
+		credits: number(),
+		teachers: array(string().max(120)).max(12)
+	})).max(60),
+	meetings: array(object({
+		id: string().max(120),
+		courseId: string().max(80),
+		campus: _enum(["South", "North"]),
+		day: _enum([
+			"Mon",
+			"Tue",
+			"Wed",
+			"Thu",
+			"Fri"
+		]),
+		sectionStart: number(),
+		sectionEnd: number(),
+		start: string().max(8),
+		end: string().max(8),
+		weeks: array(number()).max(30),
+		weeksLabel: string().max(60),
+		room: string().max(80),
+		flag: _enum(["biweekly", "once"]).optional()
+	})).max(400)
+});
+/** Persist the signed-in user's schedule (sync layer for the hosted app). */
+var saveSchedule = createServerFn({ method: "POST" }).middleware([authMiddleware]).validator(saveInput).handler(createSsrRpc("0ed26409b7181a11164c7c16fa6a998c8ca2ba41d2eac28f760e4712291f1938"));
+/** Drop the saved schedule so the hosted app falls back to localStorage/base. */
+var resetSchedule = createServerFn({ method: "POST" }).middleware([authMiddleware]).handler(createSsrRpc("ec8769b0d06b23951eb6cb1ea2e21c41812962d203589200f97e70b6cc4cd1b3"));
 /**
 * Client-side schedule persistence. `localStorage` is the source of truth on
 * every device — it works on the hosted site, the APK, and offline. When the
 * user is signed in on the hosted app, the Neon DB acts as a best-effort sync
 * layer so the same schedule follows them across browsers. The APK never
 * reaches the server functions, so it stays a purely local copy.
+*
+* A brand-new visitor has no stored schedule: they get an empty base and the
+* onboarding flow, not a seeded timetable.
 */
 var STORAGE_KEY = "my-schedule";
+var ONBOARDED_KEY = "my-schedule-onboarded";
 function safeParse(raw) {
 	if (!raw) return null;
 	try {
@@ -1160,10 +1365,25 @@ function writeLocalSchedule(courses, meetings, updatedAt = Date.now()) {
 function clearLocalSchedule() {
 	if (typeof window !== "undefined") window.localStorage.removeItem(STORAGE_KEY);
 }
-/** The effective schedule for a not-yet-stored device is the built-in base. */
+/**
+* Whether this device has finished the first-run onboarding. Tracked
+* separately from the schedule itself so "start empty" counts as onboarded,
+* while a reset clears both flags and re-runs onboarding.
+*/
+function hasOnboarded() {
+	if (typeof window === "undefined") return false;
+	return window.localStorage.getItem(ONBOARDED_KEY) === "1";
+}
+function markOnboarded() {
+	if (typeof window !== "undefined") window.localStorage.setItem(ONBOARDED_KEY, "1");
+}
+function clearOnboarded() {
+	if (typeof window !== "undefined") window.localStorage.removeItem(ONBOARDED_KEY);
+}
+/** A new device starts from an empty schedule — the user builds their own. */
 var BASE_SCHEDULE = {
-	courses: COURSES,
-	meetings: MEETINGS,
+	courses: [],
+	meetings: [],
 	updatedAt: 0
 };
 /**
@@ -1205,13 +1425,14 @@ async function applySchedule(courses, meetings, canSync) {
 	} catch {}
 	return buildScheduleData(courses, meetings);
 }
-/** Reset localStorage and the cloud copy back to the built-in schedule. */
+/** Clear the schedule everywhere and send the user back through onboarding. */
 async function resetScheduleEverywhere(canSync) {
 	clearLocalSchedule();
+	clearOnboarded();
 	if (canSync) try {
 		await resetSchedule();
 	} catch {}
-	return buildScheduleData(COURSES, MEETINGS);
+	return buildScheduleData([], []);
 }
 function ScheduleApp({ weekParam }) {
 	const navigate = useNavigate({ from: "/" });
@@ -1220,9 +1441,11 @@ function ScheduleApp({ weekParam }) {
 	const isApk = typeof window !== "undefined" && window.location.hostname === "appassets.androidplatform.net";
 	const [schedule, setSchedule] = (0, import_react.useState)(null);
 	const [mounted, setMounted] = (0, import_react.useState)(false);
+	const [onboarded, setOnboarded] = (0, import_react.useState)(true);
 	(0, import_react.useEffect)(() => {
 		const local = readLocalSchedule() ?? BASE_SCHEDULE;
 		setSchedule(buildScheduleData(local.courses, local.meetings));
+		setOnboarded(hasOnboarded() || local.meetings.length > 0);
 		setMounted(true);
 	}, []);
 	(0, import_react.useEffect)(() => {
@@ -1278,12 +1501,19 @@ function ScheduleApp({ weekParam }) {
 		setSelected(null);
 		toast("Schedule updated");
 	}
+	/** Onboarding finished — mark the device, then persist like any apply. */
+	async function handleOnboarded(courses, meetings) {
+		markOnboarded();
+		setOnboarded(true);
+		await handleApply(courses, meetings);
+	}
 	async function handleReset() {
 		const next = await resetScheduleEverywhere(canSync);
 		setSchedule(next);
+		setOnboarded(false);
 		setFocusCourseId(null);
 		setSelected(null);
-		toast("Back to the original schedule");
+		toast("Schedule cleared — start fresh");
 	}
 	(0, import_react.useEffect)(() => {
 		if (weekParam !== void 0 && weekParam !== week) setWeekState(clampWeek(weekParam));
@@ -1350,6 +1580,7 @@ function ScheduleApp({ weekParam }) {
 			children: "Loading your schedule…"
 		})
 	});
+	if (!onboarded && schedule.meetings.length === 0) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Onboarding, { onDone: handleOnboarded });
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(TooltipProvider, { children: [
 		/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Toaster, {
 			position: "top-center",
@@ -1395,7 +1626,6 @@ function ScheduleApp({ weekParam }) {
 							children: [
 								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(AiUpdatePanel, {
 									schedule,
-									canSync,
 									onApply: handleApply,
 									onReset: handleReset
 								}),
@@ -1702,7 +1932,7 @@ function Heatmap({ week, peak, currentTermWeek, onSelect, schedule }) {
 	});
 }
 function Home() {
-	const { week } = Route$2.useSearch();
+	const { week } = Route$3.useSearch();
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ScheduleApp, { weekParam: week });
 }
 //#endregion

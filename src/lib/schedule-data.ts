@@ -1,19 +1,15 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { authMiddleware } from "@/lib/auth/middleware";
-import { COURSES, MEETINGS, type ScheduleData } from "@/lib/schedule";
-import {
-  buildParseMessages,
-  buildScheduleData,
-  normalizeAiOutput,
-  requestCompletion,
-} from "@/lib/schedule-ai";
+import { type ScheduleData } from "@/lib/schedule";
+import { buildScheduleData } from "@/lib/schedule-ai";
 
 /**
- * Server-side schedule persistence + AI parsing. Runs only on the hosted app —
- * the APK and signed-out browsers never reach these (they use localStorage and
- * a user-supplied key instead). Every function is behind `authMiddleware` and
- * scoped to the verified `context.userId`.
+ * Server-side schedule persistence — the optional cloud-sync layer for signed
+ * in users. Runs only on the hosted app; the APK and signed-out browsers stay
+ * local. AI requests do NOT go through here: they hit the public `/api/ai`
+ * route (rate-limited, owner key, no sign-in required). Every function is
+ * behind `authMiddleware` and scoped to the verified `context.userId`.
  */
 
 /** Rows stored as JSON; the DB shape the server reads/writes. */
@@ -44,8 +40,8 @@ export const getSchedule = createServerFn({ method: "GET" })
     `;
     if (rows.length === 0) return null;
     const row = rows[0];
-    const courses = (row.courses as ScheduleData["courses"]) ?? COURSES;
-    const meetings = (row.meetings as ScheduleData["meetings"]) ?? MEETINGS;
+    const courses = (row.courses as ScheduleData["courses"]) ?? [];
+    const meetings = (row.meetings as ScheduleData["meetings"]) ?? [];
     return { ...buildScheduleData(courses, meetings), updatedAt: toMillis(row.updated_at) };
   });
 
@@ -112,46 +108,4 @@ export const resetSchedule = createServerFn({ method: "POST" })
     const sql = await getSql();
     await sql`delete from user_schedules where user_id = ${context.userId}`;
     return { ok: true as const };
-  });
-
-const parseInput = z.object({
-  text: z.string().min(1).max(8000),
-  mode: z.enum(["merge", "replace"]),
-});
-
-export type ParseResult =
-  | { ok: true; schedule: ScheduleData; summary: string }
-  | { ok: false; error: string };
-
-/**
- * Ask Grok to turn a pasted school notice into a structured schedule. In
- * `merge` mode it applies the notice to the caller's current schedule; in
- * `replace` mode it rebuilds from the notice. The caller sends the schedule it
- * is starting from so the server never has to round-trip the DB — and so the
- * same code path works whether the local copy came from localStorage or Neon.
- * Returns a proposal for preview; nothing is persisted here.
- */
-export const parseScheduleUpdate = createServerFn({ method: "POST" })
-  .middleware([authMiddleware])
-  .validator(parseInput.extend({
-    courses: saveInput.shape.courses,
-    meetings: saveInput.shape.meetings,
-  }))
-  .handler(async ({ data }): Promise<ParseResult> => {
-    const apiKey = process.env.XAI_API_KEY;
-    if (!apiKey) return { ok: false, error: "AI is not available in this environment." };
-
-    const { system, user } = buildParseMessages(data.text, data.mode, {
-      courses: data.courses,
-      meetings: data.meetings,
-    });
-
-    const completion = await requestCompletion(system, user, apiKey);
-    if (!completion.ok) return completion;
-
-    const normalized = normalizeAiOutput(completion.text);
-    if (!normalized) {
-      return { ok: false, error: "The AI response was not valid schedule JSON." };
-    }
-    return { ok: true, schedule: normalized.schedule, summary: normalized.summary };
   });

@@ -1,30 +1,37 @@
 /**
- * Single source of truth for the app version, release notes, and the Android
- * APK the site serves. Bump `APP_VERSION` per release — the what's-new dialog
- * re-announces itself once per version (tracked in localStorage), and the APK
- * filename is derived here so the download link never drifts.
+ * Single source of truth for the app version, release notes, the deployed
+ * site, and the Android APK the site serves. Bump `APP_VERSION` per release —
+ * the what's-new dialog re-announces itself once per version (tracked in
+ * localStorage), and the APK filename is derived here so the download link
+ * never drifts.
  *
  * Keep `versionName`/`versionCode` in `android/app/build.gradle` in sync.
  */
-export const APP_VERSION = "1.1.0";
-export const APK_VERSION_CODE = 2;
+export const APP_VERSION = "1.2.0";
+export const APK_VERSION_CODE = 3;
 export const APK_FILENAME = `north-south-${APP_VERSION}.apk`;
 export const APK_PATH = `/${APK_FILENAME}`;
 
+/**
+ * The deployed site the APK calls for AI. The WebView bundle has no backend,
+ * so it posts to this origin's `/api/ai` (allowlisted in the endpoint's CORS).
+ */
+export const PUBLIC_SITE_URL = "https://my-schedule-xi-one.vercel.app";
+
 export const WHATS_NEW: { title: string; detail: string }[] = [
   {
-    title: "Update with AI",
+    title: "Craft your schedule with AI",
     detail:
-      "Paste a schedule notice from your class group — the AI reads it, shows a preview, and applies it on confirm. Merge keeps untouched classes; Replace rebuilds the week plan.",
+      "Describe your classes in plain words — or paste a school notice — and the assistant builds your schedule for you. Works on the website and the Android app, no account or API key needed.",
   },
   {
-    title: "Sign in to sync",
+    title: "Ask your schedule anything",
     detail:
-      "Optional sign-in keeps your schedule in sync across browsers via the cloud. Signed out (or on the Android app), everything still works — stored locally on the device.",
+      "\"What do I have next Monday?\" — the new Ask mode answers questions about your classes without changing anything.",
   },
   {
-    title: "Android app",
+    title: "Sync when you want it",
     detail:
-      "A sideloadable APK packages the whole schedule for your phone. The AI update works there too — bring your own xAI key.",
+      "Everything works anonymously and offline. Sign in only if you want your schedule to follow you across devices.",
   },
 ];

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Sparkles, Loader2, RotateCcw, KeyRound } from "lucide-react";
+import { Sparkles, Loader2, RotateCcw, MessageCircleQuestion } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -9,120 +9,84 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { DAY_LABEL, type Course, type Meeting, type ScheduleData } from "@/lib/schedule";
-import {
-  buildParseMessages,
-  normalizeAiOutput,
-  requestCompletion,
-  type ParseMode,
-} from "@/lib/schedule-ai";
-import { parseScheduleUpdate, type ParseResult } from "@/lib/schedule-data";
+import { requestAi, type AiMode } from "@/lib/ai-client";
 import { cn } from "@/lib/utils";
 
 type AiUpdatePanelProps = {
   /** The schedule the user is currently looking at — the AI edits start here. */
   schedule: ScheduleData;
-  /** True when a signed-in session can reach the server functions. */
-  canSync: boolean;
   /** Persist the chosen schedule (localStorage + cloud when signed in). */
   onApply: (courses: Course[], meetings: Meeting[]) => Promise<void>;
-  /** Drop all saved data and restore the built-in schedule. */
+  /** Clear the schedule everywhere and re-run onboarding. */
   onReset: () => Promise<void>;
 };
 
-const API_KEY_STORAGE = "my-schedule-ai-key";
-const NEEDS_KEY = "__needs_key__";
+const MODES: { id: AiMode; label: string; hint: string }[] = [
+  { id: "merge", label: "Merge", hint: "Apply a notice to your current schedule" },
+  { id: "replace", label: "Rebuild", hint: "Recreate the schedule from a description" },
+  { id: "ask", label: "Ask", hint: "Answer a question about your schedule" },
+];
 
-function readStoredKey(): string {
-  if (typeof window === "undefined") return "";
-  return window.localStorage.getItem(API_KEY_STORAGE) ?? "";
-}
+const PLACEHOLDERS: Record<AiMode, string> = {
+  merge: "e.g. Tomorrow's Machine Learning class is moved to room B-120, and next week's Computer Vision is cancelled.",
+  replace: "e.g. Full schedule for this semester: Monday 08:30 Comprehensive Chinese in G-514, weeks 2-4 and 6-17…",
+  ask: "e.g. What do I have next Monday? When is my Machine Learning exam week?",
+};
 
-export function AiUpdatePanel({ schedule, canSync, onApply, onReset }: AiUpdatePanelProps) {
+export function AiUpdatePanel({ schedule, onApply, onReset }: AiUpdatePanelProps) {
   const [open, setOpen] = useState(false);
   const [text, setText] = useState("");
-  const [mode, setMode] = useState<ParseMode>("merge");
-  const [apiKey, setApiKey] = useState(readStoredKey);
-  const [parsing, setParsing] = useState(false);
-  const [applying, setApplying] = useState(false);
+  const [mode, setMode] = useState<AiMode>("merge");
+  const [busy, setBusy] = useState(false);
   const [resetting, setResetting] = useState(false);
   const [preview, setPreview] = useState<ScheduleData | null>(null);
+  const [answer, setAnswer] = useState<string | null>(null);
   const [summary, setSummary] = useState("");
   const [error, setError] = useState<string | null>(null);
-  // The key field is always relevant when there's no signed-in session; after a
-  // failed server call it's revealed as the fallback on the hosted app too.
-  const [needsKey, setNeedsKey] = useState(false);
 
   function reset() {
     setPreview(null);
+    setAnswer(null);
     setSummary("");
     setError(null);
   }
 
-  function persistKey(key: string) {
-    setApiKey(key);
-    if (typeof window !== "undefined") {
-      if (key) window.localStorage.setItem(API_KEY_STORAGE, key);
-      else window.localStorage.removeItem(API_KEY_STORAGE);
-    }
-  }
-
-  async function runParse(): Promise<ParseResult> {
-    const payload = {
-      text,
-      mode,
-      courses: schedule.courses,
-      meetings: schedule.meetings,
-    };
-    if (canSync) {
-      try {
-        const res = await parseScheduleUpdate({ data: payload });
-        if (res.ok) return res;
-      } catch {
-        // No reachable server (APK) or the session expired — use the own-key path.
-      }
-    }
-    const key = apiKey.trim();
-    if (!key) return { ok: false, error: NEEDS_KEY };
-    const { system, user } = buildParseMessages(text, mode, schedule);
-    const completion = await requestCompletion(system, user, key);
-    if (!completion.ok) return { ok: false, error: completion.error };
-    const normalized = normalizeAiOutput(completion.text);
-    if (!normalized) return { ok: false, error: "The AI response was not valid schedule JSON." };
-    return { ok: true, schedule: normalized.schedule, summary: normalized.summary };
-  }
-
-  async function handlePreview() {
+  async function handleSubmit() {
     if (!text.trim()) {
-      setError("Paste the school's schedule notice first.");
+      setError(
+        mode === "ask"
+          ? "Ask a question about your schedule first."
+          : "Paste the school's notice or describe your schedule first.",
+      );
       return;
     }
-    setParsing(true);
+    setBusy(true);
     setError(null);
     setPreview(null);
+    setAnswer(null);
     try {
-      const result = await runParse();
+      const result = await requestAi(mode, text.trim(), {
+        courses: schedule.courses,
+        meetings: schedule.meetings,
+      });
       if (!result.ok) {
-        if (result.error === NEEDS_KEY) {
-          setNeedsKey(true);
-          setError("Paste your xAI API key below — this device has no built-in AI.");
-        } else {
-          if (result.error === "AI is not available in this environment.") setNeedsKey(true);
-          setError(result.error);
-        }
+        setError(result.error);
+      } else if (result.kind === "answer") {
+        setAnswer(result.answer);
       } else {
-        setPreview(result.schedule);
+        setPreview(buildPreview(result.schedule));
         setSummary(result.summary);
       }
     } catch {
-      setError("Something went wrong talking to the AI. Try again.");
+      setError("Something went wrong talking to the assistant. Try again.");
     } finally {
-      setParsing(false);
+      setBusy(false);
     }
   }
 
   async function handleApply() {
     if (!preview) return;
-    setApplying(true);
+    setBusy(true);
     setError(null);
     try {
       await onApply(preview.courses, preview.meetings);
@@ -132,7 +96,7 @@ export function AiUpdatePanel({ schedule, canSync, onApply, onReset }: AiUpdateP
     } catch {
       setError("Could not save the schedule. Try again.");
     } finally {
-      setApplying(false);
+      setBusy(false);
     }
   }
 
@@ -151,8 +115,6 @@ export function AiUpdatePanel({ schedule, canSync, onApply, onReset }: AiUpdateP
     }
   }
 
-  const showKeyField = needsKey || !canSync;
-
   return (
     <Dialog
       open={open}
@@ -164,74 +126,57 @@ export function AiUpdatePanel({ schedule, canSync, onApply, onReset }: AiUpdateP
       <DialogTrigger asChild>
         <Button variant="outline">
           <Sparkles className="size-4" />
-          AI update
+          AI assistant
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl">
         <div className="px-6 pt-6 pb-8">
-          <DialogTitle className="font-serif text-2xl">Update with AI</DialogTitle>
+          <DialogTitle className="font-serif text-2xl">AI assistant</DialogTitle>
           <DialogDescription className="mt-2">
-            Paste a schedule notice from your class group. The AI reads it and
-            updates your schedule — review the preview before applying.
+            Merge a group-chat notice into your schedule, rebuild it from a
+            description, or just ask a question — the assistant only works on
+            schedules, and you review every change before it's saved.
           </DialogDescription>
 
           <div className="mt-5 flex flex-col gap-4">
             <div className="flex items-center gap-1 rounded-md bg-paper-elevated p-1 shadow-[var(--shadow-border)]">
-              <ModeButton
-                active={mode === "merge"}
-                onClick={() => setMode("merge")}
-                label="Merge"
-                hint="Apply the notice to your current schedule"
-              />
-              <ModeButton
-                active={mode === "replace"}
-                onClick={() => setMode("replace")}
-                label="Replace"
-                hint="Rebuild the schedule from the notice"
-              />
+              {MODES.map((m) => (
+                <ModeButton
+                  key={m.id}
+                  active={mode === m.id}
+                  onClick={() => {
+                    setMode(m.id);
+                    reset();
+                  }}
+                  label={m.label}
+                  hint={m.hint}
+                />
+              ))}
             </div>
 
             <textarea
               value={text}
               onChange={(e) => setText(e.target.value)}
-              placeholder={
-                mode === "merge"
-                  ? "e.g. Tomorrow's Machine Learning class is moved to room B-120, and next week's Computer Vision is cancelled."
-                  : "e.g. Full schedule for this semester: Monday 08:30 Comprehensive Chinese in G-514, weeks 2-4 and 6-17…"
-              }
-              rows={6}
+              placeholder={PLACEHOLDERS[mode]}
+              rows={mode === "ask" ? 3 : 6}
+              maxLength={4000}
               className="w-full resize-y rounded-md border border-line bg-paper px-3 py-2 text-sm text-ink shadow-[var(--shadow-border)] outline-none placeholder:text-ink-faint focus-visible:ring-2 focus-visible:ring-ink/30"
             />
-
-            {showKeyField ? (
-              <div>
-                <label
-                  htmlFor="ai-key"
-                  className="flex items-center gap-1.5 text-xs font-medium text-ink-muted"
-                >
-                  <KeyRound className="size-3.5" />
-                  Your xAI API key
-                </label>
-                <input
-                  id="ai-key"
-                  type="password"
-                  value={apiKey}
-                  onChange={(e) => persistKey(e.target.value)}
-                  placeholder="xai-…"
-                  autoComplete="off"
-                  className="mt-1.5 w-full rounded-md border border-line bg-paper px-3 py-2 text-sm text-ink shadow-[var(--shadow-border)] outline-none placeholder:text-ink-faint focus-visible:ring-2 focus-visible:ring-ink/30"
-                />
-                <p className="mt-1.5 text-xs text-ink-faint">
-                  Stored only on this device. Get one at console.x.ai — on the signed-in website the
-                  built-in AI is used instead.
-                </p>
-              </div>
-            ) : null}
 
             {error ? (
               <p className="rounded-md bg-south-fill px-3 py-2 text-sm text-south-fg">
                 {error}
               </p>
+            ) : null}
+
+            {answer ? (
+              <div className="rounded-md border border-line bg-paper-elevated p-4 shadow-[var(--shadow-border)]">
+                <p className="flex items-center gap-2 text-xs font-medium tracking-wide text-ink-muted uppercase">
+                  <MessageCircleQuestion className="size-3.5" />
+                  Answer
+                </p>
+                <p className="mt-2 text-sm text-ink">{answer}</p>
+              </div>
             ) : null}
 
             {preview ? (
@@ -250,39 +195,33 @@ export function AiUpdatePanel({ schedule, canSync, onApply, onReset }: AiUpdateP
                 ) : (
                   <RotateCcw className="size-3.5" />
                 )}
-                Reset to default schedule
+                Start over
               </button>
 
               <div className="flex items-center gap-2">
                 {preview ? (
-                  <Button
-                    variant="ghost"
-                    onClick={() => {
-                      reset();
-                    }}
-                    disabled={applying}
-                  >
-                    Discard
-                  </Button>
-                ) : null}
-                {preview ? (
-                  <Button onClick={() => void handleApply()} disabled={applying}>
-                    {applying ? (
-                      <Loader2 className="size-4 animate-spin" />
-                    ) : null}
-                    Apply changes
-                  </Button>
+                  <>
+                    <Button variant="ghost" onClick={reset} disabled={busy}>
+                      Discard
+                    </Button>
+                    <Button onClick={() => void handleApply()} disabled={busy}>
+                      {busy ? (
+                        <Loader2 className="size-4 animate-spin" />
+                      ) : null}
+                      Apply changes
+                    </Button>
+                  </>
                 ) : (
                   <Button
-                    onClick={() => void handlePreview()}
-                    disabled={parsing || !text.trim()}
+                    onClick={() => void handleSubmit()}
+                    disabled={busy || !text.trim()}
                   >
-                    {parsing ? (
+                    {busy ? (
                       <Loader2 className="size-4 animate-spin" />
                     ) : (
                       <Sparkles className="size-4" />
                     )}
-                    Preview changes
+                    {mode === "ask" ? "Ask" : "Preview changes"}
                   </Button>
                 )}
               </div>
@@ -320,7 +259,14 @@ function ModeButton({
   );
 }
 
-function PreviewCard({
+/** Rebuild ScheduleData (with courseById) from the API's plain arrays. */
+function buildPreview(raw: { courses: Course[]; meetings: Meeting[] }): ScheduleData {
+  const courseById: Record<string, Course> = {};
+  for (const c of raw.courses) courseById[c.id] = c;
+  return { courses: raw.courses, meetings: raw.meetings, courseById };
+}
+
+export function PreviewCard({
   schedule,
   summary,
 }: {

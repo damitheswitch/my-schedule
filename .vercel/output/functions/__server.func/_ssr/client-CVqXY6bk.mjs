@@ -1,6 +1,6 @@
 import { o as __toESM } from "../_runtime.mjs";
 import { t as __exportAll } from "./rolldown-runtime-D7D4PA-g.mjs";
-import { an as createFetch, nn as capitalizeFirstLetter, on as isSafeUrlScheme, rn as toKebabCase } from "../_libs/@better-auth/core+[...].mjs";
+import { in as toKebabCase, on as createFetch, rn as capitalizeFirstLetter, sn as isSafeUrlScheme } from "../_libs/@better-auth/core+[...].mjs";
 import { n as PACKAGE_VERSION, r as getBaseURL, t as GENERIC_OAUTH_ERROR_CODES } from "./url-DwGxbmbA.mjs";
 import { u as require_react } from "../_libs/@floating-ui/react-dom+[...].mjs";
 import { a as atom, i as onSet, n as STORE_UNMOUNT_DELAY, r as onMount, t as listenKeys } from "../_libs/nanostores.mjs";

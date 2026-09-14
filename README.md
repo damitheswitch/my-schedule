@@ -1,31 +1,86 @@
 # North & South
 
-A timetable app for a master's schedule split across two campuses — **South**
-(warm blocks) and **North** (cool blocks) — for the Autumn 2026 term (17 weeks,
-Asia/Shanghai).
+A class schedule you never have to type twice — for students whose timetable
+spans campuses, weeks, and endless group-chat notices.
 
-## Features
+This started as a hobby project: my own schedule at Xidian University was a
+mess of screenshots and forwarded notices, and I got tired of retyping it
+every time the school moved a class. Then I realized everyone's schedule is
+like this — so it grew into a product anyone can use.
 
-- **Week grid + day agenda** — desktop grid and a mobile day view, with a
-  per-week load heatmap and commute warnings when a week spans both campuses.
-- **Update with AI** — paste a schedule notice from a class group chat; the AI
-  (Grok) reads it, shows a structured preview, and applies it on confirm.
-  - **Merge** applies only the notice's changes and keeps everything else.
-  - **Replace** rebuilds the schedule from the notice.
-  - Understands English and Chinese notices (`周一`, `南区`/`北区`, week ranges).
-  - One-tap **reset to default** restores the built-in schedule.
-- **Local-first storage** — the schedule lives in the device's `localStorage`,
-  so it works fully offline and signed out.
-- **Optional sign-in sync** — signing in on the hosted app syncs the schedule
-  through Postgres so it follows you across browsers (last-write-wins).
-- **Android APK** — a WebView shell packages the app for sideloading. The
-  schedule is stored on-device; AI updates there use your own xAI key.
-- **What's-new notice** — the app announces each release once per version.
+**Live:** https://my-schedule-xi-one.vercel.app
 
-## Tech
+## What it does
 
-TanStack Start (React 19) · TanStack Router · Better Auth · Kysely → Neon /
-PGLite · Tailwind v4 · Radix · zod · xAI (`grok-4.5`) for parsing · Vercel.
+- **Describe it, get a schedule** — on first run, tell the assistant your
+  courses in plain words (type *or dictate* — voice input where the browser
+  supports it), or paste the school's notice. It builds your whole term and
+  shows a preview before anything is saved.
+- **Update from notices** — when the group chat says "Monday's ML moved to
+  B-120", paste it in. **Merge** applies just the change; **Rebuild** recreates
+  the schedule from a fresh description. Understands English and Chinese
+  (`周一`, `南区`/`北区`, week ranges).
+- **Ask your schedule anything** — "what do I have next Monday?" — a read-only
+  mode that answers questions without touching your data.
+- **Anonymous by default** — no account, no API key, works offline. Your
+  schedule lives on the device.
+- **Sign in when you want sync** — optional sign-in keeps the schedule
+  following you across browsers (last-write-wins through Postgres).
+- **Two-campus aware** — warm blocks for South, cool for North, with commute
+  warnings on weeks that span both.
+- **Android app** — a WebView APK that does everything the site does, calling
+  the hosted AI like any other client.
+- **What's-new notice** — releases announce themselves once per version.
+
+## Architecture
+
+```
+browser / APK  ──►  POST /api/ai  ──►  xAI (Grok)
+                      │                  ▲ owner key, server-side only
+                      ├─ input validation + size caps
+                      ├─ per-IP burst + daily rate limits
+                      ├─ global daily cap + AI_DISABLED kill-switch
+                      └─ scoped prompt + strict JSON schema out
+
+signed-in browser ──►  server fns ──►  Postgres (user_schedules)
+                      authMiddleware + verified userId
+```
+
+- **The owner key never leaves the server.** Every client — website, signed
+  out browser, APK — calls the public `/api/ai` route, which is the only code
+  path that can read `XAI_API_KEY`.
+- **Local-first data.** `localStorage` is the source of truth everywhere; the
+  DB is a best-effort sync layer for signed-in users only.
+- **APK = just another API client.** The Android bundle is served from
+  `appassets.androidplatform.net`, so it calls the site's `/api/ai` directly
+  (allowlisted in the endpoint's CORS).
+
+## Security & abuse guardrails
+
+A public AI endpoint funded by the owner is a faucet without limits, so:
+
+- **Rate limits** — per-IP: 6/minute burst + 30/day. Global: 400/day across
+  all visitors. Counters live in Postgres (`ai_usage` table) so they hold
+  across serverless instances; in-memory fallback for local dev. Tunable via
+  `AI_IP_MINUTE_LIMIT`, `AI_IP_DAY_LIMIT`, `AI_GLOBAL_DAY_LIMIT`, and the
+  `AI_DISABLED=1` kill-switch.
+- **Scoped prompts** — the model is instructed to only build, update, or
+  answer questions about schedules; pasted text is treated as untrusted data,
+  never instructions.
+- **Structured output** — the only response shapes are schedule JSON or a
+  short answer string. Anything malformed is dropped before it can be stored.
+- **Bounded input** — 4 KB text cap, 64 KB body cap, capped schedule arrays.
+- **CORS allowlist** — browsers may only call it from the site itself or the
+  APK's WebView origin.
+- **User data isolation** — sync rows are scoped by the verified server-side
+  `userId`, never a client-supplied id. Rate-limit buckets hash the IP so raw
+  addresses aren't stored.
+- **No secrets in the repo** — `.env*` is gitignored; signing keys stay local.
+
+Honest limit: prompt-injection can't be 100 % prevented — the worst case is a
+weird schedule preview or a refusal, bounded by the structured output schema.
+Rate limits bound quota burn but can't stop a determined actor with many IPs;
+the global daily cap + kill-switch is the ceiling.
 
 ## Develop
 
@@ -43,19 +98,22 @@ Other scripts: `npm run build` · `npm run typecheck` · `npm run lint` ·
 
 ## Deploy (Vercel)
 
-The repo carries a prebuilt `.vercel/output`; a normal Git-linked Vercel deploy
-rebuilds it. Server features need env vars on the project:
+The repo carries a prebuilt `.vercel/output`; a normal Git-linked Vercel
+deploy rebuilds it. Server features need env vars on the project:
 
 | Var | Purpose |
 | --- | --- |
-| `DATABASE_URL` | Neon Postgres — schedule sync + auth sessions |
-| `XAI_API_KEY` | Server-side AI parsing (never exposed to the browser) |
-| `GROK_AUTH_ISSUER`, `GROK_AUTH_CLIENT_ID`, `GROK_AUTH_CLIENT_SECRET`, `BETTER_AUTH_URL` | Federated sign-in via the Grok auth broker |
+| `XAI_API_KEY` | **Required for AI** — read only inside `/api/ai` |
+| `DATABASE_URL` | Neon Postgres — sync + auth sessions + rate limits |
+| `GROK_AUTH_ISSUER`, `GROK_AUTH_CLIENT_ID`, `GROK_AUTH_CLIENT_SECRET`, `BETTER_AUTH_URL` | Optional sign-in via the Grok auth broker |
+| `AI_IP_MINUTE_LIMIT` / `AI_IP_DAY_LIMIT` / `AI_GLOBAL_DAY_LIMIT` / `AI_DISABLED` | Optional rate-limit tuning |
 
-Sign-in is brokered by the Grok platform — on a plain Vercel deploy the broker
-won't accept this origin, so sign-in quietly stays unavailable and the app runs
-local-first (which is fully functional). `XAI_API_KEY` absent → the AI panel
-asks for the user's own key instead. Nothing breaks either way.
+Without `XAI_API_KEY` the assistant answers "isn't configured on this
+deployment" and everything else still works. Without `DATABASE_URL`, rate
+limits fall back to per-process memory and sync simply doesn't persist.
+Sign-in is brokered by the Grok platform — a plain Vercel deploy won't be
+accepted by that broker, so sign-in stays quietly unavailable and the app
+remains fully functional anonymous/local-first.
 
 ## Android
 
@@ -65,21 +123,20 @@ cd .. && gradle assembleDebug                     # JDK 17 + Android SDK 35
 ```
 
 Output: `android/app/build/outputs/apk/debug/app-debug.apk` — debug-signed,
-sideloads on Android 8.0+. The latest built APK is also served from the site at
-`/north-south-<version>.apk` (see `src/lib/app-version.ts`, keep it in sync
+sideloads on Android 8.0+. The latest build is also served from the site at
+`/north-south-<version>.apk` (see `src/lib/app-version.ts`; keep it in sync
 with `versionName`/`versionCode` in `android/app/build.gradle`).
 
 In the APK there is no server: `@/lib/schedule-data` is stubbed
-(`android/web/src/schedule-data-stub.ts`), so data stays in the WebView's
-`localStorage` and AI calls go straight to `api.x.ai` with a key the user enters
-once on the device.
+(`android/web/src/schedule-data-stub.ts`), data stays in the WebView's
+`localStorage`, and AI calls go to the hosted site's `/api/ai` — no key entry,
+ever.
 
-## Security notes
+**Play Store status:** the shipped APK is debug-signed for sideloading.
+Publishing needs a release keystore (kept out of the repo), a signed AAB,
+Play App Signing, a privacy policy, and data-safety declarations — planned.
 
-- No secrets in the repo — `.env*` is gitignored and never created.
-- `XAI_API_KEY` is read server-side only; the APK/preview path uses a key the
-  user enters, stored in their own `localStorage`.
-- Every server function is behind `authMiddleware` and scopes data by the
-  verified `context.userId` — never a client-sent id.
-- The distributed APK is **debug-signed** — fine for personal sideloading; use a
-  real keystore before publishing anywhere public.
+## Tech
+
+TanStack Start (React 19) · TanStack Router · Better Auth · Kysely → Neon /
+PGLite · Tailwind v4 · Radix · zod · xAI (`grok-4.5`) · Vercel.

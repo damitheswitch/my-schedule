@@ -1,8 +1,9 @@
 # My Schedule — Android wrapper
 
 Native Android shell that packages the `my-schedule` web app ("North & South")
-into an installable APK. No server needed: the app is fully client-side, so the
-WebView serves the built bundle straight from app assets.
+into an installable APK. The WebView serves the built bundle straight from app
+assets; the only network call it makes is to the hosted site's public AI
+endpoint.
 
 ## Layout
 
@@ -29,7 +30,7 @@ The Vite config resolves app sources from a sibling `../my-schedule` checkout
 (or `../src` when this folder lives inside the my-schedule repo on the
 `android-apk` branch).
 
-## No server, no sign-in
+## Local data, hosted AI
 
 The APK bundles the client only. `web/vite.config.ts` aliases
 `@/lib/schedule-data` to `web/src/schedule-data-stub.ts` so server functions,
@@ -37,8 +38,10 @@ The APK bundles the client only. `web/vite.config.ts` aliases
 
 - The schedule lives in the WebView's `localStorage` — edits persist on-device
   but do not sync to the hosted app's database.
-- "AI update" skips the server-side call and asks for your own xAI API key
-  (stored on-device), calling `api.x.ai` directly. On the hosted site the
-  built-in key is used instead when signed in.
+- AI goes through the same public endpoint every client uses:
+  `https://my-schedule-xi-one.vercel.app/api/ai` (see `PUBLIC_SITE_URL` in
+  `src/lib/app-version.ts`). The WebView's `appassets.androidplatform.net`
+  origin is allowlisted in that endpoint's CORS, and requests are rate-limited
+  server-side. No API key is ever stored on the device or embedded in the APK.
 - Sign-in controls are hidden — the app detects the
   `appassets.androidplatform.net` origin.

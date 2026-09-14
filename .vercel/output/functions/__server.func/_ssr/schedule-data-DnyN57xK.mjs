@@ -1,8 +1,8 @@
 import { D as _enum, F as object, P as number, R as string, k as array } from "../_libs/@better-auth/core+[...].mjs";
 import { i as TSS_SERVER_FUNCTION, r as createServerFn } from "./ssr.mjs";
-import { n as COURSES, o as MEETINGS } from "./schedule-B0yyZU-a.mjs";
-import { a as requestCompletion, i as normalizeAiOutput, n as buildParseMessages, r as buildScheduleData, t as authMiddleware } from "./schedule-ai-ThVoJL0j.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/schedule-data-K6R8ZImn.js
+import { d as buildScheduleData } from "./schedule-ai-BcRRaj_R.mjs";
+import { t as authMiddleware } from "./middleware-BWLq4NPP.mjs";
+//#region node_modules/.nitro/vite/services/ssr/assets/schedule-data-DnyN57xK.js
 var createServerRpc = (serverFnMeta, splitImportFn) => {
 	const url = "/_serverFn/" + serverFnMeta.id;
 	return Object.assign(splitImportFn, {
@@ -22,14 +22,14 @@ var getSchedule_createServerFn_handler = createServerRpc({
 	filename: "src/lib/schedule-data.ts"
 }, (opts) => getSchedule.__executeServer(opts));
 var getSchedule = createServerFn({ method: "GET" }).middleware([authMiddleware]).handler(getSchedule_createServerFn_handler, async ({ context }) => {
-	const { getSql } = await import("./db-BK4q1qzX.mjs").then((n) => n.t).then((n) => n.t);
+	const { getSql } = await import("./db-D8CXEjvD.mjs").then((n) => n.t).then((n) => n.t);
 	const rows = await (await getSql())`
       select user_id, courses, meetings, updated_at from user_schedules where user_id = ${context.userId}
     `;
 	if (rows.length === 0) return null;
 	const row = rows[0];
-	const courses = row.courses ?? COURSES;
-	const meetings = row.meetings ?? MEETINGS;
+	const courses = row.courses ?? [];
+	const meetings = row.meetings ?? [];
 	return {
 		...buildScheduleData(courses, meetings),
 		updatedAt: toMillis(row.updated_at)
@@ -72,7 +72,7 @@ var saveSchedule_createServerFn_handler = createServerRpc({
 	filename: "src/lib/schedule-data.ts"
 }, (opts) => saveSchedule.__executeServer(opts));
 var saveSchedule = createServerFn({ method: "POST" }).middleware([authMiddleware]).validator(saveInput).handler(saveSchedule_createServerFn_handler, async ({ data, context }) => {
-	const { getSql } = await import("./db-BK4q1qzX.mjs").then((n) => n.t).then((n) => n.t);
+	const { getSql } = await import("./db-D8CXEjvD.mjs").then((n) => n.t).then((n) => n.t);
 	const rows = await (await getSql())`
       insert into user_schedules (user_id, courses, meetings, updated_at)
       values (${context.userId}, ${JSON.stringify(data.courses)}::jsonb, ${JSON.stringify(data.meetings)}::jsonb, now())
@@ -93,44 +93,9 @@ var resetSchedule_createServerFn_handler = createServerRpc({
 	filename: "src/lib/schedule-data.ts"
 }, (opts) => resetSchedule.__executeServer(opts));
 var resetSchedule = createServerFn({ method: "POST" }).middleware([authMiddleware]).handler(resetSchedule_createServerFn_handler, async ({ context }) => {
-	const { getSql } = await import("./db-BK4q1qzX.mjs").then((n) => n.t).then((n) => n.t);
+	const { getSql } = await import("./db-D8CXEjvD.mjs").then((n) => n.t).then((n) => n.t);
 	await (await getSql())`delete from user_schedules where user_id = ${context.userId}`;
 	return { ok: true };
 });
-var parseInput = object({
-	text: string().min(1).max(8e3),
-	mode: _enum(["merge", "replace"])
-});
-var parseScheduleUpdate_createServerFn_handler = createServerRpc({
-	id: "1cc2b2a94b30a1cdf4ecf91405a679e264278c81487f05906977984d39526062",
-	name: "parseScheduleUpdate",
-	filename: "src/lib/schedule-data.ts"
-}, (opts) => parseScheduleUpdate.__executeServer(opts));
-var parseScheduleUpdate = createServerFn({ method: "POST" }).middleware([authMiddleware]).validator(parseInput.extend({
-	courses: saveInput.shape.courses,
-	meetings: saveInput.shape.meetings
-})).handler(parseScheduleUpdate_createServerFn_handler, async ({ data }) => {
-	const apiKey = process.env.XAI_API_KEY;
-	if (!apiKey) return {
-		ok: false,
-		error: "AI is not available in this environment."
-	};
-	const { system, user } = buildParseMessages(data.text, data.mode, {
-		courses: data.courses,
-		meetings: data.meetings
-	});
-	const completion = await requestCompletion(system, user, apiKey);
-	if (!completion.ok) return completion;
-	const normalized = normalizeAiOutput(completion.text);
-	if (!normalized) return {
-		ok: false,
-		error: "The AI response was not valid schedule JSON."
-	};
-	return {
-		ok: true,
-		schedule: normalized.schedule,
-		summary: normalized.summary
-	};
-});
 //#endregion
-export { getSchedule_createServerFn_handler, parseScheduleUpdate_createServerFn_handler, resetSchedule_createServerFn_handler, saveSchedule_createServerFn_handler };
+export { getSchedule_createServerFn_handler, resetSchedule_createServerFn_handler, saveSchedule_createServerFn_handler };

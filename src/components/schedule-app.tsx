@@ -6,6 +6,7 @@ import { AiUpdatePanel } from "@/components/ai-update-panel";
 import { AppInfo } from "@/components/app-info";
 import { DayAgenda } from "@/components/day-agenda";
 import { MeetingPanel } from "@/components/meeting-panel";
+import { Onboarding } from "@/components/onboarding";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { WeekGrid } from "@/components/week-grid";
@@ -16,6 +17,8 @@ import { buildScheduleData } from "@/lib/schedule-ai";
 import {
   applySchedule,
   BASE_SCHEDULE,
+  hasOnboarded,
+  markOnboarded,
   readLocalSchedule,
   resetScheduleEverywhere,
   syncSchedule,
@@ -68,10 +71,14 @@ export function ScheduleApp({ weekParam }: ScheduleAppProps) {
   // converges with the cloud copy when signed in on the hosted app.
   const [schedule, setSchedule] = useState<ScheduleData | null>(null);
   const [mounted, setMounted] = useState(false);
+  // First-run flag: false until this device has been through onboarding (or
+  // already holds a real schedule — returning users skip it entirely).
+  const [onboarded, setOnboarded] = useState(true);
 
   useEffect(() => {
     const local = readLocalSchedule() ?? BASE_SCHEDULE;
     setSchedule(buildScheduleData(local.courses, local.meetings));
+    setOnboarded(hasOnboarded() || local.meetings.length > 0);
     setMounted(true);
   }, []);
 
@@ -132,12 +139,20 @@ export function ScheduleApp({ weekParam }: ScheduleAppProps) {
     toast("Schedule updated");
   }
 
+  /** Onboarding finished — mark the device, then persist like any apply. */
+  async function handleOnboarded(courses: Course[], meetings: Meeting[]) {
+    markOnboarded();
+    setOnboarded(true);
+    await handleApply(courses, meetings);
+  }
+
   async function handleReset() {
     const next = await resetScheduleEverywhere(canSync);
     setSchedule(next);
+    setOnboarded(false);
     setFocusCourseId(null);
     setSelected(null);
-    toast("Back to the original schedule");
+    toast("Schedule cleared — start fresh");
   }
 
   useEffect(() => {
@@ -213,6 +228,12 @@ export function ScheduleApp({ weekParam }: ScheduleAppProps) {
     );
   }
 
+  // First run: no onboarded flag and nothing scheduled — show the welcome
+  // flow. If a cloud sync later delivers meetings, this hides itself.
+  if (!onboarded && schedule.meetings.length === 0) {
+    return <Onboarding onDone={handleOnboarded} />;
+  }
+
   return (
     <TooltipProvider>
       <Toaster
@@ -246,7 +267,6 @@ export function ScheduleApp({ weekParam }: ScheduleAppProps) {
             <div className="flex flex-wrap items-center gap-2 no-print">
               <AiUpdatePanel
                 schedule={schedule}
-                canSync={canSync}
                 onApply={handleApply}
                 onReset={handleReset}
               />

@@ -1,13 +1,13 @@
 import { o as __toESM } from "../_runtime.mjs";
 import { t as __exportAll } from "./rolldown-runtime-D7D4PA-g.mjs";
-import { F as object, M as literal, P as number, R as string, z as union } from "../_libs/@better-auth/core+[...].mjs";
+import { B as unknown, D as _enum, F as object, L as record, M as literal, P as number, R as string, k as array, z as union } from "../_libs/@better-auth/core+[...].mjs";
 import { u as require_react } from "../_libs/@floating-ui/react-dom+[...].mjs";
 import { f as createRouter, g as createRootRoute, h as createFileRoute, l as Scripts, m as lazyRouteComponent, p as Outlet, u as HeadContent, y as useRouter } from "../_libs/@tanstack/react-router+[...].mjs";
 import { n as require_jsx_runtime } from "../_libs/radix-ui__react-context+react.mjs";
-import { n as auth } from "./server-CzMxKS_a.mjs";
-import { d as clampWeek } from "./schedule-B0yyZU-a.mjs";
+import { n as auth } from "./server-BGzN9ETo.mjs";
+import { D as normalizeAiOutput, O as normalizeAskOutput, f as clampWeek, k as requestCompletion, l as buildAskMessages, u as buildParseMessages } from "./schedule-ai-BcRRaj_R.mjs";
 import { r as TriangleAlert } from "../_libs/lucide-react.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/router-jfjmvTQw.js
+//#region node_modules/.nitro/vite/services/ssr/assets/router-Dr_npMIy.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var FALLBACK_MESSAGE = "An unexpected error occurred. Try reloading the page.";
@@ -301,9 +301,9 @@ function PreviewHostBridge() {
 	}, [router]);
 	return null;
 }
-var styles_default = "/assets/styles-DqTmrYta.css";
+var styles_default = "/assets/styles-zspiDXwb.css";
 var APP_NAME = "North & South";
-var Route$3 = createRootRoute({
+var Route$4 = createRootRoute({
 	head: () => ({
 		meta: [
 			{ charSet: "utf-8" },
@@ -365,8 +365,8 @@ var Route$3 = createRootRoute({
 		] })]
 	})
 });
-var $$splitComponentImporter$1 = () => import("./routes-P7lOPUsA.mjs");
-var Route$2 = createFileRoute("/")({
+var $$splitComponentImporter$1 = () => import("./routes-O36NfBVb.mjs");
+var Route$3 = createFileRoute("/")({
 	validateSearch: (search) => {
 		const raw = Number(search.week);
 		if (!Number.isFinite(raw)) return {};
@@ -374,30 +374,174 @@ var Route$2 = createFileRoute("/")({
 	},
 	component: lazyRouteComponent($$splitComponentImporter$1, "component")
 });
-var $$splitComponentImporter = () => import("./login-BaI3ERyo.mjs");
-var Route$1 = createFileRoute("/login")({ component: lazyRouteComponent($$splitComponentImporter, "component") });
+var $$splitComponentImporter = () => import("./login-3YNvHWkg.mjs");
+var Route$2 = createFileRoute("/login")({ component: lazyRouteComponent($$splitComponentImporter, "component") });
+/**
+* Public AI endpoint — POST /api/ai.
+*
+* This is the SaaS path: every client (hosted site, signed-out browsers, and
+* the Android APK) calls this route, and only this route holds the owner's
+* `XAI_API_KEY`. Because it is unauthenticated, defense lives here:
+*
+*   - strict input validation + size caps (below)
+*   - per-IP and global rate limits (`ai-rate-limit.ts`)
+*   - scoped prompts + structured output (`schedule-ai.ts`)
+*   - CORS allowlist: only same-origin and the APK WebView origin may call it
+*     from a browser context (non-browser callers are still rate-limited)
+*   - generic client-facing errors; the key never appears in responses
+*/
+var ALLOWED_ORIGINS = /* @__PURE__ */ new Set(["https://appassets.androidplatform.net"]);
+var MAX_TEXT = 4e3;
+var MAX_BODY = 64e3;
+var requestSchema = object({
+	mode: _enum([
+		"merge",
+		"replace",
+		"ask"
+	]),
+	text: string().min(1).max(MAX_TEXT),
+	schedule: object({
+		courses: array(record(string(), unknown())).max(40).optional(),
+		meetings: array(record(string(), unknown())).max(150).optional()
+	}).optional()
+});
+function corsHeaders(request) {
+	const origin = request.headers.get("origin");
+	if (origin && ALLOWED_ORIGINS.has(origin)) return {
+		"Access-Control-Allow-Origin": origin,
+		"Access-Control-Allow-Methods": "POST, OPTIONS",
+		"Access-Control-Allow-Headers": "Content-Type",
+		"Access-Control-Max-Age": "86400",
+		Vary: "Origin"
+	};
+	return {};
+}
+function json(request, status, body, extra = {}) {
+	return new Response(JSON.stringify(body), {
+		status,
+		headers: {
+			"Content-Type": "application/json",
+			...corsHeaders(request),
+			...extra
+		}
+	});
+}
+function clientIp(request) {
+	const fwd = request.headers.get("x-forwarded-for");
+	if (fwd) return fwd.split(",")[0].trim();
+	return request.headers.get("x-real-ip")?.trim() ?? "unknown";
+}
+var Route$1 = createFileRoute("/api/ai")({ server: { handlers: {
+	OPTIONS: ({ request }) => new Response(null, {
+		status: 204,
+		headers: corsHeaders(request)
+	}),
+	POST: async ({ request }) => {
+		if (request.headers.get("content-type")?.includes("application/json") !== true) return json(request, 415, {
+			ok: false,
+			error: "Expected a JSON request."
+		});
+		let raw;
+		try {
+			raw = await request.text();
+		} catch {
+			return json(request, 400, {
+				ok: false,
+				error: "Could not read the request."
+			});
+		}
+		if (raw.length > MAX_BODY) return json(request, 413, {
+			ok: false,
+			error: "Request too large."
+		});
+		let parsedBody;
+		try {
+			parsedBody = JSON.parse(raw);
+		} catch {
+			return json(request, 400, {
+				ok: false,
+				error: "Malformed JSON."
+			});
+		}
+		const input = requestSchema.safeParse(parsedBody);
+		if (!input.success) return json(request, 400, {
+			ok: false,
+			error: `Keep it under ${MAX_TEXT} characters and try again.`
+		});
+		const { checkAiRateLimit } = await import("./ai-rate-limit-BnZmADFn.mjs");
+		const limited = await checkAiRateLimit(clientIp(request));
+		if (!limited.ok) return json(request, limited.status, {
+			ok: false,
+			error: limited.error
+		}, { "Retry-After": String(limited.retryAfterSec) });
+		const apiKey = process.env.XAI_API_KEY;
+		if (!apiKey) return json(request, 503, {
+			ok: false,
+			error: "The AI assistant isn't configured on this deployment."
+		});
+		const current = {
+			courses: input.data.schedule?.courses ?? [],
+			meetings: input.data.schedule?.meetings ?? []
+		};
+		const { system, user } = input.data.mode === "ask" ? buildAskMessages(input.data.text, current) : buildParseMessages(input.data.text, input.data.mode, current);
+		const completion = await requestCompletion(system, user, apiKey);
+		if (!completion.ok) return json(request, 502, {
+			ok: false,
+			error: completion.error
+		});
+		if (input.data.mode === "ask") {
+			const answer = normalizeAskOutput(completion.text);
+			if (!answer) return json(request, 502, {
+				ok: false,
+				error: "The AI returned something unreadable. Try again."
+			});
+			return json(request, 200, {
+				ok: true,
+				answer
+			});
+		}
+		const parsed = normalizeAiOutput(completion.text);
+		if (!parsed) return json(request, 502, {
+			ok: false,
+			error: "The AI returned something unreadable. Try again."
+		});
+		return json(request, 200, {
+			ok: true,
+			schedule: {
+				courses: parsed.schedule.courses,
+				meetings: parsed.schedule.meetings
+			},
+			summary: parsed.summary
+		});
+	}
+} } });
 var Route = createFileRoute("/api/auth/$")({ server: { handlers: {
 	GET: ({ request }) => auth.handler(request),
 	POST: ({ request }) => auth.handler(request)
 } } });
 var rootRouteChildren = {
-	IndexRoute: Route$2.update({
+	IndexRoute: Route$3.update({
 		id: "/",
 		path: "/",
-		getParentRoute: () => Route$3
+		getParentRoute: () => Route$4
 	}),
-	LoginRoute: Route$1.update({
+	LoginRoute: Route$2.update({
 		id: "/login",
 		path: "/login",
-		getParentRoute: () => Route$3
+		getParentRoute: () => Route$4
+	}),
+	ApiAiRoute: Route$1.update({
+		id: "/api/ai",
+		path: "/api/ai",
+		getParentRoute: () => Route$4
 	}),
 	ApiAuthSplatRoute: Route.update({
 		id: "/api/auth/$",
 		path: "/api/auth/$",
-		getParentRoute: () => Route$3
+		getParentRoute: () => Route$4
 	})
 };
-var routeTree = Route$3._addFileChildren(rootRouteChildren)._addFileTypes();
+var routeTree = Route$4._addFileChildren(rootRouteChildren)._addFileTypes();
 var router_exports = /* @__PURE__ */ __exportAll({ getRouter: () => getRouter });
 function getRouter() {
 	return createRouter({
@@ -406,4 +550,4 @@ function getRouter() {
 	});
 }
 //#endregion
-export { Route$2 as n, router_exports as t };
+export { Route$3 as n, router_exports as t };

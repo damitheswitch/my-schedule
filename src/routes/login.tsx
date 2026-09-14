@@ -13,8 +13,8 @@ function Login() {
           </p>
           <h1 className="mt-2 font-serif text-4xl leading-none">Sign in</h1>
           <p className="mt-3 text-sm text-ink-muted">
-            Sign in to keep your schedule in sync across your devices — and to
-            use the built-in AI without your own API key.
+            Optional — sign in to keep your schedule in sync across your
+            devices. Everything else works without an account.
           </p>
         </div>
         {authEnabled ? (
