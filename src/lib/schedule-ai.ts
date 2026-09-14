@@ -1,6 +1,7 @@
 import { z } from "zod";
 import {
   TERM,
+  compressWeeks,
   type Course,
   type Meeting,
   type MeetingFlag,
@@ -47,25 +48,6 @@ function normDay(v: string): DayKey | null {
 function normCampus(v: string): Campus | null {
   const key = v.trim().toLowerCase();
   return CAMPUS_ALIASES[key] ?? (key === "south" ? "South" : key === "north" ? "North" : null);
-}
-
-/** Turn a weeks array like [2,3,4,6,7] into a compact label like "2–4, 6–7". */
-function compressWeeks(weeks: number[]): string {
-  const sorted = [...new Set(weeks)].sort((a, b) => a - b);
-  const parts: string[] = [];
-  let start = sorted[0];
-  let prev = sorted[0];
-  for (let i = 1; i <= sorted.length; i += 1) {
-    const cur = sorted[i];
-    if (cur === prev + 1) {
-      prev = cur;
-      continue;
-    }
-    parts.push(start === prev ? `${start}` : `${start}–${prev}`);
-    start = cur;
-    prev = cur;
-  }
-  return parts.join(", ");
 }
 
 /** The loose shape we ask the model for; `normalizeAiOutput` makes it strict. */

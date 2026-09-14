@@ -150,6 +150,64 @@ export function expandWeeks(spec: string): number[] {
   return weeks;
 }
 
+/** Turn a weeks array like [2,3,4,6,7] into a compact label like "2–4, 6–7". */
+export function compressWeeks(weeks: number[]): string {
+  const sorted = [...new Set(weeks)].sort((a, b) => a - b);
+  if (sorted.length === 0) return "";
+  const parts: string[] = [];
+  let start = sorted[0];
+  let prev = sorted[0];
+  for (let i = 1; i <= sorted.length; i += 1) {
+    const cur = sorted[i];
+    if (cur === prev + 1) {
+      prev = cur;
+      continue;
+    }
+    parts.push(start === prev ? `${start}` : `${start}–${prev}`);
+    start = cur;
+    prev = cur;
+  }
+  return parts.join(", ");
+}
+
+/** Typical section start times (11 sections across the three daily bands). */
+const SECTION_STARTS = [
+  "08:30", "09:20", "10:15", "11:10",
+  "14:00", "14:50", "15:45", "16:40",
+  "19:00", "19:50", "20:40",
+] as const;
+
+/**
+ * Best-fit section numbers for a manual entry. Only used to group/label
+ * meetings — the block renders real start/end times, so approximation is fine.
+ */
+export function sectionsForTime(start: string, end: string): {
+  sectionStart: number;
+  sectionEnd: number;
+} {
+  const nearest = (hhmm: string) => {
+    const t = toMinutes(hhmm);
+    let best = 0;
+    for (let i = 0; i < SECTION_STARTS.length; i += 1) {
+      if (Math.abs(toMinutes(SECTION_STARTS[i]) - t) < Math.abs(toMinutes(SECTION_STARTS[best]) - t)) {
+        best = i;
+      }
+    }
+    return best + 1;
+  };
+  const s = nearest(start);
+  // The end lands past the last section's start — nudge back one minute so a
+  // class ending at a boundary still maps to the section it occupied.
+  const e = Math.max(s, nearest(minutesToHhmm(toMinutes(end) - 1)));
+  return { sectionStart: s, sectionEnd: e };
+}
+
+function minutesToHhmm(mins: number): string {
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+}
+
 export function toMinutes(hhmm: string): number {
   const [h, m] = hhmm.split(":").map(Number);
   return h * 60 + m;
@@ -468,7 +526,7 @@ export function courseMeetings(courseId: string, data: ScheduleData = DEFAULT_SC
 export function serializeWeek(week: number, data: ScheduleData = DEFAULT_SCHEDULE): string {
   const blocks = blocksForWeek(week, data);
   const lines = [
-    `North & South · ${TERM.label}`,
+    `Kebiao · ${TERM.label}`,
     `Week ${week} · ${formatWeekRange(week)}`,
     "",
   ];

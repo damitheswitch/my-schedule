@@ -460,7 +460,8 @@ test("rejects hosts that are not plain slugs", () => {
 });
 
 test("renders install page markup", () => {
-  const html = renderInstallPage("wild-race.grok.me", "/?install=1&platform=ios");
+  const emptyCwd = mkdtempSync(join(tmpdir(), "grok-install-"));
+  const html = renderInstallPage("wild-race.grok.me", "/?install=1&platform=ios", emptyCwd);
   assert.match(html, /Add Wild Race to your/);
   assert.match(html, /\/__grok\/install\/styles\.css/);
   assert.match(html, /href="\/"/);
@@ -474,10 +475,39 @@ test("escapes host-derived values in the install page", () => {
 });
 
 test("renders the manifest with the per-app name", () => {
-  const manifest = JSON.parse(renderWebManifest("wild-race.grok.me"));
+  // Empty dir = no site.json, so the name falls back to the grok.me host slug.
+  const emptyCwd = mkdtempSync(join(tmpdir(), "grok-pwa-"));
+  const manifest = JSON.parse(renderWebManifest("wild-race.grok.me", { cwd: emptyCwd }));
   assert.equal(manifest.name, "Wild Race");
   assert.equal(manifest.short_name, "Wild Race");
   assert.equal(manifest.icons[0].src, "/__grok/icon-180.png");
+});
+
+test("manifest prefers site.json identity over the host slug", () => {
+  const cwd = mkdtempSync(join(tmpdir(), "grok-pwa-site-"));
+  mkdirSync(join(cwd, "src/lib/og"), { recursive: true });
+  writeFileSync(
+    join(cwd, "src/lib/og/site.json"),
+    JSON.stringify({
+      title: "Kebiao",
+      theme_color: "#faf6ef",
+      icons: [{ src: "/icons/icon-192.png", sizes: "192x192", type: "image/png" }],
+    }),
+  );
+  const manifest = JSON.parse(
+    renderWebManifest("my-schedule-xi-one.vercel.app", { cwd }),
+  );
+  assert.equal(manifest.name, "Kebiao");
+  assert.equal(manifest.theme_color, "#faf6ef");
+  assert.equal(manifest.icons[0].src, "/icons/icon-192.png");
+
+  // The deployed middleware passes the baked identity instead of a cwd.
+  const baked = JSON.parse(
+    renderWebManifest("x.vercel.app", {
+      site: { title: "Kebiao" },
+    }),
+  );
+  assert.equal(baked.name, "Kebiao");
 });
 
 // Tripwires: the deployed-app path only works if Nitro scans server/ — an

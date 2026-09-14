@@ -9,9 +9,9 @@ function Login() {
       <div className="w-full max-w-sm space-y-5">
         <div>
           <p className="text-xs font-medium tracking-[0.18em] text-ink-muted uppercase">
-            North & South
+            Kebiao
           </p>
-          <h1 className="mt-2 font-serif text-4xl leading-none">Sign in</h1>
+          <h1 className="mt-2 font-serif text-4xl leading-none font-black">Sign in</h1>
           <p className="mt-3 text-sm text-ink-muted">
             Optional — sign in to keep your schedule in sync across your
             devices. Everything else works without an account.

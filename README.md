@@ -1,36 +1,49 @@
-# North & South
+# Kebiao 课表
 
-A class schedule you never have to type twice — for students whose timetable
-spans campuses, weeks, and endless group-chat notices.
+Your class schedule, one prompt away. Describe your classes in plain words — or
+paste the notice your school dropped in the group chat — and the assistant
+builds your whole term. When things move, talk to it: "Monday's ML moved to
+B-120" merges the change. Tap any class to edit it by hand.
 
-This started as a hobby project: my own schedule at Xidian University was a
-mess of screenshots and forwarded notices, and I got tired of retyping it
-every time the school moved a class. Then I realized everyone's schedule is
-like this — so it grew into a product anyone can use.
+**Live:** https://my-schedule-xi-one.vercel.app ·
+**Sister site:** https://therealchina.net
 
-**Live:** https://my-schedule-xi-one.vercel.app
+## Get the app
+
+- **Web** — https://my-schedule-xi-one.vercel.app (installable as a PWA)
+- **Android (APK)** — [Download kebiao-1.3.0.apk](https://my-schedule-xi-one.vercel.app/kebiao-1.3.0.apk) —
+  sideloads on Android 8.0+. Or grab it in-app: smartphone icon →
+  **Download APK**. Also mirrored in this repo at
+  [`kebiao-1.3.0.apk`](./kebiao-1.3.0.apk).
 
 ## What it does
 
-- **Describe it, get a schedule** — on first run, tell the assistant your
-  courses in plain words (type *or dictate* — voice input where the browser
-  supports it), or paste the school's notice. It builds your whole term and
-  shows a preview before anything is saved.
-- **Update from notices** — when the group chat says "Monday's ML moved to
-  B-120", paste it in. **Merge** applies just the change; **Rebuild** recreates
-  the schedule from a fresh description. Understands English and Chinese
-  (`周一`, `南区`/`北区`, week ranges).
-- **Ask your schedule anything** — "what do I have next Monday?" — a read-only
-  mode that answers questions without touching your data.
+- **Prompt your schedule into life** — type or dictate your courses in plain
+  words on first run, get a preview, confirm, done. Understands English and
+  Chinese (`周一`, `南区`/`北区`, week ranges).
+- **Talk to update** — paste the group-chat notice; **Merge** applies just the
+  change, **Rebuild** recreates the term from a fresh description.
+- **Edit by hand too** — every class is tappable: fix the room, time, day or
+  weeks yourself. The `+` button adds a class without touching the assistant.
+- **Ask, read-only** — "what do I have next Monday?" answers without touching
+  your data.
 - **Anonymous by default** — no account, no API key, works offline. Your
   schedule lives on the device.
 - **Sign in when you want sync** — optional sign-in keeps the schedule
   following you across browsers (last-write-wins through Postgres).
-- **Two-campus aware** — warm blocks for South, cool for North, with commute
-  warnings on weeks that span both.
+- **Two-campus aware** — warm gold blocks for South, cool slate for North,
+  with commute warnings on days that span both.
 - **Android app** — a WebView APK that does everything the site does, calling
   the hosted AI like any other client.
-- **What's-new notice** — releases announce themselves once per version.
+- **Installable PWA** — "Kebiao" manifest with maskable seal icons.
+
+## Brand
+
+Shares its identity with [therealchina.net](https://therealchina.net): seal red
+`#A6192E`, gold `#C9A227`, rice `#FAF6EF`, ink `#1A1613`; Noto Serif SC display
++ Inter body; the 课表 seal-stamp mark. `node scripts/render-brand-assets.mjs`
+regenerates the favicon-adjacent PNG icons, Android launcher icons and
+`public/og.jpg`.
 
 ## Architecture
 
@@ -94,7 +107,7 @@ npm run dev        # serves on 0.0.0.0:8080
 `node node_modules/vite/bin/vite.js dev --host 0.0.0.0 --port 8080` instead.
 
 Other scripts: `npm run build` · `npm run typecheck` · `npm run lint` ·
-`npm test` · `npm run check:auth`.
+`npm test` · `npm run check:auth` · `node scripts/render-brand-assets.mjs`.
 
 ## Deploy (Vercel)
 
@@ -124,8 +137,8 @@ cd .. && gradle assembleDebug                     # JDK 17 + Android SDK 35
 
 Output: `android/app/build/outputs/apk/debug/app-debug.apk` — debug-signed,
 sideloads on Android 8.0+. The latest build is also served from the site at
-`/north-south-<version>.apk` (see `src/lib/app-version.ts`; keep it in sync
-with `versionName`/`versionCode` in `android/app/build.gradle`).
+`/kebiao-<version>.apk` (see `src/lib/app-version.ts`; keep it in sync with
+`versionName`/`versionCode` in `android/app/build.gradle`).
 
 In the APK there is no server: `@/lib/schedule-data` is stubbed
 (`android/web/src/schedule-data-stub.ts`), data stays in the WebView's

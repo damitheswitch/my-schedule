@@ -3,16 +3,16 @@ plugins {
 }
 
 android {
-    namespace "com.damitheswitch.myschedule"
+    namespace "com.damitheswitch.kebiao"
     compileSdk 35
     buildToolsVersion "35.0.0"
 
     defaultConfig {
-        applicationId "com.damitheswitch.myschedule"
+        applicationId "com.damitheswitch.kebiao"
         minSdk 26
         targetSdk 35
-        versionCode 3
-        versionName "1.2.0"
+        versionCode 4
+        versionName "1.3.0"
     }
 }
 

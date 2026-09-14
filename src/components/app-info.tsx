@@ -60,7 +60,7 @@ export function AppInfo({ isApk }: { isApk: boolean }) {
       <DialogContent>
         <div className="px-6 pt-6 pb-8">
           <p className="text-xs font-medium tracking-[0.18em] text-ink-muted uppercase">
-            North &amp; South · v{APP_VERSION}
+            Kebiao · v{APP_VERSION}
           </p>
           <DialogTitle className="mt-2 font-serif text-2xl">
             What&apos;s new

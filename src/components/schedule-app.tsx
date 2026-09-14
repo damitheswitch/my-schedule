@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, Link } from "@tanstack/react-router";
-import { ChevronLeft, ChevronRight, Printer, Share2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, Printer, Share2 } from "lucide-react";
 import { toast, Toaster } from "sonner";
 import { AiUpdatePanel } from "@/components/ai-update-panel";
 import { AppInfo } from "@/components/app-info";
 import { DayAgenda } from "@/components/day-agenda";
+import { Logo } from "@/components/logo";
+import { MeetingEditor, type MeetingEditorTarget } from "@/components/meeting-editor";
 import { MeetingPanel } from "@/components/meeting-panel";
 import { Onboarding } from "@/components/onboarding";
 import { Button } from "@/components/ui/button";
@@ -99,6 +101,7 @@ export function ScheduleApp({ weekParam }: ScheduleAppProps) {
   const [week, setWeekState] = useState(() => weekParam ?? liveWeek);
   const [focusCourseId, setFocusCourseId] = useState<string | null>(null);
   const [selected, setSelected] = useState<Block | null>(null);
+  const [editorTarget, setEditorTarget] = useState<MeetingEditorTarget | null>(null);
   const [day, setDay] = useState<DayKey>(() => {
     const parts = shanghaiParts();
     if (DAYS.includes(parts.weekday as DayKey)) return parts.weekday as DayKey;
@@ -207,7 +210,7 @@ export function ScheduleApp({ weekParam }: ScheduleAppProps) {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `North & South · Week ${week}`,
+          title: `Kebiao · Week ${week}`,
           text,
           url,
         });
@@ -244,39 +247,49 @@ export function ScheduleApp({ weekParam }: ScheduleAppProps) {
         }}
       />
       <div className="min-h-dvh bg-paper text-ink">
-        <div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-6 pb-16 sm:px-6 lg:px-8 lg:py-10">
-          <header className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-              <p className="text-xs font-medium tracking-[0.18em] text-ink-muted uppercase">
-                {TERM.label} · {totalCredits} credits · {schedule.courses.length} courses
-              </p>
-              <h1 className="mt-2 font-serif text-4xl leading-none sm:text-5xl">
-                North{" "}
-                <span className="italic text-ink-muted">&</span> South
-              </h1>
-              <p className="mt-3 max-w-md text-sm text-ink-muted">
-                Warm blocks are South campus. Cool blocks are North.
-                {upcoming ? (
-                  <>
-                    {" "}
-                    <NowLine upcoming={upcoming} />
-                  </>
-                ) : null}
-              </p>
+        <header className="no-print sticky top-0 z-40 border-b border-line bg-paper/90 backdrop-blur-md">
+          <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
+            <div className="flex min-w-0 items-center gap-2.5">
+              <Logo size={32} className="shrink-0" />
+              <span className="font-serif text-xl leading-none font-black tracking-tight">
+                Kebiao
+              </span>
+              <span className="mt-1 hidden text-xs text-ink-faint lg:inline">
+                {TERM.label}
+              </span>
             </div>
-            <div className="flex flex-wrap items-center gap-2 no-print">
+            <div className="flex items-center gap-1 sm:gap-1.5">
               <AiUpdatePanel
                 schedule={schedule}
                 onApply={handleApply}
                 onReset={handleReset}
               />
-              <Button variant="outline" onClick={() => void shareWeek()}>
-                <Share2 className="size-4" />
-                Share week
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                aria-label="Add a class"
+                title="Add a class"
+                onClick={() => setEditorTarget({ mode: "new", day })}
+              >
+                <Plus className="size-4" />
               </Button>
-              <Button variant="ghost" onClick={() => window.print()}>
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                aria-label="Share this week"
+                title="Share this week"
+                onClick={() => void shareWeek()}
+              >
+                <Share2 className="size-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                aria-label="Print"
+                title="Print"
+                onClick={() => window.print()}
+              >
                 <Printer className="size-4" />
-                Print
               </Button>
               <AppInfo isApk={isApk} />
               <UserButton />
@@ -284,19 +297,24 @@ export function ScheduleApp({ weekParam }: ScheduleAppProps) {
                 {authEnabled && !isApk ? (
                   <Link
                     to="/login"
-                    className="text-sm font-medium text-ink-muted underline-offset-4 hover:text-ink hover:underline"
+                    className="ml-1 hidden text-sm font-medium text-ink-muted underline-offset-4 hover:text-ink hover:underline sm:inline"
                   >
                     Sign in to sync
                   </Link>
                 ) : null}
               </SignedOut>
             </div>
-          </header>
+          </div>
+        </header>
 
+        <div className="mx-auto flex w-full max-w-7xl flex-col gap-7 px-4 pt-6 pb-16 sm:px-6 lg:px-8 lg:pt-8">
           <section className="flex flex-col gap-4">
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
-                <div className="flex items-center gap-1">
+                <p className="text-xs font-medium tracking-[0.18em] text-ink-faint uppercase">
+                  {TERM.label} · {totalCredits} credits · {schedule.courses.length} courses
+                </p>
+                <div className="mt-1.5 flex items-center gap-1">
                   <Button
                     variant="ghost"
                     size="icon-sm"
@@ -308,7 +326,7 @@ export function ScheduleApp({ weekParam }: ScheduleAppProps) {
                     <ChevronLeft className="size-5" />
                   </Button>
                   <div>
-                    <div className="font-serif text-3xl leading-none tabular-nums">
+                    <div className="font-serif text-3xl leading-none font-bold tabular-nums">
                       Week {week}
                     </div>
                     <div className="mt-1 text-sm text-ink-muted">{formatWeekRange(week)}</div>
@@ -324,6 +342,11 @@ export function ScheduleApp({ weekParam }: ScheduleAppProps) {
                     <ChevronRight className="size-5" />
                   </Button>
                 </div>
+                {upcoming ? (
+                  <p className="mt-2 text-sm text-ink-muted">
+                    <NowLine upcoming={upcoming} />
+                  </p>
+                ) : null}
               </div>
               <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-ink-muted">
                 <span>
@@ -412,15 +435,25 @@ export function ScheduleApp({ weekParam }: ScheduleAppProps) {
               <h2 className="text-xs font-medium tracking-wide text-ink-muted uppercase">
                 Courses
               </h2>
-              {focusCourseId ? (
+              <div className="flex items-baseline gap-4">
+                {focusCourseId ? (
+                  <button
+                    type="button"
+                    className="text-xs font-medium text-ink underline-offset-2 hover:underline"
+                    onClick={() => setFocusCourseId(null)}
+                  >
+                    Show all
+                  </button>
+                ) : null}
                 <button
                   type="button"
-                  className="text-xs font-medium text-ink underline-offset-2 hover:underline"
-                  onClick={() => setFocusCourseId(null)}
+                  className="inline-flex items-center gap-1 text-xs font-medium text-seal underline-offset-2 hover:underline"
+                  onClick={() => setEditorTarget({ mode: "new", day })}
                 >
-                  Show all
+                  <Plus className="size-3" />
+                  Add class
                 </button>
-              ) : null}
+              </div>
             </div>
             <ul className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
               {schedule.courses.map((course) => {
@@ -488,6 +521,16 @@ export function ScheduleApp({ weekParam }: ScheduleAppProps) {
         onOpenChange={(open) => {
           if (!open) setSelected(null);
         }}
+        onEdit={(block) => {
+          setSelected(null);
+          setEditorTarget({ mode: "edit", block });
+        }}
+      />
+      <MeetingEditor
+        target={editorTarget}
+        schedule={schedule}
+        onApply={handleApply}
+        onClose={() => setEditorTarget(null)}
       />
     </TooltipProvider>
   );

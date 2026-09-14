@@ -12,8 +12,35 @@ var install_page_default = "<!DOCTYPE html>\r\n<html lang=\"en\" class=\"device-
 //#endregion
 //#region \0virtual:grok-og-identity
 var grokOgIdentity = { "site": {
-	"title": "North & South",
+	"title": "Kebiao",
+	"description": "Your class schedule, one prompt away. Describe it, get the whole term — talk to it when things move.",
+	"color": "#a6192e",
+	"theme_color": "#faf6ef",
+	"background_color": "#faf6ef",
 	"card": "custom",
+	"icons": [
+		{
+			"src": "/icons/icon-192.png",
+			"sizes": "192x192",
+			"type": "image/png"
+		},
+		{
+			"src": "/icons/icon-512.png",
+			"sizes": "512x512",
+			"type": "image/png"
+		},
+		{
+			"src": "/icons/icon-512-maskable.png",
+			"sizes": "512x512",
+			"type": "image/png",
+			"purpose": "maskable"
+		},
+		{
+			"src": "/__grok/icon-180.png",
+			"sizes": "180x180",
+			"type": "image/png"
+		}
+	],
 	"image": "/og.jpg"
 } };
 //#endregion
@@ -113,11 +140,20 @@ function stripInstallParams(url) {
 	const rest = params.toString();
 	return rest ? `${path}?${rest}` : path;
 }
-function renderInstallPageHtml(template, { host, url } = {}) {
-	return String(template).replaceAll("{{APP_NAME}}", escapeHtml(appNameFromHost(host))).replaceAll("{{APP_URL}}", escapeHtml(stripInstallParams(url)));
+function renderInstallPageHtml(template, { host, url, name } = {}) {
+	const appName = String(name ?? "").trim() || appNameFromHost(host);
+	return String(template).replaceAll("{{APP_NAME}}", escapeHtml(appName)).replaceAll("{{APP_URL}}", escapeHtml(stripInstallParams(url)));
 }
-function renderWebManifest(hostHeader) {
-	const name = appNameFromHost(hostHeader);
+function renderWebManifest(hostHeader, { cwd = process.cwd(), site: bakedSite } = {}) {
+	const site = bakedSite ?? readOgSite(cwd);
+	const name = String(site.title ?? "").trim() || appNameFromHost(hostHeader);
+	const theme = String(site.theme_color ?? site.color ?? "").trim() || "#000000";
+	const background = String(site.background_color ?? "").trim() || theme;
+	const icons = Array.isArray(site.icons) && site.icons.length > 0 ? site.icons : [{
+		src: "/__grok/icon-180.png",
+		sizes: "180x180",
+		type: "image/png"
+	}];
 	return JSON.stringify({
 		name,
 		short_name: name,
@@ -125,13 +161,9 @@ function renderWebManifest(hostHeader) {
 		start_url: "/",
 		scope: "/",
 		display: "standalone",
-		background_color: "#000000",
-		theme_color: "#000000",
-		icons: [{
-			src: "/__grok/icon-180.png",
-			sizes: "180x180",
-			type: "image/png"
-		}]
+		background_color: background,
+		theme_color: theme,
+		icons
 	}, null, 2);
 }
 function grokPwaHeadTags(appName = DEFAULT_APP_NAME) {
@@ -417,14 +449,15 @@ async function grokPwaMiddleware(event, next) {
 	if ((event.req.method ?? "GET").toUpperCase() !== "GET") return next();
 	const path = event.url.pathname;
 	const urlWithQuery = path + event.url.search;
-	if (path === "/__grok/manifest.webmanifest" || path === "/__grok/manifest.json") return new Response(renderWebManifest(requestHost(event)), { headers: {
+	if (path === "/__grok/manifest.webmanifest" || path === "/__grok/manifest.json") return new Response(renderWebManifest(requestHost(event), { site: grokOgIdentity.site }), { headers: {
 		"content-type": "application/manifest+json; charset=utf-8",
 		"cache-control": "no-cache"
 	} });
 	if (isInstallQuery(urlWithQuery) && isDocumentPath(path) && acceptsHtml(event.req.headers.get("accept"))) {
 		const html = renderInstallPageHtml(install_page_default, {
 			host: requestHost(event),
-			url: urlWithQuery
+			url: urlWithQuery,
+			name: grokOgIdentity.site?.title
 		});
 		return new Response(html, { headers: {
 			"content-type": "text/html; charset=utf-8",

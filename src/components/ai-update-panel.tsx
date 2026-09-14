@@ -39,6 +39,7 @@ export function AiUpdatePanel({ schedule, onApply, onReset }: AiUpdatePanelProps
   const [mode, setMode] = useState<AiMode>("merge");
   const [busy, setBusy] = useState(false);
   const [resetting, setResetting] = useState(false);
+  const [confirmReset, setConfirmReset] = useState(false);
   const [preview, setPreview] = useState<ScheduleData | null>(null);
   const [answer, setAnswer] = useState<string | null>(null);
   const [summary, setSummary] = useState("");
@@ -49,6 +50,7 @@ export function AiUpdatePanel({ schedule, onApply, onReset }: AiUpdatePanelProps
     setAnswer(null);
     setSummary("");
     setError(null);
+    setConfirmReset(false);
   }
 
   async function handleSubmit() {
@@ -124,18 +126,18 @@ export function AiUpdatePanel({ schedule, onApply, onReset }: AiUpdatePanelProps
       }}
     >
       <DialogTrigger asChild>
-        <Button variant="outline">
+        <Button>
           <Sparkles className="size-4" />
-          AI assistant
+          <span className="hidden sm:inline">Assistant</span>
+          <span className="sr-only sm:hidden">Assistant</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl">
         <div className="px-6 pt-6 pb-8">
-          <DialogTitle className="font-serif text-2xl">AI assistant</DialogTitle>
+          <DialogTitle className="font-serif text-2xl font-bold">Assistant</DialogTitle>
           <DialogDescription className="mt-2">
-            Merge a group-chat notice into your schedule, rebuild it from a
-            description, or just ask a question — the assistant only works on
-            schedules, and you review every change before it's saved.
+            Paste a notice to merge it, rebuild from a description, or ask a
+            question — you review every change before it's saved.
           </DialogDescription>
 
           <div className="mt-5 flex flex-col gap-4">
@@ -160,11 +162,11 @@ export function AiUpdatePanel({ schedule, onApply, onReset }: AiUpdatePanelProps
               placeholder={PLACEHOLDERS[mode]}
               rows={mode === "ask" ? 3 : 6}
               maxLength={4000}
-              className="w-full resize-y rounded-md border border-line bg-paper px-3 py-2 text-sm text-ink shadow-[var(--shadow-border)] outline-none placeholder:text-ink-faint focus-visible:ring-2 focus-visible:ring-ink/30"
+              className="w-full resize-y rounded-md border border-line bg-paper px-3 py-2 text-sm text-ink shadow-[var(--shadow-border)] outline-none placeholder:text-ink-faint focus-visible:ring-2 focus-visible:ring-seal/40"
             />
 
             {error ? (
-              <p className="rounded-md bg-south-fill px-3 py-2 text-sm text-south-fg">
+              <p className="rounded-md bg-seal-tint px-3 py-2 text-sm text-seal-dark">
                 {error}
               </p>
             ) : null}
@@ -187,15 +189,20 @@ export function AiUpdatePanel({ schedule, onApply, onReset }: AiUpdatePanelProps
               <button
                 type="button"
                 disabled={resetting}
-                onClick={() => void handleResetClick()}
-                className="inline-flex items-center gap-1.5 text-xs font-medium text-ink-muted underline-offset-2 hover:underline disabled:opacity-50"
+                onClick={() =>
+                  confirmReset ? void handleResetClick() : setConfirmReset(true)
+                }
+                className={cn(
+                  "inline-flex items-center gap-1.5 text-xs font-medium underline-offset-2 disabled:opacity-50",
+                  confirmReset ? "text-seal hover:underline" : "text-ink-muted hover:underline",
+                )}
               >
                 {resetting ? (
                   <Loader2 className="size-3.5 animate-spin" />
                 ) : (
                   <RotateCcw className="size-3.5" />
                 )}
-                Start over
+                {confirmReset ? "Erase everything?" : "Start over"}
               </button>
 
               <div className="flex items-center gap-2">
@@ -251,7 +258,7 @@ function ModeButton({
       title={hint}
       className={cn(
         "flex-1 cursor-pointer rounded-sm px-3 py-2 text-sm font-medium transition-colors duration-150",
-        active ? "bg-ink text-paper shadow-[var(--shadow-border)]" : "text-ink-muted hover:text-ink",
+        active ? "bg-seal text-white shadow-[var(--shadow-seal)]" : "text-ink-muted hover:text-ink",
       )}
     >
       {label}

@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { MapPin, Clock, GraduationCap, Users } from "lucide-react";
+import { MapPin, Clock, GraduationCap, Users, Pencil } from "lucide-react";
 import {
   DAY_LABEL,
   TERM,
@@ -19,9 +19,10 @@ type MeetingPanelProps = {
   open: boolean;
   schedule: ScheduleData;
   onOpenChange: (open: boolean) => void;
+  onEdit: (block: Block) => void;
 };
 
-export function MeetingPanel({ week, block, open, schedule, onOpenChange }: MeetingPanelProps) {
+export function MeetingPanel({ week, block, open, schedule, onOpenChange, onEdit }: MeetingPanelProps) {
   const course = block?.course;
   const hours = course ? courseHours(course.id, schedule) : 0;
   const others = course ? courseMeetings(course.id, schedule) : [];
@@ -107,6 +108,17 @@ export function MeetingPanel({ week, block, open, schedule, onOpenChange }: Meet
                 </ul>
               </section>
             ) : null}
+
+            <div className="mt-8 border-t border-line pt-5">
+              <button
+                type="button"
+                onClick={() => onEdit(block)}
+                className="inline-flex items-center gap-2 rounded-full border-[1.5px] border-line px-4 py-2 text-sm font-medium text-ink transition-colors duration-150 hover:border-seal hover:text-seal"
+              >
+                <Pencil className="size-3.5" />
+                Edit class
+              </button>
+            </div>
           </div>
         ) : null}
       </DialogContent>

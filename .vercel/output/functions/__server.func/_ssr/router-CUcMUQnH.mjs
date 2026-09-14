@@ -5,9 +5,9 @@ import { u as require_react } from "../_libs/@floating-ui/react-dom+[...].mjs";
 import { f as createRouter, g as createRootRoute, h as createFileRoute, l as Scripts, m as lazyRouteComponent, p as Outlet, u as HeadContent, y as useRouter } from "../_libs/@tanstack/react-router+[...].mjs";
 import { n as require_jsx_runtime } from "../_libs/radix-ui__react-context+react.mjs";
 import { n as auth } from "./server-BGzN9ETo.mjs";
-import { D as normalizeAiOutput, O as normalizeAskOutput, f as clampWeek, k as requestCompletion, l as buildAskMessages, u as buildParseMessages } from "./schedule-ai-BcRRaj_R.mjs";
+import { A as normalizeAskOutput, f as clampWeek, j as requestCompletion, k as normalizeAiOutput, l as buildAskMessages, u as buildParseMessages } from "./schedule-ai-owSWeblb.mjs";
 import { r as TriangleAlert } from "../_libs/lucide-react.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/router-Bb3_jziR.js
+//#region node_modules/.nitro/vite/services/ssr/assets/router-CUcMUQnH.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var FALLBACK_MESSAGE = "An unexpected error occurred. Try reloading the page.";
@@ -301,24 +301,24 @@ function PreviewHostBridge() {
 	}, [router]);
 	return null;
 }
-var styles_default = "/assets/styles-zspiDXwb.css";
-var APP_NAME = "North & South";
+var styles_default = "/assets/styles-HmnMKDII.css";
+var APP_NAME = "Kebiao";
 var Route$4 = createRootRoute({
 	head: () => ({
 		meta: [
 			{ charSet: "utf-8" },
 			{
 				name: "viewport",
-				content: "width=device-width, initial-scale=1"
+				content: "width=device-width, initial-scale=1, viewport-fit=cover"
 			},
-			{ title: APP_NAME },
+			{ title: `${APP_NAME} — your schedule, one prompt away` },
 			{
 				name: "description",
-				content: "Autumn 2026 timetable — eight courses, two campuses, twenty credits."
+				content: "Kebiao — 课表. Describe your classes, get your whole term. Talk to it when the school moves things around."
 			},
 			{
 				name: "theme-color",
-				content: "#f1eee6"
+				content: "#faf6ef"
 			}
 		],
 		links: [
@@ -338,7 +338,7 @@ var Route$4 = createRootRoute({
 			},
 			{
 				rel: "stylesheet",
-				href: "https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap"
+				href: "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@400;700;900&display=swap"
 			},
 			{
 				rel: "stylesheet",
@@ -365,7 +365,7 @@ var Route$4 = createRootRoute({
 		] })]
 	})
 });
-var $$splitComponentImporter$1 = () => import("./routes-YZIgawrw.mjs");
+var $$splitComponentImporter$1 = () => import("./routes-5Z4AEzrd.mjs");
 var Route$3 = createFileRoute("/")({
 	validateSearch: (search) => {
 		const raw = Number(search.week);
@@ -374,7 +374,7 @@ var Route$3 = createFileRoute("/")({
 	},
 	component: lazyRouteComponent($$splitComponentImporter$1, "component")
 });
-var $$splitComponentImporter = () => import("./login-3YNvHWkg.mjs");
+var $$splitComponentImporter = () => import("./login-CAA27Knr.mjs");
 var Route$2 = createFileRoute("/login")({ component: lazyRouteComponent($$splitComponentImporter, "component") });
 /**
 * Public AI endpoint — POST /api/ai.

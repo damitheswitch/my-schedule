@@ -6,26 +6,26 @@ import { _ as Link, v as useNavigate } from "../_libs/@tanstack/react-router+[..
 import { n as require_jsx_runtime } from "../_libs/radix-ui__react-context+react.mjs";
 import { a as getServerFnById, i as TSS_SERVER_FUNCTION, r as createServerFn } from "./ssr.mjs";
 import { a as hasGateSessionMarker } from "./server-BGzN9ETo.mjs";
-import { A as sectionsLabel, C as formatWeekRange, E as nextUp, F as weekHasClasses, I as weekLoad, M as shanghaiParts, N as termWeekFromDate, P as toMinutes, S as formatShortDate, T as maxWeekLoad, _ as dateOf, a as TERM, b as firstBusyDay, c as blocksForWeek, d as buildScheduleData, f as clampWeek, g as courseMeetings, h as courseHours, i as DEFAULT_SCHEDULE, j as serializeWeek, m as commuteDays, n as DAYS, o as bandOf, p as commuteCopy, r as DAY_LABEL, s as bandPosition, t as BANDS, v as defaultWeek, w as holidayName, x as formatDuration, y as durationMinutes } from "./schedule-ai-BcRRaj_R.mjs";
-import { _ as ChevronRight, a as Smartphone, c as Printer, d as MessageCircleQuestion, f as MapPin, g as Clock, h as Download, i as Sparkles, l as Mic, m as GraduationCap, n as Users, o as Share2, p as LoaderCircle, s as RotateCcw, t as X, u as MicOff, v as ChevronLeft, y as ArrowRight } from "../_libs/lucide-react.mjs";
-import { n as Route$3 } from "./router-Bb3_jziR.mjs";
+import { C as formatDuration, D as maxWeekLoad, E as holidayName, F as shanghaiParts, I as termWeekFromDate, L as toMinutes, M as sectionsForTime, N as sectionsLabel, O as nextUp, P as serializeWeek, R as weekHasClasses, S as firstBusyDay, T as formatWeekRange, _ as courseMeetings, a as TERM, b as durationMinutes, c as blocksForWeek, d as buildScheduleData, f as clampWeek, g as courseHours, h as compressWeeks, i as DEFAULT_SCHEDULE, m as commuteDays, n as DAYS, o as bandOf, p as commuteCopy, r as DAY_LABEL, s as bandPosition, t as BANDS, v as dateOf, w as formatShortDate, x as expandWeeks, y as defaultWeek, z as weekLoad } from "./schedule-ai-owSWeblb.mjs";
+import { S as ArrowRight, _ as GraduationCap, a as Sparkles, b as ChevronRight, c as RotateCcw, d as Pencil, f as Mic, g as LoaderCircle, h as MapPin, i as Trash2, l as Printer, m as MessageCircleQuestion, n as Users, o as Smartphone, p as MicOff, s as Share2, t as X, u as Plus, v as Download, x as ChevronLeft, y as Clock } from "../_libs/lucide-react.mjs";
+import { n as Route$3 } from "./router-CUcMUQnH.mjs";
 import { t as authMiddleware } from "./middleware-BWLq4NPP.mjs";
 import { n as toast, t as Toaster } from "../_libs/sonner.mjs";
 import { _ as Slot, a as DialogOverlay$1, c as DialogTrigger$1, i as DialogDescription$1, n as DialogClose, o as DialogPortal$1, r as DialogContent$1, s as DialogTitle$1, t as Dialog$1 } from "../_libs/@radix-ui/react-dialog+[...].mjs";
 import { n as clsx, t as cva } from "../_libs/class-variance-authority+clsx.mjs";
 import { t as twMerge } from "../_libs/tailwind-merge.mjs";
 import { a as Trigger, i as Root3, n as Portal, r as Provider, t as Content2 } from "../_libs/@radix-ui/react-tooltip+[...].mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/routes-YZIgawrw.js
+//#region node_modules/.nitro/vite/services/ssr/assets/routes-5Z4AEzrd.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function cn(...inputs) {
 	return twMerge(clsx(inputs));
 }
-var buttonVariants = cva("inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-[background-color,color,box-shadow,transform,opacity] duration-150 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink disabled:pointer-events-none disabled:opacity-40 active:not-disabled:scale-[0.96]", {
+var buttonVariants = cva("inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-semibold transition-[background-color,color,box-shadow,transform,opacity,border-color] duration-200 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-seal disabled:pointer-events-none disabled:opacity-40 active:not-disabled:scale-[0.96]", {
 	variants: {
 		variant: {
-			default: "bg-ink text-paper hover:bg-ink/90",
-			outline: "bg-paper-elevated text-ink shadow-[var(--shadow-border)] hover:shadow-[var(--shadow-border-hover)]",
+			default: "bg-seal text-white hover:-translate-y-px hover:bg-seal-dark hover:shadow-[var(--shadow-seal)]",
+			outline: "border-[1.5px] border-line bg-transparent text-ink hover:border-seal hover:text-seal",
 			ghost: "text-ink-muted hover:bg-ink/5 hover:text-ink"
 		},
 		size: {
@@ -90,17 +90,8 @@ function DialogDescription({ className, ...props }) {
 function DialogTrigger({ ...props }) {
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogTrigger$1, { ...props });
 }
-/**
-* Single source of truth for the app version, release notes, the deployed
-* site, and the Android APK the site serves. Bump `APP_VERSION` per release —
-* the what's-new dialog re-announces itself once per version (tracked in
-* localStorage), and the APK filename is derived here so the download link
-* never drifts.
-*
-* Keep `versionName`/`versionCode` in `android/app/build.gradle` in sync.
-*/
-var APP_VERSION = "1.2.0";
-var APK_FILENAME = `north-south-${APP_VERSION}.apk`;
+var APP_VERSION = "1.3.0";
+var APK_FILENAME = `kebiao-${APP_VERSION}.apk`;
 var APK_PATH = `/${APK_FILENAME}`;
 /**
 * The deployed site the APK calls for AI. The WebView bundle has no backend,
@@ -109,16 +100,16 @@ var APK_PATH = `/${APK_FILENAME}`;
 var PUBLIC_SITE_URL = "https://my-schedule-xi-one.vercel.app";
 var WHATS_NEW = [
 	{
-		title: "Craft your schedule with AI",
-		detail: "Describe your classes in plain words — or paste a school notice — and the assistant builds your schedule for you. Works on the website and the Android app, no account or API key needed."
+		title: "Meet Kebiao",
+		detail: "New name, new look — same app. Prompt your schedule into existence, then talk to it when the school moves things around."
+	},
+	{
+		title: "Edit classes by hand",
+		detail: "Tap any class → Edit class to fix the room, time, day or weeks yourself. The + button in the header adds a class without touching the assistant."
 	},
 	{
 		title: "Ask your schedule anything",
-		detail: "\"What do I have next Monday?\" — the new Ask mode answers questions about your classes without changing anything."
-	},
-	{
-		title: "Sync when you want it",
-		detail: "Everything works anonymously and offline. Sign in only if you want your schedule to follow you across devices."
+		detail: "\"What do I have next Monday?\" — the assistant's Ask mode answers questions without changing anything."
 	}
 ];
 /**
@@ -213,6 +204,7 @@ function AiUpdatePanel({ schedule, onApply, onReset }) {
 	const [mode, setMode] = (0, import_react.useState)("merge");
 	const [busy, setBusy] = (0, import_react.useState)(false);
 	const [resetting, setResetting] = (0, import_react.useState)(false);
+	const [confirmReset, setConfirmReset] = (0, import_react.useState)(false);
 	const [preview, setPreview] = (0, import_react.useState)(null);
 	const [answer, setAnswer] = (0, import_react.useState)(null);
 	const [summary, setSummary] = (0, import_react.useState)("");
@@ -222,6 +214,7 @@ function AiUpdatePanel({ schedule, onApply, onReset }) {
 		setAnswer(null);
 		setSummary("");
 		setError(null);
+		setConfirmReset(false);
 	}
 	async function handleSubmit() {
 		if (!text.trim()) {
@@ -286,22 +279,29 @@ function AiUpdatePanel({ schedule, onApply, onReset }) {
 		},
 		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogTrigger, {
 			asChild: true,
-			children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
-				variant: "outline",
-				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Sparkles, { className: "size-4" }), "AI assistant"]
-			})
+			children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, { children: [
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Sparkles, { className: "size-4" }),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+					className: "hidden sm:inline",
+					children: "Assistant"
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+					className: "sr-only sm:hidden",
+					children: "Assistant"
+				})
+			] })
 		}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogContent, {
 			className: "max-w-2xl",
 			children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 				className: "px-6 pt-6 pb-8",
 				children: [
 					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogTitle, {
-						className: "font-serif text-2xl",
-						children: "AI assistant"
+						className: "font-serif text-2xl font-bold",
+						children: "Assistant"
 					}),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogDescription, {
 						className: "mt-2",
-						children: "Merge a group-chat notice into your schedule, rebuild it from a description, or just ask a question — the assistant only works on schedules, and you review every change before it's saved."
+						children: "Paste a notice to merge it, rebuild from a description, or ask a question — you review every change before it's saved."
 					}),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 						className: "mt-5 flex flex-col gap-4",
@@ -324,10 +324,10 @@ function AiUpdatePanel({ schedule, onApply, onReset }) {
 								placeholder: PLACEHOLDERS[mode],
 								rows: mode === "ask" ? 3 : 6,
 								maxLength: 4e3,
-								className: "w-full resize-y rounded-md border border-line bg-paper px-3 py-2 text-sm text-ink shadow-[var(--shadow-border)] outline-none placeholder:text-ink-faint focus-visible:ring-2 focus-visible:ring-ink/30"
+								className: "w-full resize-y rounded-md border border-line bg-paper px-3 py-2 text-sm text-ink shadow-[var(--shadow-border)] outline-none placeholder:text-ink-faint focus-visible:ring-2 focus-visible:ring-seal/40"
 							}),
 							error ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-								className: "rounded-md bg-south-fill px-3 py-2 text-sm text-south-fg",
+								className: "rounded-md bg-seal-tint px-3 py-2 text-sm text-seal-dark",
 								children: error
 							}) : null,
 							answer ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
@@ -349,9 +349,9 @@ function AiUpdatePanel({ schedule, onApply, onReset }) {
 								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
 									type: "button",
 									disabled: resetting,
-									onClick: () => void handleResetClick(),
-									className: "inline-flex items-center gap-1.5 text-xs font-medium text-ink-muted underline-offset-2 hover:underline disabled:opacity-50",
-									children: [resetting ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(LoaderCircle, { className: "size-3.5 animate-spin" }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(RotateCcw, { className: "size-3.5" }), "Start over"]
+									onClick: () => confirmReset ? void handleResetClick() : setConfirmReset(true),
+									className: cn("inline-flex items-center gap-1.5 text-xs font-medium underline-offset-2 disabled:opacity-50", confirmReset ? "text-seal hover:underline" : "text-ink-muted hover:underline"),
+									children: [resetting ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(LoaderCircle, { className: "size-3.5 animate-spin" }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(RotateCcw, { className: "size-3.5" }), confirmReset ? "Erase everything?" : "Start over"]
 								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
 									className: "flex items-center gap-2",
 									children: preview ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
@@ -382,7 +382,7 @@ function ModeButton({ active, onClick, label, hint }) {
 		type: "button",
 		onClick,
 		title: hint,
-		className: cn("flex-1 cursor-pointer rounded-sm px-3 py-2 text-sm font-medium transition-colors duration-150", active ? "bg-ink text-paper shadow-[var(--shadow-border)]" : "text-ink-muted hover:text-ink"),
+		className: cn("flex-1 cursor-pointer rounded-sm px-3 py-2 text-sm font-medium transition-colors duration-150", active ? "bg-seal text-white shadow-[var(--shadow-seal)]" : "text-ink-muted hover:text-ink"),
 		children: label
 	});
 }
@@ -493,7 +493,7 @@ function AppInfo({ isApk }) {
 		} catch {
 			return;
 		}
-		if (seen === "1.2.0") return;
+		if (seen === "1.3.0") return;
 		const t = window.setTimeout(() => setOpen(true), 900);
 		return () => window.clearTimeout(t);
 	}, []);
@@ -520,7 +520,7 @@ function AppInfo({ isApk }) {
 			children: [
 				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
 					className: "text-xs font-medium tracking-[0.18em] text-ink-muted uppercase",
-					children: ["North & South · v", APP_VERSION]
+					children: ["Kebiao · v", APP_VERSION]
 				}),
 				/* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogTitle, {
 					className: "mt-2 font-serif text-2xl",
@@ -675,7 +675,333 @@ function DayAgenda({ week, day, blocks, focusCourseId, onSelect, onDayChange, sc
 		]
 	});
 }
-function MeetingPanel({ week, block, open, schedule, onOpenChange }) {
+/**
+* Kebiao seal-stamp logo — a Chinese seal (印章) holding 课表 ("class
+* schedule") in rice on seal red, with the gold line motif shared with
+* therealchina.net. `size` is the rendered edge in px.
+*/
+function Logo({ size = 36, className }) {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("svg", {
+		className,
+		width: size,
+		height: size,
+		viewBox: "0 0 48 48",
+		fill: "none",
+		xmlns: "http://www.w3.org/2000/svg",
+		role: "img",
+		"aria-label": "Kebiao",
+		children: [
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("rect", {
+				x: "6",
+				y: "6",
+				width: "36",
+				height: "36",
+				rx: "5",
+				fill: "#A6192E"
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("rect", {
+				x: "9",
+				y: "9",
+				width: "30",
+				height: "30",
+				rx: "3",
+				fill: "none",
+				stroke: "#FAF6EF",
+				strokeWidth: "1.5",
+				opacity: "0.9"
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("text", {
+				x: "24",
+				y: "28.5",
+				textAnchor: "middle",
+				fill: "#FAF6EF",
+				fontFamily: "'Noto Serif SC', 'Songti SC', serif",
+				fontWeight: "900",
+				fontSize: "14",
+				letterSpacing: "-0.5",
+				children: "课表"
+			}),
+			/* @__PURE__ */ (0, import_jsx_runtime.jsx)("path", {
+				d: "M15 33.5c2-2.4 4-2.4 6-0.8s4 1.6 6-0.8 4-2.4 6 0",
+				stroke: "#C9A227",
+				strokeWidth: "1.1",
+				strokeLinecap: "round",
+				fill: "none",
+				opacity: "0.85"
+			})
+		]
+	});
+}
+var TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
+var NEW_COURSE = "__new__";
+function MeetingEditor({ target, schedule, onApply, onClose }) {
+	const open = target !== null;
+	const editing = target?.mode === "edit" ? target.block : null;
+	const [courseKey, setCourseKey] = (0, import_react.useState)(NEW_COURSE);
+	const [newCourseName, setNewCourseName] = (0, import_react.useState)("");
+	const [day, setDay] = (0, import_react.useState)("Mon");
+	const [start, setStart] = (0, import_react.useState)("08:30");
+	const [end, setEnd] = (0, import_react.useState)("10:05");
+	const [room, setRoom] = (0, import_react.useState)("");
+	const [campus, setCampus] = (0, import_react.useState)("South");
+	const [weeksSpec, setWeeksSpec] = (0, import_react.useState)(`1-${TERM.weeks}`);
+	const [error, setError] = (0, import_react.useState)(null);
+	const [busy, setBusy] = (0, import_react.useState)(false);
+	const [confirmDelete, setConfirmDelete] = (0, import_react.useState)(false);
+	(0, import_react.useEffect)(() => {
+		if (!target) return;
+		setError(null);
+		setConfirmDelete(false);
+		if (target.mode === "edit") {
+			const b = target.block;
+			setCourseKey(b.course.id);
+			setNewCourseName("");
+			setDay(b.day);
+			setStart(b.start);
+			setEnd(b.end);
+			setRoom(b.room);
+			setCampus(b.campus);
+			const weeks = [...new Set(b.meetings.flatMap((m) => m.weeks))].sort((a, b) => a - b);
+			setWeeksSpec(compressWeeks(weeks).replaceAll("–", "-"));
+		} else {
+			setCourseKey(schedule.courses[0]?.id ?? NEW_COURSE);
+			setNewCourseName("");
+			setDay(target.day ?? "Mon");
+			setStart("08:30");
+			setEnd("10:05");
+			setRoom("");
+			setCampus("South");
+			setWeeksSpec(`1-${TERM.weeks}`);
+		}
+	}, [target, schedule]);
+	const isNewCourse = !editing && courseKey === NEW_COURSE;
+	const weeks = (0, import_react.useMemo)(() => {
+		const parsed = expandWeeks(weeksSpec.replaceAll("–", "-").replaceAll("—", "-"));
+		return [...new Set(parsed.filter((w) => Number.isInteger(w) && w >= 1 && w <= TERM.weeks))].sort((a, b) => a - b);
+	}, [weeksSpec]);
+	function validate() {
+		if (isNewCourse && !newCourseName.trim()) return "Name the new course.";
+		if (!TIME_RE.test(start) || !TIME_RE.test(end)) return "Times use 24h HH:MM — e.g. 08:30.";
+		if (toMinutes(end) <= toMinutes(start)) return "End time must be after start time.";
+		if (weeks.length === 0) return `Weeks: use numbers or ranges within 1–${TERM.weeks}, e.g. "1-16" or "2,4,6".`;
+		return null;
+	}
+	function buildNext() {
+		const err = validate();
+		if (err) {
+			setError(err);
+			return null;
+		}
+		const sections = sectionsForTime(start, end);
+		const meetings = schedule.meetings.filter((m) => !editing || !editing.meetings.some((bm) => bm.id === m.id));
+		const courses = [...schedule.courses];
+		let courseId;
+		if (editing) courseId = editing.course.id;
+		else if (isNewCourse) {
+			const name = newCourseName.trim();
+			courseId = `manual-${Date.now().toString(36)}`;
+			courses.push({
+				id: courseId,
+				name,
+				short: name,
+				code: "",
+				credits: 0,
+				teachers: []
+			});
+		} else courseId = courseKey;
+		meetings.push({
+			id: `manual-${Date.now().toString(36)}`,
+			courseId,
+			campus,
+			day,
+			sectionStart: sections.sectionStart,
+			sectionEnd: sections.sectionEnd,
+			start,
+			end,
+			weeks,
+			weeksLabel: compressWeeks(weeks),
+			room: room.trim() || "—"
+		});
+		const used = new Set(meetings.map((m) => m.courseId));
+		return {
+			courses: courses.filter((c) => used.has(c.id)),
+			meetings
+		};
+	}
+	async function handleSave() {
+		const next = buildNext();
+		if (!next) return;
+		setBusy(true);
+		setError(null);
+		try {
+			await onApply(next.courses, next.meetings);
+			onClose();
+		} catch {
+			setError("Could not save. Try again.");
+			setBusy(false);
+		}
+	}
+	async function handleDelete() {
+		if (!editing) return;
+		setBusy(true);
+		setError(null);
+		try {
+			const drop = new Set(editing.meetings.map((m) => m.id));
+			const meetings = schedule.meetings.filter((m) => !drop.has(m.id));
+			const used = new Set(meetings.map((m) => m.courseId));
+			await onApply(schedule.courses.filter((c) => used.has(c.id)), meetings);
+			onClose();
+		} catch {
+			setError("Could not delete. Try again.");
+			setBusy(false);
+		}
+	}
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Dialog, {
+		open,
+		onOpenChange: (o) => !o ? onClose() : void 0,
+		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogContent, { children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+			className: "min-h-0 flex-1 overflow-y-auto px-6 pt-6 pb-8",
+			children: [
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogTitle, { children: editing ? "Edit class" : "Add a class" }),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogDescription, {
+					className: "mt-1.5",
+					children: editing ? `${editing.course.name} — changes apply to every week it meets.` : "One class at a time — the assistant can always fill in the rest."
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					className: "mt-6 flex flex-col gap-4",
+					children: [
+						editing ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Field, {
+							label: "Course",
+							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+								className: "rounded-md border border-line bg-paper px-3 py-2 text-sm text-ink",
+								children: editing.course.name
+							})
+						}) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Field, {
+							label: "Course",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("select", {
+								value: courseKey,
+								onChange: (e) => setCourseKey(e.target.value),
+								className: "w-full rounded-md border border-line bg-paper px-3 py-2 text-sm text-ink outline-none focus-visible:ring-2 focus-visible:ring-seal/40",
+								children: [schedule.courses.map((c) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", {
+									value: c.id,
+									children: c.name
+								}, c.id)), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", {
+									value: NEW_COURSE,
+									children: "New course…"
+								})]
+							}), isNewCourse ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+								value: newCourseName,
+								onChange: (e) => setNewCourseName(e.target.value),
+								placeholder: "Course name",
+								maxLength: 80,
+								className: "mt-2 w-full rounded-md border border-line bg-paper px-3 py-2 text-sm text-ink outline-none placeholder:text-ink-faint focus-visible:ring-2 focus-visible:ring-seal/40"
+							}) : null]
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Field, {
+							label: "Day",
+							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+								className: "flex gap-1",
+								children: DAYS.map((d) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+									type: "button",
+									onClick: () => setDay(d),
+									className: cn("flex-1 rounded-sm py-2 text-sm font-medium transition-colors", day === d ? "bg-ink text-paper" : "text-ink-muted hover:bg-ink/5 hover:text-ink"),
+									children: d
+								}, d))
+							})
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							className: "grid grid-cols-2 gap-3",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Field, {
+								label: "Starts",
+								children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+									type: "time",
+									value: start,
+									onChange: (e) => setStart(e.target.value),
+									className: "w-full rounded-md border border-line bg-paper px-3 py-2 text-sm tabular-nums text-ink outline-none focus-visible:ring-2 focus-visible:ring-seal/40"
+								})
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Field, {
+								label: "Ends",
+								children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+									type: "time",
+									value: end,
+									onChange: (e) => setEnd(e.target.value),
+									className: "w-full rounded-md border border-line bg-paper px-3 py-2 text-sm tabular-nums text-ink outline-none focus-visible:ring-2 focus-visible:ring-seal/40"
+								})
+							})]
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							className: "grid grid-cols-2 gap-3",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Field, {
+								label: "Room",
+								children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+									value: room,
+									onChange: (e) => setRoom(e.target.value),
+									placeholder: "B-120",
+									maxLength: 40,
+									className: "w-full rounded-md border border-line bg-paper px-3 py-2 text-sm text-ink outline-none placeholder:text-ink-faint focus-visible:ring-2 focus-visible:ring-seal/40"
+								})
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Field, {
+								label: "Campus",
+								children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+									className: "flex gap-1",
+									children: ["South", "North"].map((c) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+										type: "button",
+										onClick: () => setCampus(c),
+										className: cn("flex-1 rounded-sm py-2 text-sm font-medium transition-colors", campus === c ? c === "South" ? "bg-south-fill text-south-fg ring-1 ring-south/40" : "bg-north-fill text-north-fg ring-1 ring-north/40" : "text-ink-muted hover:bg-ink/5 hover:text-ink"),
+										children: c
+									}, c))
+								})
+							})]
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Field, {
+							label: `Weeks it meets (1–${TERM.weeks})`,
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+								value: weeksSpec,
+								onChange: (e) => setWeeksSpec(e.target.value),
+								placeholder: `1-${TERM.weeks} or 2,4,6-10`,
+								className: "w-full rounded-md border border-line bg-paper px-3 py-2 text-sm tabular-nums text-ink outline-none placeholder:text-ink-faint focus-visible:ring-2 focus-visible:ring-seal/40"
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+								className: "mt-1 text-xs text-ink-faint",
+								children: weeks.length > 0 ? `${DAY_LABEL[day]}s · ${weeks.length} ${weeks.length === 1 ? "week" : "weeks"}` : "Separate ranges with commas."
+							})]
+						}),
+						error ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+							className: "rounded-md bg-seal-tint px-3 py-2 text-sm text-seal-dark",
+							children: error
+						}) : null,
+						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							className: "mt-1 flex items-center justify-between gap-3",
+							children: [editing ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+								type: "button",
+								disabled: busy,
+								onClick: () => confirmDelete ? void handleDelete() : setConfirmDelete(true),
+								className: cn("inline-flex items-center gap-1.5 text-sm font-medium underline-offset-2 disabled:opacity-50", confirmDelete ? "text-seal hover:underline" : "text-ink-muted hover:text-seal"),
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Trash2, { className: "size-3.5" }), confirmDelete ? "Tap again to delete" : "Delete class"]
+							}) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
+								onClick: () => void handleSave(),
+								disabled: busy,
+								children: [busy ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(LoaderCircle, { className: "size-4 animate-spin" }) : null, editing ? "Save changes" : "Add class"]
+							})]
+						})
+					]
+				})
+			]
+		}) })
+	});
+}
+function Field({ label, children }) {
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+		className: "block",
+		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+			className: "text-xs font-medium tracking-wide text-ink-muted uppercase",
+			children: label
+		}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+			className: "mt-1.5",
+			children
+		})]
+	});
+}
+function MeetingPanel({ week, block, open, schedule, onOpenChange, onEdit }) {
 	const course = block?.course;
 	const hours = course ? courseHours(course.id, schedule) : 0;
 	const others = course ? courseMeetings(course.id, schedule) : [];
@@ -792,7 +1118,16 @@ function MeetingPanel({ week, block, open, schedule, onOpenChange }) {
 							})]
 						}, m.id))
 					})]
-				}) : null
+				}) : null,
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+					className: "mt-8 border-t border-line pt-5",
+					children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+						type: "button",
+						onClick: () => onEdit(block),
+						className: "inline-flex items-center gap-2 rounded-full border-[1.5px] border-line px-4 py-2 text-sm font-medium text-ink transition-colors duration-150 hover:border-seal hover:text-seal",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Pencil, { className: "size-3.5" }), "Edit class"]
+					})
+				})
 			]
 		}) : null })
 	});
@@ -898,106 +1233,86 @@ function Onboarding({ onDone }) {
 		className: "grid min-h-dvh place-items-center bg-paper px-4 py-10 text-ink",
 		children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 			className: "w-full max-w-xl",
-			children: [
-				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
-					className: "text-xs font-medium tracking-[0.18em] text-ink-muted uppercase",
-					children: [
-						TERM.label,
-						" · ",
-						TERM.weeks,
-						" weeks"
-					]
-				}),
-				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("h1", {
-					className: "mt-2 font-serif text-4xl leading-none sm:text-5xl",
-					children: [
-						"North ",
-						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-							className: "italic text-ink-muted",
-							children: "&"
-						}),
-						" South"
-					]
-				}),
-				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-					className: "mt-4 text-sm leading-relaxed text-ink-muted",
-					children: "A class schedule you never have to type twice. Describe your courses in plain words — or paste the notice your school dropped in the group chat — and the assistant builds the whole term for you."
-				}),
-				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-					className: "mt-8 rounded-xl bg-paper-elevated p-5 shadow-[var(--shadow-border)]",
-					children: [
-						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
-							htmlFor: "onboarding-text",
-							className: "text-xs font-medium tracking-wide text-ink-muted uppercase",
-							children: "Your schedule, in your own words"
-						}),
-						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							className: "relative mt-2",
-							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("textarea", {
-								id: "onboarding-text",
-								value: text,
-								onChange: (e) => setText(e.target.value),
-								placeholder: EXAMPLE,
-								rows: 5,
-								maxLength: 4e3,
-								className: "w-full resize-y rounded-md border border-line bg-paper px-3 py-2 pr-10 text-sm text-ink shadow-[var(--shadow-border)] outline-none placeholder:text-ink-faint focus-visible:ring-2 focus-visible:ring-ink/30"
-							}), SpeechRecognition ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-								type: "button",
-								onClick: toggleListening,
-								title: listening ? "Stop dictating" : "Dictate your schedule",
-								"aria-label": listening ? "Stop dictating" : "Dictate your schedule",
-								className: listening ? "absolute top-2 right-2 rounded-md p-1.5 text-south-fg bg-south-fill" : "absolute top-2 right-2 rounded-md p-1.5 text-ink-faint hover:text-ink",
-								children: listening ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MicOff, { className: "size-4" }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Mic, { className: "size-4" })
-							}) : null]
-						}),
-						listening ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-							className: "mt-1.5 text-xs text-south-fg",
-							children: "Listening… speak your schedule."
-						}) : null,
-						error ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-							className: "mt-3 rounded-md bg-south-fill px-3 py-2 text-sm text-south-fg",
-							children: error
-						}) : null,
-						preview ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-							className: "mt-4",
-							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PreviewCard, {
-								schedule: preview,
-								summary
-							})
-						}) : null,
-						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							className: "mt-5 flex flex-wrap items-center justify-between gap-3",
-							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
-								type: "button",
-								disabled: busy,
-								onClick: () => void finish([], []),
-								className: "inline-flex items-center gap-1.5 text-sm font-medium text-ink-muted underline-offset-2 hover:text-ink hover:underline disabled:opacity-50",
-								children: ["Start empty", /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ArrowRight, { className: "size-3.5" })]
-							}), preview ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "flex items-center gap-2",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
-									variant: "ghost",
-									onClick: () => setPreview(null),
-									disabled: busy,
-									children: "Discard"
-								}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
-									onClick: () => void finish(preview.courses, preview.meetings),
-									disabled: busy,
-									children: [busy ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(LoaderCircle, { className: "size-4 animate-spin" }) : null, "Use this schedule"]
-								})]
-							}) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
-								onClick: () => void handleCreate(),
-								disabled: busy || !text.trim(),
-								children: [busy ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(LoaderCircle, { className: "size-4 animate-spin" }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Sparkles, { className: "size-4" }), "Create my schedule"]
-							})]
+			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+				className: "flex items-center gap-3",
+				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Logo, { size: 44 }), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", {
+					className: "font-serif text-2xl leading-none font-black tracking-tight",
+					children: "Kebiao"
+				}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
+					className: "mt-1.5 text-xs text-ink-faint",
+					children: ["课表 · ", TERM.label]
+				})] })]
+			}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+				className: "mt-6 rounded-xl bg-paper-elevated p-5 shadow-[var(--shadow-border)]",
+				children: [
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
+						htmlFor: "onboarding-text",
+						className: "text-xs font-medium tracking-wide text-ink-muted uppercase",
+						children: "Your schedule, in your own words"
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						className: "relative mt-2",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("textarea", {
+							id: "onboarding-text",
+							value: text,
+							onChange: (e) => setText(e.target.value),
+							placeholder: EXAMPLE,
+							rows: 5,
+							maxLength: 4e3,
+							autoFocus: true,
+							className: "w-full resize-y rounded-md border border-line bg-paper px-3 py-2 pr-10 text-sm text-ink shadow-[var(--shadow-border)] outline-none placeholder:text-ink-faint focus-visible:ring-2 focus-visible:ring-seal/40"
+						}), SpeechRecognition ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+							type: "button",
+							onClick: toggleListening,
+							title: listening ? "Stop dictating" : "Dictate your schedule",
+							"aria-label": listening ? "Stop dictating" : "Dictate your schedule",
+							className: listening ? "absolute top-2 right-2 rounded-md p-1.5 text-seal-dark bg-seal-tint" : "absolute top-2 right-2 rounded-md p-1.5 text-ink-faint hover:text-ink",
+							children: listening ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MicOff, { className: "size-4" }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Mic, { className: "size-4" })
+						}) : null]
+					}),
+					listening ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+						className: "mt-1.5 text-xs text-seal-dark",
+						children: "Listening… speak your schedule."
+					}) : null,
+					error ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+						className: "mt-3 rounded-md bg-seal-tint px-3 py-2 text-sm text-seal-dark",
+						children: error
+					}) : null,
+					preview ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+						className: "mt-4",
+						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PreviewCard, {
+							schedule: preview,
+							summary
 						})
-					]
-				}),
-				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-					className: "mt-4 text-xs leading-relaxed text-ink-faint",
-					children: "No account needed — your schedule lives on this device and works offline. Sign in later if you want it synced across devices."
-				})
-			]
+					}) : null,
+					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						className: "mt-5 flex flex-wrap items-center justify-between gap-3",
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+							type: "button",
+							disabled: busy,
+							onClick: () => void finish([], []),
+							className: "inline-flex items-center gap-1.5 text-sm font-medium text-ink-muted underline-offset-2 hover:text-ink hover:underline disabled:opacity-50",
+							children: ["Start empty", /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ArrowRight, { className: "size-3.5" })]
+						}), preview ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							className: "flex items-center gap-2",
+							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
+								variant: "ghost",
+								onClick: () => setPreview(null),
+								disabled: busy,
+								children: "Discard"
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
+								onClick: () => void finish(preview.courses, preview.meetings),
+								disabled: busy,
+								children: [busy ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(LoaderCircle, { className: "size-4 animate-spin" }) : null, "Use this schedule"]
+							})]
+						}) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
+							onClick: () => void handleCreate(),
+							disabled: busy || !text.trim(),
+							children: [busy ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(LoaderCircle, { className: "size-4 animate-spin" }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Sparkles, { className: "size-4" }), "Build it"]
+						})]
+					})
+				]
+			})]
 		})
 	});
 }
@@ -1466,6 +1781,7 @@ function ScheduleApp({ weekParam }) {
 	const [week, setWeekState] = (0, import_react.useState)(() => weekParam ?? liveWeek);
 	const [focusCourseId, setFocusCourseId] = (0, import_react.useState)(null);
 	const [selected, setSelected] = (0, import_react.useState)(null);
+	const [editorTarget, setEditorTarget] = (0, import_react.useState)(null);
 	const [day, setDay] = (0, import_react.useState)(() => {
 		const parts = shanghaiParts();
 		if (DAYS.includes(parts.weekday)) return parts.weekday;
@@ -1562,7 +1878,7 @@ function ScheduleApp({ weekParam }) {
 		const url = window.location.href;
 		if (navigator.share) try {
 			await navigator.share({
-				title: `North & South · Week ${week}`,
+				title: `Kebiao · Week ${week}`,
 				text,
 				url
 			});
@@ -1586,104 +1902,128 @@ function ScheduleApp({ weekParam }) {
 			position: "top-center",
 			toastOptions: { className: "!bg-ink !text-paper !border-0 !rounded-md !font-[inherit] !shadow-[var(--shadow-border)]" }
 		}),
-		/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+		/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 			className: "min-h-dvh bg-paper text-ink",
-			children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				className: "mx-auto flex max-w-7xl flex-col gap-8 px-4 py-6 pb-16 sm:px-6 lg:px-8 lg:py-10",
-				children: [
-					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("header", {
-						className: "flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between",
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
-							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
-								className: "text-xs font-medium tracking-[0.18em] text-ink-muted uppercase",
-								children: [
-									TERM.label,
-									" · ",
-									totalCredits,
-									" credits · ",
-									schedule.courses.length,
-									" courses"
-								]
+			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("header", {
+				className: "no-print sticky top-0 z-40 border-b border-line bg-paper/90 backdrop-blur-md",
+				children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					className: "mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8",
+					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						className: "flex min-w-0 items-center gap-2.5",
+						children: [
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Logo, {
+								size: 32,
+								className: "shrink-0"
 							}),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("h1", {
-								className: "mt-2 font-serif text-4xl leading-none sm:text-5xl",
-								children: [
-									"North",
-									" ",
-									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-										className: "italic text-ink-muted",
-										children: "&"
-									}),
-									" South"
-								]
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+								className: "font-serif text-xl leading-none font-black tracking-tight",
+								children: "Kebiao"
 							}),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
-								className: "mt-3 max-w-md text-sm text-ink-muted",
-								children: ["Warm blocks are South campus. Cool blocks are North.", upcoming ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [" ", /* @__PURE__ */ (0, import_jsx_runtime.jsx)(NowLine, { upcoming })] }) : null]
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+								className: "mt-1 hidden text-xs text-ink-faint lg:inline",
+								children: TERM.label
 							})
-						] }), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							className: "flex flex-wrap items-center gap-2 no-print",
-							children: [
-								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(AiUpdatePanel, {
-									schedule,
-									onApply: handleApply,
-									onReset: handleReset
+						]
+					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						className: "flex items-center gap-1 sm:gap-1.5",
+						children: [
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)(AiUpdatePanel, {
+								schedule,
+								onApply: handleApply,
+								onReset: handleReset
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
+								variant: "ghost",
+								size: "icon-sm",
+								"aria-label": "Add a class",
+								title: "Add a class",
+								onClick: () => setEditorTarget({
+									mode: "new",
+									day
 								}),
-								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
-									variant: "outline",
-									onClick: () => void shareWeek(),
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Share2, { className: "size-4" }), "Share week"]
-								}),
-								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
-									variant: "ghost",
-									onClick: () => window.print(),
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Printer, { className: "size-4" }), "Print"]
-								}),
-								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(AppInfo, { isApk }),
-								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(UserButton, {}),
-								/* @__PURE__ */ (0, import_jsx_runtime.jsx)(SignedOut, { children: !isApk ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
-									to: "/login",
-									className: "text-sm font-medium text-ink-muted underline-offset-4 hover:text-ink hover:underline",
-									children: "Sign in to sync"
-								}) : null })
-							]
-						})]
-					}),
+								children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Plus, { className: "size-4" })
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
+								variant: "ghost",
+								size: "icon-sm",
+								"aria-label": "Share this week",
+								title: "Share this week",
+								onClick: () => void shareWeek(),
+								children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Share2, { className: "size-4" })
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
+								variant: "ghost",
+								size: "icon-sm",
+								"aria-label": "Print",
+								title: "Print",
+								onClick: () => window.print(),
+								children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Printer, { className: "size-4" })
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)(AppInfo, { isApk }),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)(UserButton, {}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)(SignedOut, { children: !isApk ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
+								to: "/login",
+								className: "ml-1 hidden text-sm font-medium text-ink-muted underline-offset-4 hover:text-ink hover:underline sm:inline",
+								children: "Sign in to sync"
+							}) : null })
+						]
+					})]
+				})
+			}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+				className: "mx-auto flex w-full max-w-7xl flex-col gap-7 px-4 pt-6 pb-16 sm:px-6 lg:px-8 lg:pt-8",
+				children: [
 					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", {
 						className: "flex flex-col gap-4",
 						children: [
 							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 								className: "flex flex-wrap items-end justify-between gap-4",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									className: "flex items-center gap-1",
-									children: [
-										/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
-											variant: "ghost",
-											size: "icon-sm",
-											"aria-label": "Previous week",
-											disabled: week <= 1,
-											onClick: () => goWeek(week - 1),
-											className: "no-print",
-											children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronLeft, { className: "size-5" })
-										}),
-										/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-											className: "font-serif text-3xl leading-none tabular-nums",
-											children: ["Week ", week]
-										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-											className: "mt-1 text-sm text-ink-muted",
-											children: formatWeekRange(week)
-										})] }),
-										/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
-											variant: "ghost",
-											size: "icon-sm",
-											"aria-label": "Next week",
-											disabled: week >= TERM.weeks,
-											onClick: () => goWeek(week + 1),
-											className: "no-print",
-											children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronRight, { className: "size-5" })
-										})
-									]
-								}) }), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
+										className: "text-xs font-medium tracking-[0.18em] text-ink-faint uppercase",
+										children: [
+											TERM.label,
+											" · ",
+											totalCredits,
+											" credits · ",
+											schedule.courses.length,
+											" courses"
+										]
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+										className: "mt-1.5 flex items-center gap-1",
+										children: [
+											/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
+												variant: "ghost",
+												size: "icon-sm",
+												"aria-label": "Previous week",
+												disabled: week <= 1,
+												onClick: () => goWeek(week - 1),
+												className: "no-print",
+												children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronLeft, { className: "size-5" })
+											}),
+											/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+												className: "font-serif text-3xl leading-none font-bold tabular-nums",
+												children: ["Week ", week]
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+												className: "mt-1 text-sm text-ink-muted",
+												children: formatWeekRange(week)
+											})] }),
+											/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
+												variant: "ghost",
+												size: "icon-sm",
+												"aria-label": "Next week",
+												disabled: week >= TERM.weeks,
+												onClick: () => goWeek(week + 1),
+												className: "no-print",
+												children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronRight, { className: "size-5" })
+											})
+										]
+									}),
+									upcoming ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+										className: "mt-2 text-sm text-ink-muted",
+										children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(NowLine, { upcoming })
+									}) : null
+								] }), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 									className: "flex flex-wrap gap-x-6 gap-y-1 text-sm text-ink-muted",
 									children: [
 										/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
@@ -1787,12 +2127,23 @@ function ScheduleApp({ weekParam }) {
 							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h2", {
 								className: "text-xs font-medium tracking-wide text-ink-muted uppercase",
 								children: "Courses"
-							}), focusCourseId ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-								type: "button",
-								className: "text-xs font-medium text-ink underline-offset-2 hover:underline",
-								onClick: () => setFocusCourseId(null),
-								children: "Show all"
-							}) : null]
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "flex items-baseline gap-4",
+								children: [focusCourseId ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+									type: "button",
+									className: "text-xs font-medium text-ink underline-offset-2 hover:underline",
+									onClick: () => setFocusCourseId(null),
+									children: "Show all"
+								}) : null, /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+									type: "button",
+									className: "inline-flex items-center gap-1 text-xs font-medium text-seal underline-offset-2 hover:underline",
+									onClick: () => setEditorTarget({
+										mode: "new",
+										day
+									}),
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Plus, { className: "size-3" }), "Add class"]
+								})]
+							})]
 						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", {
 							className: "mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4",
 							children: schedule.courses.map((course) => {
@@ -1840,7 +2191,7 @@ function ScheduleApp({ weekParam }) {
 						})]
 					})
 				]
-			})
+			})]
 		}),
 		/* @__PURE__ */ (0, import_jsx_runtime.jsx)(MeetingPanel, {
 			week,
@@ -1849,7 +2200,20 @@ function ScheduleApp({ weekParam }) {
 			schedule,
 			onOpenChange: (open) => {
 				if (!open) setSelected(null);
+			},
+			onEdit: (block) => {
+				setSelected(null);
+				setEditorTarget({
+					mode: "edit",
+					block
+				});
 			}
+		}),
+		/* @__PURE__ */ (0, import_jsx_runtime.jsx)(MeetingEditor, {
+			target: editorTarget,
+			schedule,
+			onApply: handleApply,
+			onClose: () => setEditorTarget(null)
 		})
 	] });
 }

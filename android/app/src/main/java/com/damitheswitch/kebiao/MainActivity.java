@@ -1,4 +1,4 @@
-package com.damitheswitch.myschedule;
+package com.damitheswitch.kebiao;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;

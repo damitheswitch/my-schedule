@@ -1,5 +1,5 @@
 import { F as object, P as number, R as string, k as array } from "../_libs/@better-auth/core+[...].mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/schedule-ai-BcRRaj_R.js
+//#region node_modules/.nitro/vite/services/ssr/assets/schedule-ai-owSWeblb.js
 var DAYS = [
 	"Mon",
 	"Tue",
@@ -85,6 +85,74 @@ var MONTHS = [
 	"Nov",
 	"Dec"
 ];
+function expandWeeks(spec) {
+	const weeks = [];
+	for (const part of spec.split(",")) {
+		const token = part.trim();
+		const range = /^(\d+)-(\d+)$/.exec(token);
+		if (range) {
+			const from = Number(range[1]);
+			const to = Number(range[2]);
+			for (let w = from; w <= to; w += 1) weeks.push(w);
+		} else weeks.push(Number(token));
+	}
+	return weeks;
+}
+/** Turn a weeks array like [2,3,4,6,7] into a compact label like "2–4, 6–7". */
+function compressWeeks(weeks) {
+	const sorted = [...new Set(weeks)].sort((a, b) => a - b);
+	if (sorted.length === 0) return "";
+	const parts = [];
+	let start = sorted[0];
+	let prev = sorted[0];
+	for (let i = 1; i <= sorted.length; i += 1) {
+		const cur = sorted[i];
+		if (cur === prev + 1) {
+			prev = cur;
+			continue;
+		}
+		parts.push(start === prev ? `${start}` : `${start}–${prev}`);
+		start = cur;
+		prev = cur;
+	}
+	return parts.join(", ");
+}
+/** Typical section start times (11 sections across the three daily bands). */
+var SECTION_STARTS = [
+	"08:30",
+	"09:20",
+	"10:15",
+	"11:10",
+	"14:00",
+	"14:50",
+	"15:45",
+	"16:40",
+	"19:00",
+	"19:50",
+	"20:40"
+];
+/**
+* Best-fit section numbers for a manual entry. Only used to group/label
+* meetings — the block renders real start/end times, so approximation is fine.
+*/
+function sectionsForTime(start, end) {
+	const nearest = (hhmm) => {
+		const t = toMinutes(hhmm);
+		let best = 0;
+		for (let i = 0; i < SECTION_STARTS.length; i += 1) if (Math.abs(toMinutes(SECTION_STARTS[i]) - t) < Math.abs(toMinutes(SECTION_STARTS[best]) - t)) best = i;
+		return best + 1;
+	};
+	const s = nearest(start);
+	return {
+		sectionStart: s,
+		sectionEnd: Math.max(s, nearest(minutesToHhmm(toMinutes(end) - 1)))
+	};
+}
+function minutesToHhmm(mins) {
+	const h = Math.floor(mins / 60);
+	const m = mins % 60;
+	return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+}
 function toMinutes(hhmm) {
 	const [h, m] = hhmm.split(":").map(Number);
 	return h * 60 + m;
@@ -351,7 +419,7 @@ function courseMeetings(courseId, data = DEFAULT_SCHEDULE) {
 function serializeWeek(week, data = DEFAULT_SCHEDULE) {
 	const blocks = blocksForWeek(week, data);
 	const lines = [
-		`North & South · ${TERM.label}`,
+		`Kebiao · ${TERM.label}`,
 		`Week ${week} · ${formatWeekRange(week)}`,
 		""
 	];
@@ -417,24 +485,6 @@ function normDay(v) {
 function normCampus(v) {
 	const key = v.trim().toLowerCase();
 	return CAMPUS_ALIASES[key] ?? (key === "south" ? "South" : key === "north" ? "North" : null);
-}
-/** Turn a weeks array like [2,3,4,6,7] into a compact label like "2–4, 6–7". */
-function compressWeeks(weeks) {
-	const sorted = [...new Set(weeks)].sort((a, b) => a - b);
-	const parts = [];
-	let start = sorted[0];
-	let prev = sorted[0];
-	for (let i = 1; i <= sorted.length; i += 1) {
-		const cur = sorted[i];
-		if (cur === prev + 1) {
-			prev = cur;
-			continue;
-		}
-		parts.push(start === prev ? `${start}` : `${start}–${prev}`);
-		start = cur;
-		prev = cur;
-	}
-	return parts.join(", ");
 }
 /** The loose shape we ask the model for; `normalizeAiOutput` makes it strict. */
 var aiOutputSchema = object({
@@ -665,4 +715,4 @@ function normalizeAskOutput(raw) {
 	return validated.success ? validated.data.answer : null;
 }
 //#endregion
-export { sectionsLabel as A, formatWeekRange as C, normalizeAiOutput as D, nextUp as E, weekHasClasses as F, weekLoad as I, shanghaiParts as M, termWeekFromDate as N, normalizeAskOutput as O, toMinutes as P, formatShortDate as S, maxWeekLoad as T, dateOf as _, TERM as a, firstBusyDay as b, blocksForWeek as c, buildScheduleData as d, clampWeek as f, courseMeetings as g, courseHours as h, DEFAULT_SCHEDULE as i, serializeWeek as j, requestCompletion as k, buildAskMessages as l, commuteDays as m, DAYS as n, bandOf as o, commuteCopy as p, DAY_LABEL as r, bandPosition as s, BANDS as t, buildParseMessages as u, defaultWeek as v, holidayName as w, formatDuration as x, durationMinutes as y };
+export { normalizeAskOutput as A, formatDuration as C, maxWeekLoad as D, holidayName as E, shanghaiParts as F, termWeekFromDate as I, toMinutes as L, sectionsForTime as M, sectionsLabel as N, nextUp as O, serializeWeek as P, weekHasClasses as R, firstBusyDay as S, formatWeekRange as T, courseMeetings as _, TERM as a, durationMinutes as b, blocksForWeek as c, buildScheduleData as d, clampWeek as f, courseHours as g, compressWeeks as h, DEFAULT_SCHEDULE as i, requestCompletion as j, normalizeAiOutput as k, buildAskMessages as l, commuteDays as m, DAYS as n, bandOf as o, commuteCopy as p, DAY_LABEL as r, bandPosition as s, BANDS as t, buildParseMessages as u, dateOf as v, formatShortDate as w, expandWeeks as x, defaultWeek as y, weekLoad as z };

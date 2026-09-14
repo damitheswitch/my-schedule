@@ -151,14 +151,33 @@ export function stripInstallParams(url) {
   return rest ? `${path}?${rest}` : path;
 }
 
-export function renderInstallPageHtml(template, { host, url } = {}) {
+export function renderInstallPageHtml(template, { host, url, name } = {}) {
+  const appName = String(name ?? "").trim() || appNameFromHost(host);
   return String(template)
-    .replaceAll("{{APP_NAME}}", escapeHtml(appNameFromHost(host)))
+    .replaceAll("{{APP_NAME}}", escapeHtml(appName))
     .replaceAll("{{APP_URL}}", escapeHtml(stripInstallParams(url)));
 }
 
-export function renderWebManifest(hostHeader) {
-  const name = appNameFromHost(hostHeader);
+export function renderWebManifest(hostHeader, { cwd = process.cwd(), site: bakedSite } = {}) {
+  // The app's own identity file wins over the host-derived name so published
+  // sites (Vercel, custom domains) get their real product name, colors, and
+  // icons instead of "Grok App". Deployed middleware passes the baked
+  // `grokOgIdentity.site` (no workspace FS at runtime); dev passes cwd.
+  const site = bakedSite ?? readOgSite(cwd);
+  const siteTitle = String(site.title ?? "").trim();
+  const name = siteTitle || appNameFromHost(hostHeader);
+  const theme = String(site.theme_color ?? site.color ?? "").trim() || "#000000";
+  const background = String(site.background_color ?? "").trim() || theme;
+  const icons =
+    Array.isArray(site.icons) && site.icons.length > 0
+      ? site.icons
+      : [
+          {
+            src: "/__grok/icon-180.png",
+            sizes: "180x180",
+            type: "image/png",
+          },
+        ];
   return JSON.stringify(
     {
       name,
@@ -167,15 +186,9 @@ export function renderWebManifest(hostHeader) {
       start_url: "/",
       scope: "/",
       display: "standalone",
-      background_color: "#000000",
-      theme_color: "#000000",
-      icons: [
-        {
-          src: "/__grok/icon-180.png",
-          sizes: "180x180",
-          type: "image/png",
-        },
-      ],
+      background_color: background,
+      theme_color: theme,
+      icons,
     },
     null,
     2,

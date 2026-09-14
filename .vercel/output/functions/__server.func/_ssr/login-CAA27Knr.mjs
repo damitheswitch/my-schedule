@@ -1,7 +1,7 @@
 import { r as signIn } from "./client-CVqXY6bk.mjs";
 import { n as require_jsx_runtime } from "../_libs/radix-ui__react-context+react.mjs";
 import { t as GROK_PROVIDERS } from "./server-BGzN9ETo.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/login-3YNvHWkg.js
+//#region node_modules/.nitro/vite/services/ssr/assets/login-CAA27Knr.js
 var import_jsx_runtime = require_jsx_runtime();
 function Login() {
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("main", {
@@ -11,10 +11,10 @@ function Login() {
 			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
 				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
 					className: "text-xs font-medium tracking-[0.18em] text-ink-muted uppercase",
-					children: "North & South"
+					children: "Kebiao"
 				}),
 				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", {
-					className: "mt-2 font-serif text-4xl leading-none",
+					className: "mt-2 font-serif text-4xl leading-none font-black",
 					children: "Sign in"
 				}),
 				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {

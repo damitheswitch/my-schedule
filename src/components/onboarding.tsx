@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { Sparkles, Loader2, Mic, MicOff, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Logo } from "@/components/logo";
 import { PreviewCard } from "@/components/ai-update-panel";
 import { requestAi } from "@/lib/ai-client";
 import { buildScheduleData } from "@/lib/schedule-ai";
@@ -115,19 +116,19 @@ export function Onboarding({ onDone }: OnboardingProps) {
   return (
     <div className="grid min-h-dvh place-items-center bg-paper px-4 py-10 text-ink">
       <div className="w-full max-w-xl">
-        <p className="text-xs font-medium tracking-[0.18em] text-ink-muted uppercase">
-          {TERM.label} · {TERM.weeks} weeks
-        </p>
-        <h1 className="mt-2 font-serif text-4xl leading-none sm:text-5xl">
-          North <span className="italic text-ink-muted">&</span> South
-        </h1>
-        <p className="mt-4 text-sm leading-relaxed text-ink-muted">
-          A class schedule you never have to type twice. Describe your courses in
-          plain words — or paste the notice your school dropped in the group
-          chat — and the assistant builds the whole term for you.
-        </p>
+        <div className="flex items-center gap-3">
+          <Logo size={44} />
+          <div>
+            <h1 className="font-serif text-2xl leading-none font-black tracking-tight">
+              Kebiao
+            </h1>
+            <p className="mt-1.5 text-xs text-ink-faint">
+              课表 · {TERM.label}
+            </p>
+          </div>
+        </div>
 
-        <div className="mt-8 rounded-xl bg-paper-elevated p-5 shadow-[var(--shadow-border)]">
+        <div className="mt-6 rounded-xl bg-paper-elevated p-5 shadow-[var(--shadow-border)]">
           <label
             htmlFor="onboarding-text"
             className="text-xs font-medium tracking-wide text-ink-muted uppercase"
@@ -142,7 +143,8 @@ export function Onboarding({ onDone }: OnboardingProps) {
               placeholder={EXAMPLE}
               rows={5}
               maxLength={4000}
-              className="w-full resize-y rounded-md border border-line bg-paper px-3 py-2 pr-10 text-sm text-ink shadow-[var(--shadow-border)] outline-none placeholder:text-ink-faint focus-visible:ring-2 focus-visible:ring-ink/30"
+              autoFocus
+              className="w-full resize-y rounded-md border border-line bg-paper px-3 py-2 pr-10 text-sm text-ink shadow-[var(--shadow-border)] outline-none placeholder:text-ink-faint focus-visible:ring-2 focus-visible:ring-seal/40"
             />
             {SpeechRecognition ? (
               <button
@@ -152,7 +154,7 @@ export function Onboarding({ onDone }: OnboardingProps) {
                 aria-label={listening ? "Stop dictating" : "Dictate your schedule"}
                 className={
                   listening
-                    ? "absolute top-2 right-2 rounded-md p-1.5 text-south-fg bg-south-fill"
+                    ? "absolute top-2 right-2 rounded-md p-1.5 text-seal-dark bg-seal-tint"
                     : "absolute top-2 right-2 rounded-md p-1.5 text-ink-faint hover:text-ink"
                 }
               >
@@ -161,11 +163,11 @@ export function Onboarding({ onDone }: OnboardingProps) {
             ) : null}
           </div>
           {listening ? (
-            <p className="mt-1.5 text-xs text-south-fg">Listening… speak your schedule.</p>
+            <p className="mt-1.5 text-xs text-seal-dark">Listening… speak your schedule.</p>
           ) : null}
 
           {error ? (
-            <p className="mt-3 rounded-md bg-south-fill px-3 py-2 text-sm text-south-fg">
+            <p className="mt-3 rounded-md bg-seal-tint px-3 py-2 text-sm text-seal-dark">
               {error}
             </p>
           ) : null}
@@ -203,16 +205,11 @@ export function Onboarding({ onDone }: OnboardingProps) {
                 ) : (
                   <Sparkles className="size-4" />
                 )}
-                Create my schedule
+                Build it
               </Button>
             )}
           </div>
         </div>
-
-        <p className="mt-4 text-xs leading-relaxed text-ink-faint">
-          No account needed — your schedule lives on this device and works
-          offline. Sign in later if you want it synced across devices.
-        </p>
       </div>
     </div>
   );
