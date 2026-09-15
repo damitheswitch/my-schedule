@@ -28,6 +28,9 @@ public class MainActivity extends Activity {
         webView.getSettings().setMediaPlaybackRequiresUserGesture(false);
         webView.setOverScrollMode(View.OVER_SCROLL_NEVER);
 
+        // window.Kebiao — the app pushes schedule + reminder prefs to native.
+        webView.addJavascriptInterface(new KebiaoBridge(this), "Kebiao");
+
         WebViewAssetLoader assetLoader = new WebViewAssetLoader.Builder()
                 .addPathHandler("/assets/", new WebViewAssetLoader.AssetsPathHandler(this))
                 .build();
@@ -40,6 +43,13 @@ public class MainActivity extends Activity {
         });
 
         webView.loadUrl("https://appassets.androidplatform.net/assets/www/index.html");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Keep the widget fresh when the app comes forward.
+        NextClassWidget.updateAll(this);
     }
 
     @Override

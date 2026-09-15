@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { authMiddleware } from "@/lib/auth/middleware";
-import { type ScheduleData } from "@/lib/schedule";
+import { MAX_TERM_WEEKS, type ScheduleData, type TermConfig } from "@/lib/schedule";
 import { buildScheduleData } from "@/lib/schedule-ai";
 
 /**
@@ -17,6 +17,7 @@ type ScheduleRow = {
   user_id: string;
   courses: unknown;
   meetings: unknown;
+  term: unknown;
   updated_at: unknown;
 };
 
@@ -25,6 +26,14 @@ function toMillis(v: unknown): number {
   const t = Date.parse(String(v));
   return Number.isFinite(t) ? t : 0;
 }
+
+const termSchema = z
+  .object({
+    label: z.string().max(80),
+    startMonday: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    weeks: z.number().int().min(1).max(MAX_TERM_WEEKS),
+  })
+  .optional();
 
 export type SavedSchedule = ScheduleData & { updatedAt: number };
 
@@ -36,13 +45,17 @@ export const getSchedule = createServerFn({ method: "GET" })
     const { getSql } = await import("@/lib/db");
     const sql = await getSql();
     const rows = await sql<ScheduleRow>`
-      select user_id, courses, meetings, updated_at from user_schedules where user_id = ${context.userId}
+      select user_id, courses, meetings, term, updated_at from user_schedules where user_id = ${context.userId}
     `;
     if (rows.length === 0) return null;
     const row = rows[0];
     const courses = (row.courses as ScheduleData["courses"]) ?? [];
     const meetings = (row.meetings as ScheduleData["meetings"]) ?? [];
-    return { ...buildScheduleData(courses, meetings), updatedAt: toMillis(row.updated_at) };
+    const term = termSchema.safeParse(row.term);
+    return {
+      ...buildScheduleData(courses, meetings, term.success ? term.data : undefined),
+      updatedAt: toMillis(row.updated_at),
+    };
   });
 
 const saveInput = z.object({
@@ -57,25 +70,26 @@ const saveInput = z.object({
         teachers: z.array(z.string().max(120)).max(12),
       }),
     )
-    .max(60),
+    .max(80),
   meetings: z
     .array(
       z.object({
         id: z.string().max(120),
         courseId: z.string().max(80),
-        campus: z.enum(["South", "North"]),
-        day: z.enum(["Mon", "Tue", "Wed", "Thu", "Fri"]),
+        campus: z.string().max(60),
+        day: z.enum(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]),
         sectionStart: z.number(),
         sectionEnd: z.number(),
         start: z.string().max(8),
         end: z.string().max(8),
-        weeks: z.array(z.number()).max(30),
+        weeks: z.array(z.number()).max(60),
         weeksLabel: z.string().max(60),
         room: z.string().max(80),
         flag: z.enum(["biweekly", "once"]).optional(),
       }),
     )
-    .max(400),
+    .max(500),
+  term: termSchema,
 });
 
 /** Persist the signed-in user's schedule (sync layer for the hosted app). */
@@ -85,17 +99,25 @@ export const saveSchedule = createServerFn({ method: "POST" })
   .handler(async ({ data, context }): Promise<SavedSchedule> => {
     const { getSql } = await import("@/lib/db");
     const sql = await getSql();
+    const termJson = data.term ? JSON.stringify(data.term) : null;
     const rows = await sql<Pick<ScheduleRow, "updated_at">>`
-      insert into user_schedules (user_id, courses, meetings, updated_at)
-      values (${context.userId}, ${JSON.stringify(data.courses)}::jsonb, ${JSON.stringify(data.meetings)}::jsonb, now())
+      insert into user_schedules (user_id, courses, meetings, term, updated_at)
+      values (
+        ${context.userId},
+        ${JSON.stringify(data.courses)}::jsonb,
+        ${JSON.stringify(data.meetings)}::jsonb,
+        ${termJson}::jsonb,
+        now()
+      )
       on conflict (user_id) do update
         set courses = excluded.courses,
             meetings = excluded.meetings,
+            term = excluded.term,
             updated_at = now()
       returning updated_at
     `;
     return {
-      ...buildScheduleData(data.courses, data.meetings),
+      ...buildScheduleData(data.courses, data.meetings, data.term as TermConfig | undefined),
       updatedAt: toMillis(rows[0]?.updated_at),
     };
   });

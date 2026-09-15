@@ -17,13 +17,32 @@
   --color-seal-dark: #7a0f20;
   --color-seal-tint: #f7e8ea;
 
-  /* Campus accents — warm gold for South, cool slate for North. */
-  --color-south: #9a7a1a;
-  --color-south-fg: #57450f;
-  --color-south-fill: #f8f0da;
-  --color-north: #3a4e60;
-  --color-north-fg: #1e2b35;
-  --color-north-fill: #e4e9ee;
+  /* Location accents — assigned automatically per distinct place label, in
+     first-seen order (schedule.campusTone). Kept warm/quiet on the paper base. */
+  --color-loc-0: #9a7a1a;
+  --color-loc-0-fg: #57450f;
+  --color-loc-0-fill: #f8f0da;
+  --color-loc-1: #3a4e60;
+  --color-loc-1-fg: #1e2b35;
+  --color-loc-1-fill: #e4e9ee;
+  --color-loc-2: #a6192e;
+  --color-loc-2-fg: #6b1120;
+  --color-loc-2-fill: #f7e3e6;
+  --color-loc-3: #3f6b3a;
+  --color-loc-3-fg: #26421f;
+  --color-loc-3-fill: #e3ecd9;
+  --color-loc-4: #5a4a86;
+  --color-loc-4-fg: #372c55;
+  --color-loc-4-fill: #e8e4f3;
+  --color-loc-5: #2f6b66;
+  --color-loc-5-fg: #173f3b;
+  --color-loc-5-fill: #ddece9;
+  --color-loc-6: #a04e1e;
+  --color-loc-6-fg: #64300f;
+  --color-loc-6-fill: #f6e4d7;
+  --color-loc-7: #2d5f8a;
+  --color-loc-7-fg: #18374f;
+  --color-loc-7-fill: #dde8f2;
 
   --radius-xs: 4px;
   --radius-sm: 6px;

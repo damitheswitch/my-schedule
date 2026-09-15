@@ -7,7 +7,7 @@ import {
   normalizeAskOutput,
   requestCompletion,
 } from "@/lib/schedule-ai";
-import type { Course, Meeting } from "@/lib/schedule";
+import { normalizeTerm, type Course, type Meeting } from "@/lib/schedule";
 
 /**
  * Public AI endpoint — POST /api/ai.
@@ -26,14 +26,25 @@ import type { Course, Meeting } from "@/lib/schedule";
 
 const ALLOWED_ORIGINS = new Set(["https://appassets.androidplatform.net"]);
 
-const MAX_TEXT = 4000;
-const MAX_BODY = 64_000;
-const MAX_COURSES = 40;
-const MAX_MEETINGS = 150;
+const MAX_TEXT = 20_000; // pasted timetables / extracted document text
+const MAX_BODY_TEXT_ONLY = 128_000;
+const MAX_BODY_WITH_IMAGE = 9_000_000; // ~6.5MB base64 image inside JSON
+const MAX_IMAGE = 6_500_000;
+const MAX_COURSES = 60;
+const MAX_MEETINGS = 300;
 
 const requestSchema = z.object({
   mode: z.enum(["merge", "replace", "ask"]),
-  text: z.string().min(1).max(MAX_TEXT),
+  text: z.string().max(MAX_TEXT).optional().default(""),
+  // base64 data URL for vision input (screenshot/photo of a timetable)
+  image: z.string().max(MAX_IMAGE).optional(),
+  term: z
+    .object({
+      label: z.string().max(80).optional(),
+      startMonday: z.string().max(12).optional(),
+      weeks: z.number().optional(),
+    })
+    .optional(),
   schedule: z
     .object({
       courses: z.array(z.record(z.string(), z.unknown())).max(MAX_COURSES).optional(),
@@ -102,7 +113,7 @@ export const Route = createFileRoute("/api/ai")({
         } catch {
           return json(request, 400, { ok: false, error: "Could not read the request." });
         }
-        if (raw.length > MAX_BODY) {
+        if (raw.length > MAX_BODY_WITH_IMAGE) {
           return json(request, 413, { ok: false, error: "Request too large." });
         }
 
@@ -116,7 +127,24 @@ export const Route = createFileRoute("/api/ai")({
         if (!input.success) {
           return json(request, 400, {
             ok: false,
-            error: `Keep it under ${MAX_TEXT} characters and try again.`,
+            error: `Keep text under ${MAX_TEXT / 1000}k characters (images under ~5MB) and try again.`,
+          });
+        }
+
+        const hasImage = typeof input.data.image === "string" && input.data.image.startsWith("data:image/");
+        if (!hasImage && raw.length > MAX_BODY_TEXT_ONLY) {
+          return json(request, 413, { ok: false, error: "Request too large." });
+        }
+        if (input.data.image && !hasImage) {
+          return json(request, 400, { ok: false, error: "Unsupported image format." });
+        }
+        if (input.data.mode === "ask" && hasImage) {
+          return json(request, 400, { ok: false, error: "Ask mode doesn't take images." });
+        }
+        if (!hasImage && !input.data.text.trim()) {
+          return json(request, 400, {
+            ok: false,
+            error: "Paste a notice, describe your schedule, or attach a file first.",
           });
         }
 
@@ -139,6 +167,7 @@ export const Route = createFileRoute("/api/ai")({
           });
         }
 
+        const term = normalizeTerm(input.data.term);
         const current = {
           courses: (input.data.schedule?.courses ?? []) as Course[],
           meetings: (input.data.schedule?.meetings ?? []) as Meeting[],
@@ -146,10 +175,10 @@ export const Route = createFileRoute("/api/ai")({
 
         const { system, user } =
           input.data.mode === "ask"
-            ? buildAskMessages(input.data.text, current)
-            : buildParseMessages(input.data.text, input.data.mode, current);
+            ? buildAskMessages(input.data.text, current, term)
+            : buildParseMessages(input.data.text, input.data.mode, current, term, hasImage);
 
-        const completion = await requestCompletion(system, user, apiKey);
+        const completion = await requestCompletion(system, user, apiKey, hasImage ? input.data.image : undefined);
         if (!completion.ok) {
           return json(request, 502, { ok: false, error: completion.error });
         }
@@ -162,7 +191,7 @@ export const Route = createFileRoute("/api/ai")({
           return json(request, 200, { ok: true, answer });
         }
 
-        const parsed = normalizeAiOutput(completion.text);
+        const parsed = normalizeAiOutput(completion.text, term);
         if (!parsed) {
           return json(request, 502, {
             ok: false,

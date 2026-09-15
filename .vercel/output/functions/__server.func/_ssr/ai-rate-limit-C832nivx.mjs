@@ -1,4 +1,4 @@
-//#region node_modules/.nitro/vite/services/ssr/assets/ai-rate-limit-BnZmADFn.js
+//#region node_modules/.nitro/vite/services/ssr/assets/ai-rate-limit-C832nivx.js
 var IP_MINUTE_LIMIT = Number(process.env.AI_IP_MINUTE_LIMIT ?? 6);
 var IP_DAY_LIMIT = Number(process.env.AI_IP_DAY_LIMIT ?? 30);
 var GLOBAL_DAY_LIMIT = Number(process.env.AI_GLOBAL_DAY_LIMIT ?? 400);
@@ -65,7 +65,7 @@ function memCheck(windows) {
 }
 async function dbCheck(windows) {
 	try {
-		const { getSql } = await import("./db-D8CXEjvD.mjs").then((n) => n.t).then((n) => n.t);
+		const { getSql } = await import("./db-B0jT_u5i.mjs").then((n) => n.t).then((n) => n.t);
 		const sql = await getSql();
 		for (const w of windows) {
 			const rows = await sql`

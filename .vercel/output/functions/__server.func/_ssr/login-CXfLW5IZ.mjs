@@ -1,7 +1,7 @@
 import { r as signIn } from "./client-CVqXY6bk.mjs";
 import { n as require_jsx_runtime } from "../_libs/radix-ui__react-context+react.mjs";
-import { t as GROK_PROVIDERS } from "./server-05qNg1Dj.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/login-BzHnvjwQ.js
+import { t as GROK_PROVIDERS } from "./server-HzWscnOe.mjs";
+//#region node_modules/.nitro/vite/services/ssr/assets/login-CXfLW5IZ.js
 var import_jsx_runtime = require_jsx_runtime();
 function Login() {
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("main", {

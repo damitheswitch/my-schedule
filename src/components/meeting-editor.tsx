@@ -10,13 +10,11 @@ import {
 import {
   DAYS,
   DAY_LABEL,
-  TERM,
   compressWeeks,
   expandWeeks,
   sectionsForTime,
   toMinutes,
   type Block,
-  type Campus,
   type Course,
   type DayKey,
   type Meeting,
@@ -48,6 +46,7 @@ const NEW_COURSE = "__new__";
 export function MeetingEditor({ target, schedule, onApply, onClose }: MeetingEditorProps) {
   const open = target !== null;
   const editing = target?.mode === "edit" ? target.block : null;
+  const termWeeks = schedule.term.weeks;
 
   const [courseKey, setCourseKey] = useState<string>(NEW_COURSE);
   const [newCourseName, setNewCourseName] = useState("");
@@ -55,11 +54,16 @@ export function MeetingEditor({ target, schedule, onApply, onClose }: MeetingEdi
   const [start, setStart] = useState("08:30");
   const [end, setEnd] = useState("10:05");
   const [room, setRoom] = useState("");
-  const [campus, setCampus] = useState<Campus>("South");
-  const [weeksSpec, setWeeksSpec] = useState(`1-${TERM.weeks}`);
+  const [campus, setCampus] = useState("");
+  const [weeksSpec, setWeeksSpec] = useState(`1-${termWeeks}`);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+
+  const knownCampuses = useMemo(
+    () => Object.keys(schedule.campusTone),
+    [schedule.campusTone],
+  );
 
   // (Re)seed the form every time the dialog opens on a different target.
   useEffect(() => {
@@ -84,25 +88,25 @@ export function MeetingEditor({ target, schedule, onApply, onClose }: MeetingEdi
       setStart("08:30");
       setEnd("10:05");
       setRoom("");
-      setCampus("South");
-      setWeeksSpec(`1-${TERM.weeks}`);
+      setCampus(knownCampuses[0] ?? "");
+      setWeeksSpec(`1-${termWeeks}`);
     }
-  }, [target, schedule]);
+  }, [target, schedule, termWeeks, knownCampuses]);
 
   const isNewCourse = !editing && courseKey === NEW_COURSE;
 
   const weeks = useMemo(() => {
     const parsed = expandWeeks(weeksSpec.replaceAll("–", "-").replaceAll("—", "-"));
-    return [...new Set(parsed.filter((w) => Number.isInteger(w) && w >= 1 && w <= TERM.weeks))].sort(
+    return [...new Set(parsed.filter((w) => Number.isInteger(w) && w >= 1 && w <= termWeeks))].sort(
       (a, b) => a - b,
     );
-  }, [weeksSpec]);
+  }, [weeksSpec, termWeeks]);
 
   function validate(): string | null {
     if (isNewCourse && !newCourseName.trim()) return "Name the new course.";
     if (!TIME_RE.test(start) || !TIME_RE.test(end)) return "Times use 24h HH:MM — e.g. 08:30.";
     if (toMinutes(end) <= toMinutes(start)) return "End time must be after start time.";
-    if (weeks.length === 0) return `Weeks: use numbers or ranges within 1–${TERM.weeks}, e.g. "1-16" or "2,4,6".`;
+    if (weeks.length === 0) return `Weeks: use numbers or ranges within 1–${termWeeks}, e.g. "1-16" or "2,4,6".`;
     return null;
   }
 
@@ -112,7 +116,7 @@ export function MeetingEditor({ target, schedule, onApply, onClose }: MeetingEdi
       setError(err);
       return null;
     }
-    const sections = sectionsForTime(start, end);
+    const sections = sectionsForTime(start, end, schedule);
     const meetings = schedule.meetings.filter(
       (m) => !editing || !editing.meetings.some((bm) => bm.id === m.id),
     );
@@ -132,7 +136,7 @@ export function MeetingEditor({ target, schedule, onApply, onClose }: MeetingEdi
     meetings.push({
       id: `manual-${Date.now().toString(36)}`,
       courseId,
-      campus,
+      campus: campus.trim(),
       day,
       sectionStart: sections.sectionStart,
       sectionEnd: sections.sectionEnd,
@@ -233,7 +237,7 @@ export function MeetingEditor({ target, schedule, onApply, onClose }: MeetingEdi
                     type="button"
                     onClick={() => setDay(d)}
                     className={cn(
-                      "flex-1 rounded-sm py-2 text-sm font-medium transition-colors",
+                      "flex-1 rounded-sm py-2 text-xs font-medium transition-colors",
                       day === d ? "bg-ink text-paper" : "text-ink-muted hover:bg-ink/5 hover:text-ink",
                     )}
                   >
@@ -272,34 +276,28 @@ export function MeetingEditor({ target, schedule, onApply, onClose }: MeetingEdi
                   className="w-full rounded-md border border-line bg-paper px-3 py-2 text-sm text-ink outline-none placeholder:text-ink-faint focus-visible:ring-2 focus-visible:ring-seal/40"
                 />
               </Field>
-              <Field label="Campus">
-                <div className="flex gap-1">
-                  {(["South", "North"] as Campus[]).map((c) => (
-                    <button
-                      key={c}
-                      type="button"
-                      onClick={() => setCampus(c)}
-                      className={cn(
-                        "flex-1 rounded-sm py-2 text-sm font-medium transition-colors",
-                        campus === c
-                          ? c === "South"
-                            ? "bg-south-fill text-south-fg ring-1 ring-south/40"
-                            : "bg-north-fill text-north-fg ring-1 ring-north/40"
-                          : "text-ink-muted hover:bg-ink/5 hover:text-ink",
-                      )}
-                    >
-                      {c}
-                    </button>
+              <Field label="Location (campus, site…)">
+                <input
+                  value={campus}
+                  onChange={(e) => setCampus(e.target.value)}
+                  placeholder="e.g. South, Main, online"
+                  maxLength={60}
+                  list="known-locations"
+                  className="w-full rounded-md border border-line bg-paper px-3 py-2 text-sm text-ink outline-none placeholder:text-ink-faint focus-visible:ring-2 focus-visible:ring-seal/40"
+                />
+                <datalist id="known-locations">
+                  {knownCampuses.map((c) => (
+                    <option key={c} value={c} />
                   ))}
-                </div>
+                </datalist>
               </Field>
             </div>
 
-            <Field label={`Weeks it meets (1–${TERM.weeks})`}>
+            <Field label={`Weeks it meets (1–${termWeeks})`}>
               <input
                 value={weeksSpec}
                 onChange={(e) => setWeeksSpec(e.target.value)}
-                placeholder={`1-${TERM.weeks} or 2,4,6-10`}
+                placeholder={`1-${termWeeks} or 2,4,6-10`}
                 className="w-full rounded-md border border-line bg-paper px-3 py-2 text-sm tabular-nums text-ink outline-none placeholder:text-ink-faint focus-visible:ring-2 focus-visible:ring-seal/40"
               />
               <p className="mt-1 text-xs text-ink-faint">

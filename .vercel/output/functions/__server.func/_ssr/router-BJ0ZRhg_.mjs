@@ -4,10 +4,10 @@ import { B as unknown, D as _enum, F as object, L as record, M as literal, P as 
 import { u as require_react } from "../_libs/@floating-ui/react-dom+[...].mjs";
 import { f as createRouter, g as createRootRoute, h as createFileRoute, l as Scripts, m as lazyRouteComponent, p as Outlet, u as HeadContent, y as useRouter } from "../_libs/@tanstack/react-router+[...].mjs";
 import { n as require_jsx_runtime } from "../_libs/radix-ui__react-context+react.mjs";
-import { n as auth } from "./server-05qNg1Dj.mjs";
-import { A as normalizeAskOutput, f as clampWeek, j as requestCompletion, k as normalizeAiOutput, l as buildAskMessages, u as buildParseMessages } from "./schedule-ai-UYQHUZYf.mjs";
+import { n as auth } from "./server-HzWscnOe.mjs";
+import { A as normalizeAiOutput, M as normalizeTerm, N as requestCompletion, a as buildParseMessages, i as buildAskMessages, j as normalizeAskOutput, s as clampWeek } from "./schedule-ai-BkapXzpf.mjs";
 import { r as TriangleAlert } from "../_libs/lucide-react.mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/router-CxNO-Z53.js
+//#region node_modules/.nitro/vite/services/ssr/assets/router-BJ0ZRhg_.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 var FALLBACK_MESSAGE = "An unexpected error occurred. Try reloading the page.";
@@ -302,7 +302,7 @@ function PreviewHostBridge() {
 	}, [router]);
 	return null;
 }
-var styles_default = "/assets/styles-CWYlDnj0.css";
+var styles_default = "/assets/styles-XunhfSKa.css";
 var APP_NAME = "Kebiao";
 var Route$4 = createRootRoute({
 	head: () => ({
@@ -366,7 +366,7 @@ var Route$4 = createRootRoute({
 		] })]
 	})
 });
-var $$splitComponentImporter$1 = () => import("./routes-CAmWTSl2.mjs");
+var $$splitComponentImporter$1 = () => import("./routes-DxTtyQQ0.mjs");
 var Route$3 = createFileRoute("/")({
 	validateSearch: (search) => {
 		const raw = Number(search.week);
@@ -375,7 +375,7 @@ var Route$3 = createFileRoute("/")({
 	},
 	component: lazyRouteComponent($$splitComponentImporter$1, "component")
 });
-var $$splitComponentImporter = () => import("./login-BzHnvjwQ.mjs");
+var $$splitComponentImporter = () => import("./login-CXfLW5IZ.mjs");
 var Route$2 = createFileRoute("/login")({ component: lazyRouteComponent($$splitComponentImporter, "component") });
 /**
 * Public AI endpoint — POST /api/ai.
@@ -392,18 +392,25 @@ var Route$2 = createFileRoute("/login")({ component: lazyRouteComponent($$splitC
 *   - generic client-facing errors; the key never appears in responses
 */
 var ALLOWED_ORIGINS = /* @__PURE__ */ new Set(["https://appassets.androidplatform.net"]);
-var MAX_TEXT = 4e3;
-var MAX_BODY = 64e3;
+var MAX_TEXT = 2e4;
+var MAX_BODY_TEXT_ONLY = 128e3;
+var MAX_BODY_WITH_IMAGE = 9e6;
 var requestSchema = object({
 	mode: _enum([
 		"merge",
 		"replace",
 		"ask"
 	]),
-	text: string().min(1).max(MAX_TEXT),
+	text: string().max(MAX_TEXT).optional().default(""),
+	image: string().max(65e5).optional(),
+	term: object({
+		label: string().max(80).optional(),
+		startMonday: string().max(12).optional(),
+		weeks: number().optional()
+	}).optional(),
 	schedule: object({
-		courses: array(record(string(), unknown())).max(40).optional(),
-		meetings: array(record(string(), unknown())).max(150).optional()
+		courses: array(record(string(), unknown())).max(60).optional(),
+		meetings: array(record(string(), unknown())).max(300).optional()
 	}).optional()
 });
 function corsHeaders(request) {
@@ -454,7 +461,7 @@ var Route$1 = createFileRoute("/api/ai")({ server: { handlers: {
 				error: "Could not read the request."
 			});
 		}
-		if (raw.length > MAX_BODY) return json(request, 413, {
+		if (raw.length > MAX_BODY_WITH_IMAGE) return json(request, 413, {
 			ok: false,
 			error: "Request too large."
 		});
@@ -470,9 +477,26 @@ var Route$1 = createFileRoute("/api/ai")({ server: { handlers: {
 		const input = requestSchema.safeParse(parsedBody);
 		if (!input.success) return json(request, 400, {
 			ok: false,
-			error: `Keep it under ${MAX_TEXT} characters and try again.`
+			error: `Keep text under ${MAX_TEXT / 1e3}k characters (images under ~5MB) and try again.`
 		});
-		const { checkAiRateLimit } = await import("./ai-rate-limit-BnZmADFn.mjs");
+		const hasImage = typeof input.data.image === "string" && input.data.image.startsWith("data:image/");
+		if (!hasImage && raw.length > MAX_BODY_TEXT_ONLY) return json(request, 413, {
+			ok: false,
+			error: "Request too large."
+		});
+		if (input.data.image && !hasImage) return json(request, 400, {
+			ok: false,
+			error: "Unsupported image format."
+		});
+		if (input.data.mode === "ask" && hasImage) return json(request, 400, {
+			ok: false,
+			error: "Ask mode doesn't take images."
+		});
+		if (!hasImage && !input.data.text.trim()) return json(request, 400, {
+			ok: false,
+			error: "Paste a notice, describe your schedule, or attach a file first."
+		});
+		const { checkAiRateLimit } = await import("./ai-rate-limit-C832nivx.mjs");
 		const limited = await checkAiRateLimit(clientIp(request));
 		if (!limited.ok) return json(request, limited.status, {
 			ok: false,
@@ -483,12 +507,13 @@ var Route$1 = createFileRoute("/api/ai")({ server: { handlers: {
 			ok: false,
 			error: "The AI assistant isn't configured on this deployment."
 		});
+		const term = normalizeTerm(input.data.term);
 		const current = {
 			courses: input.data.schedule?.courses ?? [],
 			meetings: input.data.schedule?.meetings ?? []
 		};
-		const { system, user } = input.data.mode === "ask" ? buildAskMessages(input.data.text, current) : buildParseMessages(input.data.text, input.data.mode, current);
-		const completion = await requestCompletion(system, user, apiKey);
+		const { system, user } = input.data.mode === "ask" ? buildAskMessages(input.data.text, current, term) : buildParseMessages(input.data.text, input.data.mode, current, term, hasImage);
+		const completion = await requestCompletion(system, user, apiKey, hasImage ? input.data.image : void 0);
 		if (!completion.ok) return json(request, 502, {
 			ok: false,
 			error: completion.error
@@ -504,7 +529,7 @@ var Route$1 = createFileRoute("/api/ai")({ server: { handlers: {
 				answer
 			});
 		}
-		const parsed = normalizeAiOutput(completion.text);
+		const parsed = normalizeAiOutput(completion.text, term);
 		if (!parsed) return json(request, 502, {
 			ok: false,
 			error: "The AI returned something unreadable. Try again."

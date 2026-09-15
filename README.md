@@ -1,9 +1,9 @@
 # Kebiao 课表
 
-Your class schedule, one prompt away. Describe your classes in plain words — or
-paste the notice your school dropped in the group chat — and the assistant
-builds your whole term. When things move, talk to it: "Monday's ML moved to
-B-120" merges the change. Tap any class to edit it by hand.
+Your class schedule, one file away. Drop in the school's timetable — a PDF,
+Word doc, spreadsheet, CSV, or just a screenshot of it — and the assistant
+reads it into your whole term. When things move, talk to it: "Monday's ML
+moved to B-120" merges the change. Tap any class to edit it by hand.
 
 **Live:** https://my-schedule-xi-one.vercel.app ·
 **Sister site:** https://therealchina.net
@@ -11,31 +11,34 @@ B-120" merges the change. Tap any class to edit it by hand.
 ## Get the app
 
 - **Web** — https://my-schedule-xi-one.vercel.app (installable as a PWA)
-- **Android (APK)** — [Download kebiao-1.3.0.apk](https://my-schedule-xi-one.vercel.app/kebiao-1.3.0.apk) —
+- **Android (APK)** — [Download kebiao-2.0.0.apk](https://my-schedule-xi-one.vercel.app/kebiao-2.0.0.apk) —
   sideloads on Android 8.0+. Or grab it in-app: smartphone icon →
   **Download APK**. Also mirrored in this repo at
-  [`kebiao-1.3.0.apk`](./kebiao-1.3.0.apk).
+  [`kebiao-2.0.0.apk`](./kebiao-2.0.0.apk).
 
 ## What it does
 
-- **Prompt your schedule into life** — type or dictate your courses in plain
-  words on first run, get a preview, confirm, done. Understands English and
-  Chinese (`周一`, `南区`/`北区`, week ranges).
+- **Import your timetable file** — drop in the school's export (PDF, Word,
+  Excel, CSV, text) or a screenshot/photo of it; the assistant parses the
+  whole thing. Type, paste or dictate also work — English and Chinese.
+- **Your term, your way** — set the term name, week-1 start and length in
+  Settings; schedules cover all seven days and any institution's timetable.
 - **Talk to update** — paste the group-chat notice; **Merge** applies just the
-  change, **Rebuild** recreates the term from a fresh description.
-- **Edit by hand too** — every class is tappable: fix the room, time, day or
-  weeks yourself. The `+` button adds a class without touching the assistant.
+  change, **Rebuild** recreates the term from a fresh description or file.
+- **Edit by hand too** — every class is tappable: fix the room, time, day,
+  place or weeks yourself. The `+` button adds a class without the assistant.
 - **Ask, read-only** — "what do I have next Monday?" answers without touching
   your data.
+- **Class reminders** — opt in and the app nudges you before class; on Android
+  the reminders are native alarms that fire even with the app closed.
+- **Android home-screen widget** — your next class at a glance, the actual
+  replacement for the screenshot-as-wallpaper habit.
 - **Anonymous by default** — no account, no API key, works offline. Your
   schedule lives on the device.
 - **Sign in when you want sync** — optional sign-in keeps the schedule
   following you across browsers (last-write-wins through Postgres).
-- **Two-campus aware** — warm gold blocks for South, cool slate for North,
-  with commute warnings on days that span both.
-- **Android app** — a WebView APK that does everything the site does, calling
-  the hosted AI like any other client.
-- **Installable PWA** — "Kebiao" manifest with maskable seal icons.
+- **Location-aware** — each distinct place (campus, site, online…) gets its
+  own color automatically, with multi-location day warnings.
 
 ## Brand
 
@@ -48,15 +51,21 @@ regenerates the favicon-adjacent PNG icons, Android launcher icons and
 ## Architecture
 
 ```
-browser / APK  ──►  POST /api/ai  ──►  xAI (Grok)
+browser / APK  ──►  POST /api/ai  ──►  xAI (Grok, text + vision)
                       │                  ▲ owner key, server-side only
-                      ├─ input validation + size caps
+                      ├─ input validation + size caps (text & images)
                       ├─ per-IP burst + daily rate limits
                       ├─ global daily cap + AI_DISABLED kill-switch
                       └─ scoped prompt + strict JSON schema out
 
+file import  ──►  client-side extraction (pdf.js / mammoth / SheetJS / canvas)
+                  ──►  text or downscaled image data URL ──► /api/ai
+
 signed-in browser ──►  server fns ──►  Postgres (user_schedules)
                       authMiddleware + verified userId
+
+APK WebView ──►  window.Kebiao bridge ──►  SharedPreferences
+                  ──►  home-screen widget + AlarmManager reminders
 ```
 
 - **The owner key never leaves the server.** Every client — website, signed
@@ -67,6 +76,10 @@ signed-in browser ──►  server fns ──►  Postgres (user_schedules)
 - **APK = just another API client.** The Android bundle is served from
   `appassets.androidplatform.net`, so it calls the site's `/api/ai` directly
   (allowlisted in the endpoint's CORS).
+- **File parsing happens on the device.** PDFs (pdf.js), Word docs (mammoth)
+  and spreadsheets (SheetJS) are extracted to text in the browser; images are
+  downscaled to ≤1600px JPEG data URLs for the vision model. A scanned PDF
+  falls back to a rendered-page image automatically.
 
 ## Security & abuse guardrails
 
@@ -78,11 +91,12 @@ A public AI endpoint funded by the owner is a faucet without limits, so:
   `AI_IP_MINUTE_LIMIT`, `AI_IP_DAY_LIMIT`, `AI_GLOBAL_DAY_LIMIT`, and the
   `AI_DISABLED=1` kill-switch.
 - **Scoped prompts** — the model is instructed to only build, update, or
-  answer questions about schedules; pasted text is treated as untrusted data,
-  never instructions.
+  answer questions about schedules; pasted text and attached images are
+  treated as untrusted data, never instructions.
 - **Structured output** — the only response shapes are schedule JSON or a
   short answer string. Anything malformed is dropped before it can be stored.
-- **Bounded input** — 4 KB text cap, 64 KB body cap, capped schedule arrays.
+- **Bounded input** — 19k-char text cap, ~6.5MB image cap, capped schedule
+  arrays.
 - **CORS allowlist** — browsers may only call it from the site itself or the
   APK's WebView origin.
 - **User data isolation** — sync rows are scoped by the verified server-side
@@ -142,7 +156,9 @@ sideloads on Android 8.0+. The latest build is also served from the site at
 In the APK there is no server: `@/lib/schedule-data` is stubbed
 (`android/web/src/schedule-data-stub.ts`), data stays in the WebView's
 `localStorage`, and AI calls go to the hosted site's `/api/ai` — no key entry,
-ever.
+ever. A `window.Kebiao` JS bridge mirrors the schedule + reminder prefs into
+SharedPreferences, which powers the home-screen widget and the
+AlarmManager-based class reminders.
 
 **Play Store status:** the shipped APK is debug-signed for sideloading.
 Publishing needs a release keystore (kept out of the repo), a signed AAB,
@@ -151,4 +167,5 @@ Play App Signing, a privacy policy, and data-safety declarations — planned.
 ## Tech
 
 TanStack Start (React 19) · TanStack Router · Better Auth · Kysely → Neon /
-PGLite · Tailwind v4 · Radix · zod · xAI (`grok-4.5`) · Vercel.
+PGLite · Tailwind v4 · Radix · zod · xAI (`grok-4.5`) · pdf.js · mammoth ·
+SheetJS · Vercel.

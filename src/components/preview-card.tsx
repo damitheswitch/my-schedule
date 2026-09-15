@@ -1,4 +1,4 @@
-import { DAY_LABEL, type ScheduleData } from "@/lib/schedule";
+import { DAYS, DAY_LABEL, type ScheduleData } from "@/lib/schedule";
 
 /** Read-only summary of an AI-drafted schedule, shown before it's applied. */
 export function PreviewCard({
@@ -14,7 +14,6 @@ export function PreviewCard({
     list.push(m);
     byDay.set(m.day, list);
   }
-  const days = ["Mon", "Tue", "Wed", "Thu", "Fri"] as const;
 
   return (
     <div className="rounded-md border border-line bg-paper-elevated p-4 shadow-[var(--shadow-border)]">
@@ -24,7 +23,7 @@ export function PreviewCard({
       </p>
       <div className="mt-3 max-h-64 overflow-y-auto pr-1">
         <ul className="flex flex-col gap-2">
-          {days.map((d) => {
+          {DAYS.map((d) => {
             const list = (byDay.get(d) ?? []).slice().sort((a, b) =>
               a.start.localeCompare(b.start),
             );
@@ -49,7 +48,7 @@ export function PreviewCard({
                           {course?.short ?? m.courseId}
                         </span>
                         <span className="text-ink-faint">
-                          {m.campus} {m.room} · wks {m.weeksLabel}
+                          {[m.campus, m.room].filter(Boolean).join(" ")} · wks {m.weeksLabel}
                         </span>
                       </li>
                     );

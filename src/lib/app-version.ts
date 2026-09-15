@@ -8,8 +8,8 @@
  * Keep `versionName`/`versionCode` in `android/app/build.gradle` in sync.
  */
 export const APP_NAME = "Kebiao";
-export const APP_VERSION = "1.3.0";
-export const APK_VERSION_CODE = 4;
+export const APP_VERSION = "2.0.0";
+export const APK_VERSION_CODE = 5;
 export const APK_FILENAME = `kebiao-${APP_VERSION}.apk`;
 export const APK_PATH = `/${APK_FILENAME}`;
 
@@ -21,18 +21,18 @@ export const PUBLIC_SITE_URL = "https://my-schedule-xi-one.vercel.app";
 
 export const WHATS_NEW: { title: string; detail: string }[] = [
   {
-    title: "Meet Kebiao",
+    title: "Import your timetable file",
     detail:
-      "New name, new look — same app. Prompt your schedule into existence, then talk to it when the school moves things around.",
+      "Drop in the school's export — PDF, Word, Excel, CSV, text — or a screenshot of it. The assistant reads it and drafts your whole term.",
   },
   {
-    title: "Edit classes by hand",
+    title: "Your term, your way",
     detail:
-      "Tap any class → Edit class to fix the room, time, day or weeks yourself. The + button in the header adds a class without touching the assistant.",
+      "Set your own term name, start date and length in Settings — and schedules can now include Saturday and Sunday classes.",
   },
   {
-    title: "Ask your schedule anything",
+    title: "Class reminders + home-screen widget",
     detail:
-      "\"What do I have next Monday?\" — the assistant's Ask mode answers questions without changing anything.",
+      "Get nudged before class (in Settings), and on Android add the Kebiao widget to your home screen for your next class at a glance.",
   },
 ];

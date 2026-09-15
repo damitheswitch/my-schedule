@@ -2,16 +2,15 @@ import { MapPin } from "lucide-react";
 import {
   DAYS,
   DAY_LABEL,
-  bandOf,
   commuteCopy,
-  dateOf,
+  daypartOf,
   formatShortDate,
-  holidayName,
   sectionsLabel,
   type Block,
   type DayKey,
   type ScheduleData,
 } from "@/lib/schedule";
+import { locFillStyle, locSolidStyle } from "@/lib/loc-style";
 import { cn } from "@/lib/utils";
 
 type DayAgendaProps = {
@@ -34,8 +33,6 @@ export function DayAgenda({
   schedule,
 }: DayAgendaProps) {
   const dayBlocks = blocks.filter((b) => b.day === day);
-  const date = dateOf(week, day);
-  const holiday = holidayName(date.iso);
   const commute = commuteCopy(week, day, schedule);
   const busyDays = new Set(blocks.map((b) => b.day));
 
@@ -51,7 +48,7 @@ export function DayAgenda({
               type="button"
               onClick={() => onDayChange(d)}
               className={cn(
-                "flex h-11 min-w-14 flex-1 flex-col items-center justify-center rounded-md px-2 transition-colors duration-150",
+                "flex h-11 min-w-11 flex-1 flex-col items-center justify-center rounded-md px-1.5 transition-colors duration-150",
                 active ? "bg-ink text-paper" : "text-ink-muted hover:bg-ink/5 hover:text-ink",
               )}
             >
@@ -72,50 +69,54 @@ export function DayAgenda({
           {DAY_LABEL[day]}
         </h2>
         <p className="mt-2 text-sm text-ink-muted">
-          {formatShortDate(week, day)}
-          {holiday ? ` · ${holiday}` : ""}
+          {formatShortDate(week, day, schedule.term)}
         </p>
         {commute ? (
-          <p className="mt-2 text-sm text-south">{commute}</p>
+          <p className="mt-2 text-sm text-ink">{commute}</p>
         ) : null}
       </div>
 
       {dayBlocks.length === 0 ? (
         <p className="rounded-lg bg-paper-elevated px-4 py-8 text-center text-sm text-ink-muted shadow-[var(--shadow-border)]">
-          {holiday ? `${holiday} — no classes.` : "Free day."}
+          Free day.
         </p>
       ) : (
         <ol className="flex flex-col gap-3">
           {dayBlocks.map((block) => {
             const dimmed = focusCourseId !== null && focusCourseId !== block.course.id;
-            const band = bandOf(block.start);
             return (
               <li key={block.id}>
                 <button
                   type="button"
                   onClick={() => onSelect(block)}
                   className={cn(
-                    "flex w-full gap-4 rounded-lg p-4 text-left shadow-[var(--shadow-border)] transition-[transform,box-shadow,opacity] duration-150 ease-out",
+                    "relative flex w-full gap-4 rounded-lg p-4 text-left shadow-[var(--shadow-border)] transition-[transform,box-shadow,opacity] duration-150 ease-out",
                     "hover:-translate-y-px hover:shadow-[var(--shadow-border-hover)]",
                     "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink",
-                    block.campus === "South" ? "bg-south-fill" : "bg-north-fill",
                     dimmed && "opacity-35",
                   )}
+                  style={locFillStyle(schedule, block.campus)}
                 >
-                  <div className="w-16 shrink-0">
-                    <div className="text-sm font-medium tabular-nums text-ink">{block.start}</div>
-                    <div className="text-xs tabular-nums text-ink-muted">{block.end}</div>
-                    <div className="mt-2 text-xs tracking-wide text-ink-faint">{band.label}</div>
+                  <span
+                    className="absolute inset-y-3 left-0 w-1 rounded-full"
+                    style={locSolidStyle(schedule, block.campus)}
+                  />
+                  <div className="w-16 shrink-0 pl-1">
+                    <div className="text-sm font-medium tabular-nums">{block.start}</div>
+                    <div className="text-xs tabular-nums opacity-80">{block.end}</div>
+                    <div className="mt-2 text-xs tracking-wide opacity-60">
+                      {daypartOf(block.start)}
+                    </div>
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="text-base font-medium text-ink">{block.course.short}</div>
-                    <div className="mt-1 flex items-center gap-1.5 text-sm text-ink-muted">
+                    <div className="text-base font-medium">{block.course.short}</div>
+                    <div className="mt-1 flex items-center gap-1.5 text-sm opacity-80">
                       <MapPin className="size-3.5 shrink-0" />
                       <span>
-                        {block.campus} · {block.room}
+                        {[block.campus, block.room].filter(Boolean).join(" · ") || "No location"}
                       </span>
                     </div>
-                    <div className="mt-1 text-xs text-ink-faint">
+                    <div className="mt-1 text-xs opacity-60">
                       {sectionsLabel(block.sectionStart, block.sectionEnd)}
                       {block.flags.includes("once") ? " · this week only" : ""}
                       {block.flags.includes("biweekly") ? " · irregular" : ""}

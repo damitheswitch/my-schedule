@@ -9,6 +9,7 @@ import { Logo } from "@/components/logo";
 import { MeetingEditor, type MeetingEditorTarget } from "@/components/meeting-editor";
 import { MeetingPanel } from "@/components/meeting-panel";
 import { Onboarding } from "@/components/onboarding";
+import { SettingsDialog } from "@/components/settings-dialog";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { WeekGrid } from "@/components/week-grid";
@@ -17,8 +18,10 @@ import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { authEnabled } from "@/lib/auth/client";
 import { isApkRuntime } from "@/lib/ai-client";
 import { buildScheduleData } from "@/lib/schedule-ai";
+import { readReminderPrefs, syncReminders } from "@/lib/notify";
 import {
   applySchedule,
+  applyTerm,
   BASE_SCHEDULE,
   hasOnboarded,
   markOnboarded,
@@ -27,21 +30,18 @@ import {
   syncSchedule,
 } from "@/lib/schedule-store";
 import {
-  DAYS,
-  TERM,
   blocksForWeek,
   clampWeek,
   commuteDays,
   courseMeetings,
   defaultWeek,
-  DEFAULT_SCHEDULE,
   DAY_LABEL,
   firstBusyDay,
   formatDuration,
   formatWeekRange,
+  localParts,
   nextUp,
   serializeWeek,
-  shanghaiParts,
   termWeekFromDate,
   weekLoad,
   weekHasClasses,
@@ -51,7 +51,9 @@ import {
   type DayKey,
   type Meeting,
   type ScheduleData,
+  type TermConfig,
 } from "@/lib/schedule";
+import { locSolidStyle, locVar, locTone } from "@/lib/loc-style";
 import { cn } from "@/lib/utils";
 
 type ScheduleAppProps = {
@@ -78,7 +80,7 @@ export function ScheduleApp({ weekParam }: ScheduleAppProps) {
 
   useEffect(() => {
     const local = readLocalSchedule() ?? BASE_SCHEDULE;
-    setSchedule(buildScheduleData(local.courses, local.meetings));
+    setSchedule(buildScheduleData(local.courses, local.meetings, local.term));
     setOnboarded(hasOnboarded() || local.meetings.length > 0);
     setMounted(true);
   }, []);
@@ -89,23 +91,46 @@ export function ScheduleApp({ weekParam }: ScheduleAppProps) {
     if (!mounted || sessionPending) return;
     let cancelled = false;
     void syncSchedule(canSync).then((win) => {
-      if (!cancelled) setSchedule(buildScheduleData(win.courses, win.meetings));
+      if (!cancelled) setSchedule(buildScheduleData(win.courses, win.meetings, win.term));
     });
     return () => {
       cancelled = true;
     };
   }, [mounted, sessionPending, canSync]);
 
-  const liveWeek = defaultWeek(undefined, schedule ?? DEFAULT_SCHEDULE);
-  const [week, setWeekState] = useState(() => weekParam ?? liveWeek);
+  // Mirror the schedule to the Android shell (widget + native reminders) and
+  // (re)arm in-app reminders whenever the schedule or reminder prefs change.
+  useEffect(() => {
+    if (!schedule) return;
+    syncReminders(schedule);
+    const bridge = (window as unknown as { Kebiao?: { setSchedule?: (json: string) => void } })
+      .Kebiao;
+    bridge?.setSchedule?.(
+      JSON.stringify({
+        courses: schedule.courses,
+        meetings: schedule.meetings,
+        term: schedule.term,
+        reminders: readReminderPrefs(),
+      }),
+    );
+  }, [schedule]);
+
+  useEffect(() => {
+    if (!schedule) return;
+    const onVisible = () => {
+      if (document.visibilityState === "visible") syncReminders(schedule);
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
+  }, [schedule]);
+
+  const termWeeks = schedule?.term.weeks ?? 16;
+  const liveWeek = defaultWeek(new Date(), schedule ?? emptyFallback());
+  const [week, setWeekState] = useState(() => clampWeek(weekParam ?? liveWeek, termWeeks));
   const [focusCourseId, setFocusCourseId] = useState<string | null>(null);
   const [selected, setSelected] = useState<Block | null>(null);
   const [editorTarget, setEditorTarget] = useState<MeetingEditorTarget | null>(null);
-  const [day, setDay] = useState<DayKey>(() => {
-    const parts = shanghaiParts();
-    if (DAYS.includes(parts.weekday as DayKey)) return parts.weekday as DayKey;
-    return firstBusyDay(weekParam ?? liveWeek, DEFAULT_SCHEDULE);
-  });
+  const [day, setDay] = useState<DayKey>(() => localParts().weekday);
   // After the real schedule loads, re-derive week/day once (stored schedules
   // can be busier on different weeks than the built-in base).
   const initialized = useRef(false);
@@ -113,10 +138,9 @@ export function ScheduleApp({ weekParam }: ScheduleAppProps) {
     if (!schedule || initialized.current) return;
     initialized.current = true;
     if (weekParam === undefined) {
-      const w = defaultWeek(undefined, schedule);
+      const w = defaultWeek(new Date(), schedule);
       setWeekState(w);
-      const parts = shanghaiParts();
-      setDay(DAYS.includes(parts.weekday as DayKey) ? (parts.weekday as DayKey) : firstBusyDay(w, schedule));
+      setDay(localParts().weekday);
     }
   }, [schedule, weekParam]);
 
@@ -124,17 +148,19 @@ export function ScheduleApp({ weekParam }: ScheduleAppProps) {
     () => (schedule ? blocksForWeek(week, schedule) : []),
     [week, schedule],
   );
-  const load = schedule ? weekLoad(week, schedule) : { south: 0, north: 0, total: 0, count: 0 };
+  const load = schedule
+    ? weekLoad(week, schedule)
+    : { total: 0, count: 0, byCampus: {} as Record<string, number> };
   const commutes = schedule ? commuteDays(week, schedule) : [];
-  const upcoming = schedule ? nextUp(undefined, schedule) : null;
-  const currentTermWeek = termWeekFromDate();
+  const upcoming = schedule ? nextUp(new Date(), schedule) : null;
+  const currentTermWeek = schedule ? termWeekFromDate(new Date(), schedule.term) : null;
   const peak = schedule ? maxWeekLoad(schedule) : 1;
   const totalCredits = schedule
     ? schedule.courses.reduce((sum, c) => sum + c.credits, 0)
     : 0;
 
   async function handleApply(courses: Course[], meetings: Meeting[]) {
-    const next = await applySchedule(courses, meetings, canSync);
+    const next = await applySchedule(courses, meetings, canSync, schedule?.term);
     setSchedule(next);
     setFocusCourseId(null);
     setSelected(null);
@@ -142,10 +168,20 @@ export function ScheduleApp({ weekParam }: ScheduleAppProps) {
   }
 
   /** Onboarding finished — mark the device, then persist like any apply. */
-  async function handleOnboarded(courses: Course[], meetings: Meeting[]) {
+  async function handleOnboarded(courses: Course[], meetings: Meeting[], term: TermConfig) {
     markOnboarded();
     setOnboarded(true);
-    await handleApply(courses, meetings);
+    const next = await applySchedule(courses, meetings, canSync, term);
+    setSchedule(next);
+    setFocusCourseId(null);
+    setSelected(null);
+    toast("Schedule saved");
+  }
+
+  async function handleApplyTerm(term: TermConfig) {
+    const next = await applyTerm(term, canSync);
+    setSchedule(next);
+    setWeekState((w) => clampWeek(w, next.term.weeks));
   }
 
   async function handleReset() {
@@ -159,9 +195,9 @@ export function ScheduleApp({ weekParam }: ScheduleAppProps) {
 
   useEffect(() => {
     if (weekParam !== undefined && weekParam !== week) {
-      setWeekState(clampWeek(weekParam));
+      setWeekState(clampWeek(weekParam, termWeeks));
     }
-  }, [weekParam, week]);
+  }, [weekParam, week, termWeeks]);
 
   useEffect(() => {
     if (weekParam === undefined) {
@@ -179,11 +215,11 @@ export function ScheduleApp({ weekParam }: ScheduleAppProps) {
 
   const goWeek = useCallback(
     (next: number) => {
-      const w = clampWeek(next);
+      const w = clampWeek(next, termWeeks);
       setWeekState(w);
       void navigate({ search: { week: w }, replace: true });
     },
-    [navigate],
+    [navigate, termWeeks],
   );
 
   useEffect(() => {
@@ -239,6 +275,8 @@ export function ScheduleApp({ weekParam }: ScheduleAppProps) {
     return <Onboarding onDone={handleOnboarded} />;
   }
 
+  const campusLabels = Object.keys(schedule.campusTone);
+
   return (
     <TooltipProvider>
       <Toaster
@@ -257,7 +295,7 @@ export function ScheduleApp({ weekParam }: ScheduleAppProps) {
                 Kebiao
               </span>
               <span className="mt-1 hidden text-xs text-ink-faint lg:inline">
-                {TERM.label}
+                {schedule.term.label}
               </span>
             </div>
             <div className="flex items-center gap-1 sm:gap-1.5">
@@ -293,6 +331,11 @@ export function ScheduleApp({ weekParam }: ScheduleAppProps) {
               >
                 <Printer className="size-4" />
               </Button>
+              <SettingsDialog
+                schedule={schedule}
+                onApplyTerm={handleApplyTerm}
+                onRemindersChanged={() => schedule && syncReminders(schedule)}
+              />
               <AppInfo isApk={isApk} />
               <UserButton />
               <SignedOut>
@@ -314,7 +357,7 @@ export function ScheduleApp({ weekParam }: ScheduleAppProps) {
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
                 <p className="text-xs font-medium tracking-[0.18em] text-ink-faint uppercase">
-                  {TERM.label} · {totalCredits} credits · {schedule.courses.length} courses
+                  {schedule.term.label} · {totalCredits} credits · {schedule.courses.length} courses
                 </p>
                 <div className="mt-1.5 flex items-center gap-1">
                   <Button
@@ -331,13 +374,13 @@ export function ScheduleApp({ weekParam }: ScheduleAppProps) {
                     <div className="font-serif text-3xl leading-none font-bold tabular-nums">
                       Week {week}
                     </div>
-                    <div className="mt-1 text-sm text-ink-muted">{formatWeekRange(week)}</div>
+                    <div className="mt-1 text-sm text-ink-muted">{formatWeekRange(week, schedule.term)}</div>
                   </div>
                   <Button
                     variant="ghost"
                     size="icon-sm"
                     aria-label="Next week"
-                    disabled={week >= TERM.weeks}
+                    disabled={week >= termWeeks}
                     onClick={() => goWeek(week + 1)}
                     className="no-print"
                   >
@@ -346,7 +389,7 @@ export function ScheduleApp({ weekParam }: ScheduleAppProps) {
                 </div>
                 {upcoming ? (
                   <p className="mt-2 text-sm text-ink-muted">
-                    <NowLine upcoming={upcoming} />
+                    <NowLine upcoming={upcoming} term={schedule.term} />
                   </p>
                 ) : null}
               </div>
@@ -358,16 +401,17 @@ export function ScheduleApp({ weekParam }: ScheduleAppProps) {
                 <span>
                   <span className="font-medium text-ink">{formatDuration(load.total)}</span> in class
                 </span>
-                {load.south > 0 ? (
-                  <span>
-                    <span className="text-south">South</span> {formatDuration(load.south)}
-                  </span>
-                ) : null}
-                {load.north > 0 ? (
-                  <span>
-                    <span className="text-north">North</span> {formatDuration(load.north)}
-                  </span>
-                ) : null}
+                {Object.entries(load.byCampus)
+                  .filter(([c]) => c)
+                  .map(([campus, mins]) => (
+                    <span key={campus} className="inline-flex items-center gap-1.5">
+                      <span
+                        className="size-2 rounded-xs"
+                        style={locSolidStyle(schedule, campus)}
+                      />
+                      {campus} {formatDuration(mins)}
+                    </span>
+                  ))}
               </div>
             </div>
 
@@ -388,8 +432,8 @@ export function ScheduleApp({ weekParam }: ScheduleAppProps) {
             ) : null}
 
             {commutes.length > 0 ? (
-              <p className="rounded-md bg-south-fill px-4 py-3 text-sm text-south-fg">
-                Both campuses this week — {commutes.map((d) => DAY_LABEL[d]).join(" & ")}.
+              <p className="rounded-md bg-paper-elevated px-4 py-3 text-sm text-ink shadow-[var(--shadow-border)]">
+                Multiple locations this week — {commutes.map((d) => DAY_LABEL[d]).join(" & ")}.
                 Plan the commute.
               </p>
             ) : null}
@@ -397,7 +441,7 @@ export function ScheduleApp({ weekParam }: ScheduleAppProps) {
             {!weekHasClasses(week, schedule) ? (
               <p className="rounded-md bg-paper-elevated px-4 py-3 text-sm text-ink-muted shadow-[var(--shadow-border)]">
                 No classes this week.
-                {week < TERM.weeks ? (
+                {week < termWeeks ? (
                   <button
                     type="button"
                     className="ml-2 font-medium text-ink underline-offset-2 hover:underline"
@@ -460,9 +504,10 @@ export function ScheduleApp({ weekParam }: ScheduleAppProps) {
             <ul className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
               {schedule.courses.map((course) => {
                 const meetings = courseMeetings(course.id, schedule);
-                const campuses = [...new Set(meetings.map((m) => m.campus))];
+                const campuses = [...new Set(meetings.map((m) => m.campus).filter(Boolean))];
                 const active = focusCourseId === course.id;
                 const campus = campuses.length === 1 ? campuses[0] : null;
+                const tone = campus ? locTone(schedule, campus) : undefined;
                 return (
                   <li key={course.id}>
                     <button
@@ -480,11 +525,17 @@ export function ScheduleApp({ weekParam }: ScheduleAppProps) {
                       <span className="text-sm font-medium">{course.short}</span>
                       <span
                         className={cn(
-                          "mt-1 text-xs",
+                          "mt-1 inline-flex items-center gap-1.5 text-xs",
                           active ? "text-paper/70" : "text-ink-muted",
                         )}
                       >
-                        {course.credits} cr · {campus ?? "Both campuses"}
+                        {campus ? (
+                          <span
+                            className="size-2 rounded-xs"
+                            style={{ backgroundColor: locVar(tone, "") }}
+                          />
+                        ) : null}
+                        {course.credits} cr · {campus ?? (campuses.length > 1 ? "Multiple places" : "—")}
                       </span>
                       <span
                         className={cn(
@@ -502,15 +553,19 @@ export function ScheduleApp({ weekParam }: ScheduleAppProps) {
           </section>
 
           <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-line pt-6 text-xs text-ink-faint">
-            <p>Week 1 starts 7 Sep 2026 · Xi’an time</p>
-            <p className="flex items-center gap-4">
-              <span className="inline-flex items-center gap-1.5">
-                <span className="size-2.5 rounded-xs bg-south" /> South
-              </span>
-              <span className="inline-flex items-center gap-1.5">
-                <span className="size-2.5 rounded-xs bg-north" /> North
-              </span>
+            <p>
+              Week 1 starts {formatShortDateInline(schedule.term.startMonday)} · {schedule.term.weeks} weeks
             </p>
+            {campusLabels.length ? (
+              <p className="flex items-center gap-4">
+                {campusLabels.map((campus) => (
+                  <span key={campus} className="inline-flex items-center gap-1.5">
+                    <span className="size-2.5 rounded-xs" style={locSolidStyle(schedule, campus)} />
+                    {campus}
+                  </span>
+                ))}
+              </p>
+            ) : null}
           </footer>
         </div>
       </div>
@@ -538,24 +593,38 @@ export function ScheduleApp({ weekParam }: ScheduleAppProps) {
   );
 }
 
+function emptyFallback(): ScheduleData {
+  return buildScheduleData([], []);
+}
+
+function formatShortDateInline(iso: string): string {
+  const d = new Date(`${iso}T12:00:00`);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+}
+
 function NowLine({
   upcoming,
+  term,
 }: {
   upcoming: NonNullable<ReturnType<typeof nextUp>>;
+  term: TermConfig;
 }) {
   if (upcoming.status === "now") {
     return (
       <span className="text-ink">
-        In class now: {upcoming.block.course.short}, until {upcoming.ends} at {upcoming.block.room}.
+        In class now: {upcoming.block.course.short}, until {upcoming.ends} at{" "}
+        {[upcoming.block.campus, upcoming.block.room].filter(Boolean).join(" ") || "—"}.
       </span>
     );
   }
-  const sameWeek = upcoming.week === termWeekFromDate();
+  const sameWeek = upcoming.week === termWeekFromDate(new Date(), term);
+  const where = [upcoming.block.campus, upcoming.block.room].filter(Boolean).join(" ");
   return (
     <span className="text-ink">
       Next up: {upcoming.block.course.short}
       {sameWeek ? ` ${upcoming.block.day} ${upcoming.block.start}` : ` week ${upcoming.week}`}
-      , {upcoming.block.campus} {upcoming.block.room}.
+      {where ? `, ${where}` : ""}.
     </span>
   );
 }
@@ -573,62 +642,69 @@ function Heatmap({
   onSelect: (week: number) => void;
   schedule: ScheduleData;
 }) {
+  const weeks = schedule.term.weeks;
   return (
-    <div
-      className="grid gap-1"
-      style={{ gridTemplateColumns: "repeat(17, minmax(0, 1fr))" }}
-    >
-      {Array.from({ length: TERM.weeks }, (_, i) => {
-        const w = i + 1;
-        const load = weekLoad(w, schedule);
-        const height = Math.max(6, Math.round((load.total / peak) * 44));
-        const southH = load.total ? Math.round((load.south / load.total) * height) : 0;
-        const northH = height - southH;
-        const selected = w === week;
-        return (
-          <Tooltip key={w}>
-            <TooltipTrigger asChild>
-              <button
-                type="button"
-                aria-label={`Week ${w}, ${load.count} classes`}
-                aria-pressed={selected}
-                onClick={() => onSelect(w)}
-                className={cn(
-                  "flex h-14 min-w-0 flex-col items-center justify-end gap-1 overflow-hidden rounded-sm pt-1 transition-colors duration-150",
-                  selected ? "bg-ink/5" : "hover:bg-ink/5",
-                  currentTermWeek === w && !selected && "ring-1 ring-ink/20",
-                )}
-              >
-                <span className="flex w-full flex-1 items-end justify-center">
-                  <span
-                    className="flex w-1/2 min-w-1.5 flex-col overflow-hidden rounded-xs bg-line"
-                    style={{ height }}
-                  >
-                    {northH > 0 ? (
-                      <span className="bg-north" style={{ height: northH }} />
-                    ) : null}
-                    {southH > 0 ? (
-                      <span className="bg-south" style={{ height: southH }} />
-                    ) : null}
-                  </span>
-                </span>
-                <span
+    <div className={cn(weeks > 22 && "overflow-x-auto pb-1")}>
+      <div
+        className="grid gap-1"
+        style={{
+          gridTemplateColumns: `repeat(${weeks}, minmax(${weeks > 22 ? "18px" : "0"}, 1fr))`,
+        }}
+      >
+        {Array.from({ length: weeks }, (_, i) => {
+          const w = i + 1;
+          const load = weekLoad(w, schedule);
+          const height = Math.max(6, Math.round((load.total / peak) * 44));
+          const selected = w === week;
+          const entries = Object.entries(load.byCampus).filter(([c]) => c);
+          return (
+            <Tooltip key={w}>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  aria-label={`Week ${w}, ${load.count} classes`}
+                  aria-pressed={selected}
+                  onClick={() => onSelect(w)}
                   className={cn(
-                    "w-full truncate text-center text-xs leading-none tabular-nums",
-                    selected ? "font-medium text-ink" : "text-ink-faint",
+                    "flex h-14 min-w-0 flex-col items-center justify-end gap-1 overflow-hidden rounded-sm pt-1 transition-colors duration-150",
+                    selected ? "bg-ink/5" : "hover:bg-ink/5",
+                    currentTermWeek === w && !selected && "ring-1 ring-ink/20",
                   )}
                 >
-                  {w}
-                </span>
-              </button>
-            </TooltipTrigger>
-            <TooltipContent>
-              Week {w} · {formatWeekRange(w)} · {load.count}{" "}
-              {load.count === 1 ? "class" : "classes"}
-            </TooltipContent>
-          </Tooltip>
-        );
-      })}
+                  <span className="flex w-full flex-1 items-end justify-center">
+                    <span
+                      className="flex w-1/2 min-w-1.5 flex-col-reverse overflow-hidden rounded-xs bg-line"
+                      style={{ height }}
+                    >
+                      {entries.map(([campus, mins]) => (
+                        <span
+                          key={campus}
+                          style={{
+                            height: Math.round((mins / Math.max(load.total, 1)) * height),
+                            backgroundColor: locVar(locTone(schedule, campus), ""),
+                          }}
+                        />
+                      ))}
+                    </span>
+                  </span>
+                  <span
+                    className={cn(
+                      "w-full truncate text-center text-xs leading-none tabular-nums",
+                      selected ? "font-medium text-ink" : "text-ink-faint",
+                    )}
+                  >
+                    {w}
+                  </span>
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>
+                Week {w} · {formatWeekRange(w, schedule.term)} · {load.count}{" "}
+                {load.count === 1 ? "class" : "classes"}
+              </TooltipContent>
+            </Tooltip>
+          );
+        })}
+      </div>
     </div>
   );
 }

@@ -1,5 +1,12 @@
 import { buildScheduleData } from "@/lib/schedule-ai";
-import { type Course, type Meeting, type ScheduleData } from "@/lib/schedule";
+import {
+  defaultTerm,
+  normalizeTerm,
+  type Course,
+  type Meeting,
+  type ScheduleData,
+  type TermConfig,
+} from "@/lib/schedule";
 import { getSchedule, saveSchedule, resetSchedule } from "@/lib/schedule-data";
 
 /**
@@ -19,8 +26,20 @@ const ONBOARDED_KEY = "my-schedule-onboarded";
 export type LocalSchedule = {
   courses: Course[];
   meetings: Meeting[];
+  /** The user's own term calendar; absent on schedules saved before terms existed. */
+  term?: TermConfig;
   /** Epoch ms when this copy was last written. 0 = never saved. */
   updatedAt: number;
+};
+
+/**
+ * Schedules stored before terms became per-user carried a fixed calendar.
+ * Upgrade them to that same calendar so existing installs don't shift.
+ */
+const LEGACY_TERM: TermConfig = {
+  label: "Autumn 2026",
+  startMonday: "2026-09-07",
+  weeks: 17,
 };
 
 function safeParse(raw: string | null): LocalSchedule | null {
@@ -28,9 +47,13 @@ function safeParse(raw: string | null): LocalSchedule | null {
   try {
     const p = JSON.parse(raw) as Partial<LocalSchedule>;
     if (!Array.isArray(p.courses) || !Array.isArray(p.meetings)) return null;
+    const term = p.term
+      ? normalizeTerm(p.term)
+      : (p.meetings.length ? LEGACY_TERM : defaultTerm());
     return {
       courses: p.courses as Course[],
       meetings: p.meetings as Meeting[],
+      term,
       updatedAt: typeof p.updatedAt === "number" ? p.updatedAt : 0,
     };
   } catch {
@@ -46,9 +69,16 @@ export function readLocalSchedule(): LocalSchedule | null {
 export function writeLocalSchedule(
   courses: Course[],
   meetings: Meeting[],
+  term?: TermConfig,
   updatedAt = Date.now(),
 ): LocalSchedule {
-  const next: LocalSchedule = { courses, meetings, updatedAt };
+  const existing = readLocalSchedule();
+  const next: LocalSchedule = {
+    courses,
+    meetings,
+    term: term ?? existing?.term ?? defaultTerm(),
+    updatedAt,
+  };
   if (typeof window !== "undefined") {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
   }
@@ -100,15 +130,15 @@ export async function syncSchedule(canSync: boolean): Promise<LocalSchedule> {
     const server = await getSchedule();
     if (!server) {
       // No cloud copy yet — upload the local one so it follows the user.
-      await saveSchedule({ data: { courses: local.courses, meetings: local.meetings } });
+      await saveSchedule({ data: { courses: local.courses, meetings: local.meetings, term: local.term } });
       return local;
     }
     if (server.updatedAt > local.updatedAt) {
       // Adopt the cloud copy; keep its timestamp so the two sides agree.
-      return writeLocalSchedule(server.courses, server.meetings, server.updatedAt);
+      return writeLocalSchedule(server.courses, server.meetings, server.term, server.updatedAt);
     }
     if (local.updatedAt > server.updatedAt) {
-      await saveSchedule({ data: { courses: local.courses, meetings: local.meetings } });
+      await saveSchedule({ data: { courses: local.courses, meetings: local.meetings, term: local.term } });
     }
     return local;
   } catch {
@@ -121,16 +151,31 @@ export async function applySchedule(
   courses: Course[],
   meetings: Meeting[],
   canSync: boolean,
+  term?: TermConfig,
 ): Promise<ScheduleData> {
-  writeLocalSchedule(courses, meetings);
+  const local = writeLocalSchedule(courses, meetings, term);
   if (canSync) {
     try {
-      await saveSchedule({ data: { courses, meetings } });
+      await saveSchedule({ data: { courses, meetings, term: local.term } });
     } catch {
       /* keep the local copy; sync can retry on next load */
     }
   }
-  return buildScheduleData(courses, meetings);
+  return buildScheduleData(courses, meetings, local.term);
+}
+
+/** Persist just the term settings (schedule untouched). */
+export async function applyTerm(term: TermConfig, canSync: boolean): Promise<ScheduleData> {
+  const local = readLocalSchedule() ?? BASE_SCHEDULE;
+  const next = writeLocalSchedule(local.courses, local.meetings, term);
+  if (canSync) {
+    try {
+      await saveSchedule({ data: { courses: next.courses, meetings: next.meetings, term } });
+    } catch {
+      /* best-effort */
+    }
+  }
+  return buildScheduleData(next.courses, next.meetings, term);
 }
 
 /** Clear the schedule everywhere and send the user back through onboarding. */
@@ -144,5 +189,5 @@ export async function resetScheduleEverywhere(canSync: boolean): Promise<Schedul
       /* best-effort */
     }
   }
-  return buildScheduleData([], []);
+  return buildScheduleData([], [], defaultTerm());
 }

@@ -1,5 +1,5 @@
 import { PUBLIC_SITE_URL } from "@/lib/app-version";
-import type { Course, Meeting } from "@/lib/schedule";
+import type { Course, Meeting, TermConfig } from "@/lib/schedule";
 
 /**
  * Client for the public `/api/ai` endpoint. Every surface — hosted site,
@@ -26,10 +26,18 @@ export type AiResult =
   | { ok: true; kind: "answer"; answer: string }
   | { ok: false; error: string };
 
+export type AiRequestOptions = {
+  /** base64 data URL — a timetable screenshot/photo for vision import. */
+  image?: string;
+  /** The caller's term so the model resolves week numbers correctly. */
+  term?: TermConfig;
+};
+
 export async function requestAi(
   mode: AiMode,
   text: string,
   current: { courses: Course[]; meetings: Meeting[] },
+  opts: AiRequestOptions = {},
 ): Promise<AiResult> {
   let res: Response;
   try {
@@ -42,6 +50,8 @@ export async function requestAi(
       body: JSON.stringify({
         mode,
         text,
+        image: opts.image,
+        term: opts.term,
         schedule: { courses: current.courses, meetings: current.meetings },
       }),
     });

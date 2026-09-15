@@ -2,7 +2,6 @@ import type { ReactNode } from "react";
 import { MapPin, Clock, GraduationCap, Users, Pencil } from "lucide-react";
 import {
   DAY_LABEL,
-  TERM,
   courseHours,
   courseMeetings,
   formatDuration,
@@ -10,6 +9,7 @@ import {
   type Block,
   type ScheduleData,
 } from "@/lib/schedule";
+import { locFillStyle, locVar, locTone } from "@/lib/loc-style";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 
@@ -32,23 +32,24 @@ export function MeetingPanel({ week, block, open, schedule, onOpenChange, onEdit
       <DialogContent>
         {block && course ? (
           <div className="min-h-0 flex-1 overflow-y-auto px-6 pt-6 pb-8">
-            <p
-              className={cn(
-                "text-xs font-medium tracking-wide uppercase",
-                block.campus === "South" ? "text-south" : "text-north",
-              )}
-            >
-              {block.campus} campus
-            </p>
+            {block.campus ? (
+              <p
+                className="text-xs font-medium tracking-wide uppercase"
+                style={{ color: locVar(locTone(schedule, block.campus), "") }}
+              >
+                {block.campus}
+              </p>
+            ) : null}
             <DialogTitle className="mt-2 pr-8">{course.name}</DialogTitle>
             <DialogDescription className="mt-2">
-              {course.code} · {course.credits} {course.credits === 1 ? "credit" : "credits"}
+              {[course.code, course.credits ? `${course.credits} ${course.credits === 1 ? "credit" : "credits"}` : ""]
+                .filter(Boolean)
+                .join(" · ")}
             </DialogDescription>
 
             <dl className="mt-8 flex flex-col gap-5">
               <Row icon={MapPin} label="Where">
-                {block.room}
-                <span className="text-ink-muted"> · {block.campus}</span>
+                {[block.room, block.campus].filter(Boolean).join(" · ") || "—"}
               </Row>
               <Row icon={Clock} label="When">
                 {DAY_LABEL[block.day]} {block.start}–{block.end}
@@ -56,9 +57,11 @@ export function MeetingPanel({ week, block, open, schedule, onOpenChange, onEdit
                   {sectionsLabel(block.sectionStart, block.sectionEnd)}
                 </span>
               </Row>
-              <Row icon={Users} label="Teachers">
-                {course.teachers.join(" · ")}
-              </Row>
+              {course.teachers.length ? (
+                <Row icon={Users} label="Teachers">
+                  {course.teachers.join(" · ")}
+                </Row>
+              ) : null}
               <Row icon={GraduationCap} label="This term">
                 {formatDuration(hours)} in class
               </Row>
@@ -71,6 +74,7 @@ export function MeetingPanel({ week, block, open, schedule, onOpenChange, onEdit
               <WeekDots
                 weeks={[...new Set(block.meetings.flatMap((m) => m.weeks))]}
                 current={week}
+                termWeeks={schedule.term.weeks}
               />
               <p className="mt-2 text-xs text-ink-muted">
                 {block.meetings.map((m) => m.weeksLabel).join(" · ")}
@@ -90,18 +94,19 @@ export function MeetingPanel({ week, block, open, schedule, onOpenChange, onEdit
                       key={m.id}
                       className={cn(
                         "rounded-md px-3 py-2.5 text-sm shadow-[var(--shadow-border)]",
-                        block.meetings.some((x) => x.id === m.id)
-                          ? m.campus === "South"
-                            ? "bg-south-fill"
-                            : "bg-north-fill"
-                          : "bg-paper",
+                        !block.meetings.some((x) => x.id === m.id) && "bg-paper",
                       )}
+                      style={
+                        block.meetings.some((x) => x.id === m.id)
+                          ? locFillStyle(schedule, m.campus)
+                          : undefined
+                      }
                     >
-                      <div className="font-medium text-ink">
+                      <div className="font-medium">
                         {DAY_LABEL[m.day]} {m.start}–{m.end}
                       </div>
-                      <div className="text-xs text-ink-muted">
-                        {m.campus} {m.room} · weeks {m.weeksLabel}
+                      <div className="text-xs opacity-70">
+                        {[m.campus, m.room].filter(Boolean).join(" ")} · weeks {m.weeksLabel}
                       </div>
                     </li>
                   ))}
@@ -146,11 +151,23 @@ function Row({
   );
 }
 
-function WeekDots({ weeks, current }: { weeks: number[]; current: number }) {
+function WeekDots({
+  weeks,
+  current,
+  termWeeks,
+}: {
+  weeks: number[];
+  current: number;
+  termWeeks: number;
+}) {
   const set = new Set(weeks);
+  const cols = Math.min(termWeeks, 26);
   return (
-    <div className="mt-3 grid gap-1" style={{ gridTemplateColumns: "repeat(17, minmax(0, 1fr))" }}>
-      {Array.from({ length: TERM.weeks }, (_, i) => {
+    <div
+      className="mt-3 grid gap-1"
+      style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
+    >
+      {Array.from({ length: termWeeks }, (_, i) => {
         const w = i + 1;
         const on = set.has(w);
         return (
@@ -158,7 +175,7 @@ function WeekDots({ weeks, current }: { weeks: number[]; current: number }) {
             key={w}
             title={`Week ${w}`}
             className={cn(
-              "h-6 rounded-xs",
+              "h-5 rounded-xs",
               on ? "bg-ink" : "bg-line",
               w === current && on && "ring-2 ring-ink ring-offset-2 ring-offset-paper-elevated",
             )}

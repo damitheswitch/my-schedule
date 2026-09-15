@@ -5,17 +5,17 @@ import { i as signOut, t as authClient } from "./client-CVqXY6bk.mjs";
 import { _ as Link, v as useNavigate } from "../_libs/@tanstack/react-router+[...].mjs";
 import { n as require_jsx_runtime } from "../_libs/radix-ui__react-context+react.mjs";
 import { a as getServerFnById, i as TSS_SERVER_FUNCTION, r as createServerFn } from "./ssr.mjs";
-import { a as hasGateSessionMarker } from "./server-05qNg1Dj.mjs";
-import { C as formatDuration, D as maxWeekLoad, E as holidayName, F as shanghaiParts, I as termWeekFromDate, L as toMinutes, M as sectionsForTime, N as sectionsLabel, O as nextUp, P as serializeWeek, R as weekHasClasses, S as firstBusyDay, T as formatWeekRange, _ as courseMeetings, a as TERM, b as durationMinutes, c as blocksForWeek, d as buildScheduleData, f as clampWeek, g as courseHours, h as compressWeeks, i as DEFAULT_SCHEDULE, m as commuteDays, n as DAYS, o as bandOf, p as commuteCopy, r as DAY_LABEL, s as bandPosition, t as BANDS, v as dateOf, w as formatShortDate, x as expandWeeks, y as defaultWeek, z as weekLoad } from "./schedule-ai-UYQHUZYf.mjs";
-import { S as ArrowRight, _ as GraduationCap, a as Sparkles, b as ChevronRight, c as RotateCcw, d as Pencil, f as Mic, g as LoaderCircle, h as MapPin, i as Trash2, l as Printer, m as MessageCircleQuestion, n as Users, o as Smartphone, p as MicOff, s as Share2, t as X, u as Plus, v as Download, x as ChevronLeft, y as Clock } from "../_libs/lucide-react.mjs";
-import { n as Route$3 } from "./router-CxNO-Z53.mjs";
-import { t as authMiddleware } from "./middleware-9I338-o_.mjs";
+import { a as hasGateSessionMarker } from "./server-HzWscnOe.mjs";
+import { B as weekLoad, C as formatShortDate, D as minutesToLabel, E as maxWeekLoad, F as sectionsLabel, I as serializeWeek, L as termWeekFromDate, M as normalizeTerm, O as mondayOf, P as sectionsForTime, R as toMinutes, S as formatDuration, T as localParts, _ as defaultTerm, b as expandWeeks, c as commuteCopy, d as courseHours, f as courseMeetings, g as daypartOf, h as daySpan, k as nextUp, l as commuteDays, m as dayPosition, n as DAY_LABEL, o as buildScheduleData, p as dateOf, r as blocksForWeek, s as clampWeek, t as DAYS, u as compressWeeks, v as defaultWeek, w as formatWeekRange, x as firstBusyDay, y as durationMinutes, z as weekHasClasses } from "./schedule-ai-BkapXzpf.mjs";
+import { C as ChevronRight, D as ArrowRight, E as Bell, S as Clock, T as CalendarDays, _ as MapPin, a as Sparkles, b as FileText, c as Settings, d as Plus, f as Pencil, g as MessageCircleQuestion, h as MicOff, i as Trash2, l as RotateCcw, m as Mic, n as Users, o as Smartphone, p as Paperclip, s as Share2, t as X, u as Printer, v as LoaderCircle, w as ChevronLeft, x as Download, y as GraduationCap } from "../_libs/lucide-react.mjs";
+import { n as Route$3 } from "./router-BJ0ZRhg_.mjs";
+import { t as authMiddleware } from "./middleware-Bjg4bIle.mjs";
 import { n as toast, t as Toaster } from "../_libs/sonner.mjs";
 import { _ as Slot, a as DialogOverlay$1, c as DialogTrigger$1, i as DialogDescription$1, n as DialogClose, o as DialogPortal$1, r as DialogContent$1, s as DialogTitle$1, t as Dialog$1 } from "../_libs/@radix-ui/react-dialog+[...].mjs";
 import { n as clsx, t as cva } from "../_libs/class-variance-authority+clsx.mjs";
 import { t as twMerge } from "../_libs/tailwind-merge.mjs";
 import { a as Trigger, i as Root3, n as Portal, r as Provider, t as Content2 } from "../_libs/@radix-ui/react-tooltip+[...].mjs";
-//#region node_modules/.nitro/vite/services/ssr/assets/routes-CAmWTSl2.js
+//#region node_modules/.nitro/vite/services/ssr/assets/routes-DxTtyQQ0.js
 var import_react = /* @__PURE__ */ __toESM(require_react());
 var import_jsx_runtime = require_jsx_runtime();
 function cn(...inputs) {
@@ -118,13 +118,7 @@ function PreviewCard({ schedule, summary }) {
 				className: "mt-3 max-h-64 overflow-y-auto pr-1",
 				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", {
 					className: "flex flex-col gap-2",
-					children: [
-						"Mon",
-						"Tue",
-						"Wed",
-						"Thu",
-						"Fri"
-					].map((d) => {
+					children: DAYS.map((d) => {
 						const list = (byDay.get(d) ?? []).slice().sort((a, b) => a.start.localeCompare(b.start));
 						if (list.length === 0) return null;
 						return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", {
@@ -154,9 +148,7 @@ function PreviewCard({ schedule, summary }) {
 											/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
 												className: "text-ink-faint",
 												children: [
-													m.campus,
-													" ",
-													m.room,
+													[m.campus, m.room].filter(Boolean).join(" "),
 													" · wks ",
 													m.weeksLabel
 												]
@@ -172,7 +164,7 @@ function PreviewCard({ schedule, summary }) {
 		]
 	});
 }
-var APP_VERSION = "1.3.0";
+var APP_VERSION = "2.0.0";
 var APK_FILENAME = `kebiao-${APP_VERSION}.apk`;
 var APK_PATH = `/${APK_FILENAME}`;
 /**
@@ -182,16 +174,16 @@ var APK_PATH = `/${APK_FILENAME}`;
 var PUBLIC_SITE_URL = "https://my-schedule-xi-one.vercel.app";
 var WHATS_NEW = [
 	{
-		title: "Meet Kebiao",
-		detail: "New name, new look — same app. Prompt your schedule into existence, then talk to it when the school moves things around."
+		title: "Import your timetable file",
+		detail: "Drop in the school's export — PDF, Word, Excel, CSV, text — or a screenshot of it. The assistant reads it and drafts your whole term."
 	},
 	{
-		title: "Edit classes by hand",
-		detail: "Tap any class → Edit class to fix the room, time, day or weeks yourself. The + button in the header adds a class without touching the assistant."
+		title: "Your term, your way",
+		detail: "Set your own term name, start date and length in Settings — and schedules can now include Saturday and Sunday classes."
 	},
 	{
-		title: "Ask your schedule anything",
-		detail: "\"What do I have next Monday?\" — the assistant's Ask mode answers questions without changing anything."
+		title: "Class reminders + home-screen widget",
+		detail: "Get nudged before class (in Settings), and on Android add the Kebiao widget to your home screen for your next class at a glance."
 	}
 ];
 /**
@@ -209,7 +201,7 @@ function isApkRuntime() {
 function aiEndpoint() {
 	return isApkRuntime() ? `${PUBLIC_SITE_URL}/api/ai` : "/api/ai";
 }
-async function requestAi(mode, text, current) {
+async function requestAi(mode, text, current, opts = {}) {
 	let res;
 	try {
 		res = await fetch(aiEndpoint(), {
@@ -218,6 +210,8 @@ async function requestAi(mode, text, current) {
 			body: JSON.stringify({
 				mode,
 				text,
+				image: opts.image,
+				term: opts.term,
 				schedule: {
 					courses: current.courses,
 					meetings: current.meetings
@@ -258,6 +252,139 @@ async function requestAi(mode, text, current) {
 		summary: typeof body.summary === "string" ? body.summary : "Schedule ready."
 	};
 }
+var IMPORT_ACCEPT = ".txt,.csv,.tsv,.md,.text,.pdf,.docx,.doc,.xlsx,.xls,.png,.jpg,.jpeg,.webp,.gif,.bmp";
+var IMAGE_RE = /\.(png|jpe?g|webp|gif|bmp)$/i;
+var TEXT_RE = /\.(txt|csv|tsv|md|text)$/i;
+var PDF_RE = /\.pdf$/i;
+var WORD_RE = /\.docx?$/i;
+var EXCEL_RE = /\.xlsx?$/i;
+var MAX_TEXT_CHARS = 19e3;
+/** Read a File into text or a (downscaled) image data URL. */
+async function importFile(file) {
+	const name = file.name || "file";
+	if (IMAGE_RE.test(name) || file.type.startsWith("image/")) return {
+		kind: "image",
+		name,
+		dataUrl: await fileToDataUrl(file)
+	};
+	if (TEXT_RE.test(name)) return {
+		kind: "text",
+		name,
+		text: capText(await file.text())
+	};
+	if (PDF_RE.test(name) || file.type === "application/pdf") return importPdf(file);
+	if (WORD_RE.test(name)) {
+		const mammoth = await import("../_libs/mammoth.mjs").then((n) => /* @__PURE__ */ __toESM(n.t()));
+		const arrayBuffer = await file.arrayBuffer();
+		return {
+			kind: "text",
+			name,
+			text: capText((await mammoth.extractRawText({ arrayBuffer })).value)
+		};
+	}
+	if (EXCEL_RE.test(name)) {
+		const XLSX = await import("../_libs/xlsx.mjs").then((n) => n.t);
+		const wb = XLSX.read(await file.arrayBuffer());
+		const parts = [];
+		for (const sheetName of wb.SheetNames) {
+			const csv = XLSX.utils.sheet_to_csv(wb.Sheets[sheetName]);
+			if (csv.trim()) parts.push(`# ${sheetName}\n${csv}`);
+			if (parts.join("\n").length > MAX_TEXT_CHARS) break;
+		}
+		return {
+			kind: "text",
+			name,
+			text: capText(parts.join("\n\n"))
+		};
+	}
+	try {
+		const text = await file.text();
+		if (text.trim()) return {
+			kind: "text",
+			name,
+			text: capText(text)
+		};
+	} catch {}
+	throw new Error("Couldn't read that file type — try a screenshot or PDF.");
+}
+function capText(text) {
+	const trimmed = text.trim();
+	return trimmed.length > MAX_TEXT_CHARS ? trimmed.slice(0, MAX_TEXT_CHARS) : trimmed;
+}
+async function importPdf(file) {
+	const pdfjs = await import("../_libs/pdfjs-dist.mjs").then((n) => n.t);
+	const worker = await import("./pdf.worker.min-CA4SejP6.mjs");
+	pdfjs.GlobalWorkerOptions.workerSrc = worker.default;
+	const doc = await pdfjs.getDocument({ data: await file.arrayBuffer() }).promise;
+	const pages = [];
+	for (let i = 1; i <= Math.min(doc.numPages, 8); i += 1) {
+		const text = (await (await doc.getPage(i)).getTextContent()).items.map((item) => "str" in item ? item.str : "").join(" ");
+		if (text.trim()) pages.push(text.trim());
+		if (pages.join("\n").length > MAX_TEXT_CHARS) break;
+	}
+	const text = capText(pages.join("\n\n"));
+	if (text.length > 40) return {
+		kind: "text",
+		name: file.name,
+		text
+	};
+	const page = await doc.getPage(1);
+	const viewport = page.getViewport({ scale: 2 });
+	const canvas = document.createElement("canvas");
+	canvas.width = viewport.width;
+	canvas.height = viewport.height;
+	await page.render({
+		canvas,
+		canvasContext: canvas.getContext("2d"),
+		viewport
+	}).promise;
+	return {
+		kind: "image",
+		name: file.name,
+		dataUrl: await downscaleCanvas(canvas)
+	};
+}
+/** Decode an image file, downscale to ≤1600px, re-encode as JPEG data URL. */
+async function fileToDataUrl(file) {
+	const bitmap = await createImageBitmap(file).catch(() => null);
+	if (bitmap) {
+		const scale = Math.min(1, 1600 / Math.max(bitmap.width, bitmap.height));
+		const w = Math.max(1, Math.round(bitmap.width * scale));
+		const h = Math.max(1, Math.round(bitmap.height * scale));
+		const canvas = document.createElement("canvas");
+		canvas.width = w;
+		canvas.height = h;
+		canvas.getContext("2d").drawImage(bitmap, 0, 0, w, h);
+		bitmap.close();
+		return downscaleCanvas(canvas);
+	}
+	return new Promise((resolve, reject) => {
+		const reader = new FileReader();
+		reader.onload = () => resolve(String(reader.result));
+		reader.onerror = () => reject(/* @__PURE__ */ new Error("Could not read the image."));
+		reader.readAsDataURL(file);
+	});
+}
+async function downscaleCanvas(canvas) {
+	const max = 1600;
+	let source = canvas;
+	if (Math.max(canvas.width, canvas.height) > max) {
+		const scale = max / Math.max(canvas.width, canvas.height);
+		const smaller = document.createElement("canvas");
+		smaller.width = Math.round(canvas.width * scale);
+		smaller.height = Math.round(canvas.height * scale);
+		smaller.getContext("2d").drawImage(canvas, 0, 0, smaller.width, smaller.height);
+		source = smaller;
+	}
+	const flat = document.createElement("canvas");
+	flat.width = source.width;
+	flat.height = source.height;
+	const ctx = flat.getContext("2d");
+	ctx.fillStyle = "#ffffff";
+	ctx.fillRect(0, 0, flat.width, flat.height);
+	ctx.drawImage(source, 0, 0);
+	return flat.toDataURL("image/jpeg", .85);
+}
 var MODES = [
 	{
 		id: "merge",
@@ -267,7 +394,7 @@ var MODES = [
 	{
 		id: "replace",
 		label: "Rebuild",
-		hint: "Recreate the schedule from a description"
+		hint: "Recreate the schedule from a description or file"
 	},
 	{
 		id: "ask",
@@ -277,9 +404,14 @@ var MODES = [
 ];
 var PLACEHOLDERS = {
 	merge: "e.g. Tomorrow's Machine Learning class is moved to room B-120, and next week's Computer Vision is cancelled.",
-	replace: "e.g. Full schedule for this semester: Monday 08:30 Comprehensive Chinese in G-514, weeks 2-4 and 6-17…",
+	replace: "e.g. Full schedule for this semester: Monday 08:30 Comprehensive Chinese in G-514, weeks 2-4 and 6-17… — or attach a file/screenshot.",
 	ask: "e.g. What do I have next Monday? When is my Machine Learning exam week?"
 };
+function getSpeechRecognition$1() {
+	if (typeof window === "undefined") return null;
+	const w = window;
+	return w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null;
+}
 function AiUpdatePanel({ schedule, onApply, onReset }) {
 	const [open, setOpen] = (0, import_react.useState)(false);
 	const [text, setText] = (0, import_react.useState)("");
@@ -291,16 +423,65 @@ function AiUpdatePanel({ schedule, onApply, onReset }) {
 	const [answer, setAnswer] = (0, import_react.useState)(null);
 	const [summary, setSummary] = (0, import_react.useState)("");
 	const [error, setError] = (0, import_react.useState)(null);
+	const [attachment, setAttachment] = (0, import_react.useState)(null);
+	const [listening, setListening] = (0, import_react.useState)(false);
+	const [reading, setReading] = (0, import_react.useState)(null);
+	const recognitionRef = (0, import_react.useRef)(null);
+	const fileRef = (0, import_react.useRef)(null);
+	const SpeechRecognition = getSpeechRecognition$1();
+	const canSubmit = Boolean(text.trim()) || attachment?.kind === "image";
+	function toggleListening() {
+		if (!SpeechRecognition) return;
+		if (listening) {
+			recognitionRef.current?.stop();
+			setListening(false);
+			return;
+		}
+		const rec = new SpeechRecognition();
+		rec.lang = "en-US";
+		rec.interimResults = false;
+		rec.continuous = false;
+		rec.onresult = (e) => {
+			const transcript = Array.from(e.results).map((r) => r[0]?.transcript ?? "").join(" ");
+			setText((t) => t ? `${t.trim()} ${transcript}` : transcript);
+		};
+		rec.onend = () => setListening(false);
+		rec.onerror = () => setListening(false);
+		recognitionRef.current = rec;
+		setListening(true);
+		rec.start();
+	}
+	async function handleFile(file) {
+		setError(null);
+		setPreview(null);
+		setAnswer(null);
+		setReading(file.name);
+		try {
+			const imported = await importFile(file);
+			if (imported.kind === "text") {
+				setText((t) => t.trim() ? `${t.trim()}\n\n${imported.text}` : imported.text);
+				setAttachment(null);
+			} else {
+				setAttachment(imported);
+				if (mode === "ask") setMode("replace");
+			}
+		} catch (e) {
+			setError(e instanceof Error ? e.message : "Couldn't read that file. Try another.");
+		} finally {
+			setReading(null);
+		}
+	}
 	function reset() {
 		setPreview(null);
 		setAnswer(null);
 		setSummary("");
 		setError(null);
 		setConfirmReset(false);
+		setAttachment(null);
 	}
 	async function handleSubmit() {
-		if (!text.trim()) {
-			setError(mode === "ask" ? "Ask a question about your schedule first." : "Paste the school's notice or describe your schedule first.");
+		if (!canSubmit) {
+			setError(mode === "ask" ? "Ask a question about your schedule first." : "Paste the school's notice, describe your schedule, or attach a file first.");
 			return;
 		}
 		setBusy(true);
@@ -308,14 +489,18 @@ function AiUpdatePanel({ schedule, onApply, onReset }) {
 		setPreview(null);
 		setAnswer(null);
 		try {
+			const image = attachment?.kind === "image" ? attachment.dataUrl : void 0;
 			const result = await requestAi(mode, text.trim(), {
 				courses: schedule.courses,
 				meetings: schedule.meetings
+			}, {
+				image,
+				term: schedule.term
 			});
 			if (!result.ok) setError(result.error);
 			else if (result.kind === "answer") setAnswer(result.answer);
 			else {
-				setPreview(buildScheduleData(result.schedule.courses, result.schedule.meetings));
+				setPreview(buildScheduleData(result.schedule.courses, result.schedule.meetings, schedule.term));
 				setSummary(result.summary);
 			}
 		} catch {
@@ -383,7 +568,7 @@ function AiUpdatePanel({ schedule, onApply, onReset }) {
 					}),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogDescription, {
 						className: "mt-2",
-						children: "Paste a notice to merge it, rebuild from a description, or ask a question — you review every change before it's saved."
+						children: "Paste a notice to merge it, rebuild from a file or description, or ask a question — you review every change before it's saved."
 					}),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 						className: "mt-5 flex flex-col gap-4",
@@ -400,14 +585,78 @@ function AiUpdatePanel({ schedule, onApply, onReset }) {
 									hint: m.hint
 								}, m.id))
 							}),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("textarea", {
-								value: text,
-								onChange: (e) => setText(e.target.value),
-								placeholder: PLACEHOLDERS[mode],
-								rows: mode === "ask" ? 3 : 6,
-								maxLength: 4e3,
-								className: "w-full resize-y rounded-md border border-line bg-paper px-3 py-2 text-sm text-ink shadow-[var(--shadow-border)] outline-none placeholder:text-ink-faint focus-visible:ring-2 focus-visible:ring-seal/40"
+							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "relative",
+								children: [
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("textarea", {
+										value: text,
+										onChange: (e) => setText(e.target.value),
+										placeholder: PLACEHOLDERS[mode],
+										rows: mode === "ask" ? 3 : 6,
+										maxLength: 19e3,
+										className: "w-full resize-y rounded-md border border-line bg-paper px-3 py-2 pr-20 text-sm text-ink shadow-[var(--shadow-border)] outline-none placeholder:text-ink-faint focus-visible:ring-2 focus-visible:ring-seal/40"
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+										className: "absolute top-2 right-2 flex items-center gap-0.5",
+										children: [mode !== "ask" ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+											type: "button",
+											onClick: () => fileRef.current?.click(),
+											title: "Attach a timetable file or screenshot",
+											"aria-label": "Attach a timetable file or screenshot",
+											className: "rounded-md p-1.5 text-ink-faint hover:text-ink",
+											children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Paperclip, { className: "size-4" })
+										}) : null, SpeechRecognition ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+											type: "button",
+											onClick: toggleListening,
+											title: listening ? "Stop dictating" : "Dictate",
+											"aria-label": listening ? "Stop dictating" : "Dictate",
+											className: listening ? "rounded-md bg-seal-tint p-1.5 text-seal-dark" : "rounded-md p-1.5 text-ink-faint hover:text-ink",
+											children: listening ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MicOff, { className: "size-4" }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Mic, { className: "size-4" })
+										}) : null]
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+										ref: fileRef,
+										type: "file",
+										accept: IMPORT_ACCEPT,
+										className: "hidden",
+										onChange: (e) => {
+											const file = e.target.files?.[0];
+											if (file) handleFile(file);
+											e.target.value = "";
+										}
+									})
+								]
 							}),
+							reading ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
+								className: "flex items-center gap-2 text-xs text-ink-muted",
+								children: [
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)(LoaderCircle, { className: "size-3.5 animate-spin" }),
+									"Reading ",
+									reading,
+									"…"
+								]
+							}) : null,
+							attachment?.kind === "image" ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "flex items-center gap-3 rounded-md border border-line bg-paper-elevated p-3 shadow-[var(--shadow-border)]",
+								children: [
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("img", {
+										src: attachment.dataUrl,
+										alt: attachment.name,
+										className: "h-14 w-14 rounded-sm border border-line object-cover"
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+										className: "min-w-0 flex-1 truncate text-sm text-ink",
+										children: attachment.name
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+										type: "button",
+										"aria-label": "Remove attachment",
+										onClick: () => setAttachment(null),
+										className: "rounded-md p-1.5 text-ink-faint hover:text-ink",
+										children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, { className: "size-4" })
+									})
+								]
+							}) : null,
 							error ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
 								className: "rounded-md bg-seal-tint px-3 py-2 text-sm text-seal-dark",
 								children: error
@@ -447,7 +696,7 @@ function AiUpdatePanel({ schedule, onApply, onReset }) {
 										children: [busy ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(LoaderCircle, { className: "size-4 animate-spin" }) : null, "Apply changes"]
 									})] }) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
 										onClick: () => void handleSubmit(),
-										disabled: busy || !text.trim(),
+										disabled: busy || !canSubmit,
 										children: [busy ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(LoaderCircle, { className: "size-4 animate-spin" }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Sparkles, { className: "size-4" }), mode === "ask" ? "Ask" : "Preview changes"]
 									})
 								})]
@@ -484,7 +733,7 @@ function AppInfo({ isApk }) {
 		} catch {
 			return;
 		}
-		if (seen === "1.3.0") return;
+		if (seen === "2.0.0") return;
 		const t = window.setTimeout(() => setOpen(true), 900);
 		return () => window.clearTimeout(t);
 	}, []);
@@ -568,10 +817,32 @@ function AppInfo({ isApk }) {
 		}) })]
 	});
 }
+/**
+* Location colors. A schedule maps each distinct place label to a palette
+* index (`campusTone`, first-seen order). Tones index the `--color-loc-*`
+* custom properties in styles.css; undefined tone = neutral paper.
+*/
+function locTone(data, campus) {
+	if (!campus) return void 0;
+	return data.campusTone[campus];
+}
+function locVar(tone, suffix) {
+	return tone === void 0 ? `var(--color-${suffix === "-fill" ? "paper-elevated" : suffix === "-fg" ? "ink" : "ink-faint"})` : `var(--color-loc-${tone}${suffix})`;
+}
+/** Card/chip fill + readable foreground for a location. */
+function locFillStyle(data, campus) {
+	const tone = locTone(data, campus);
+	return {
+		backgroundColor: locVar(tone, "-fill"),
+		color: locVar(tone, "-fg")
+	};
+}
+/** Solid accent (left bar, dot, legend swatch). */
+function locSolidStyle(data, campus) {
+	return { backgroundColor: locVar(locTone(data, campus), "") };
+}
 function DayAgenda({ week, day, blocks, focusCourseId, onSelect, onDayChange, schedule }) {
 	const dayBlocks = blocks.filter((b) => b.day === day);
-	const date = dateOf(week, day);
-	const holiday = holidayName(date.iso);
 	const commute = commuteCopy(week, day, schedule);
 	const busyDays = new Set(blocks.map((b) => b.day));
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
@@ -585,7 +856,7 @@ function DayAgenda({ week, day, blocks, focusCourseId, onSelect, onDayChange, sc
 					return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
 						type: "button",
 						onClick: () => onDayChange(d),
-						className: cn("flex h-11 min-w-14 flex-1 flex-col items-center justify-center rounded-md px-2 transition-colors duration-150", active ? "bg-ink text-paper" : "text-ink-muted hover:bg-ink/5 hover:text-ink"),
+						className: cn("flex h-11 min-w-11 flex-1 flex-col items-center justify-center rounded-md px-1.5 transition-colors duration-150", active ? "bg-ink text-paper" : "text-ink-muted hover:bg-ink/5 hover:text-ink"),
 						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 							className: "text-xs font-medium",
 							children: d
@@ -598,68 +869,71 @@ function DayAgenda({ week, day, blocks, focusCourseId, onSelect, onDayChange, sc
 					className: "font-serif text-3xl leading-none text-ink",
 					children: DAY_LABEL[day]
 				}),
-				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
 					className: "mt-2 text-sm text-ink-muted",
-					children: [formatShortDate(week, day), holiday ? ` · ${holiday}` : ""]
+					children: formatShortDate(week, day, schedule.term)
 				}),
 				commute ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
-					className: "mt-2 text-sm text-south",
+					className: "mt-2 text-sm text-ink",
 					children: commute
 				}) : null
 			] }),
 			dayBlocks.length === 0 ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
 				className: "rounded-lg bg-paper-elevated px-4 py-8 text-center text-sm text-ink-muted shadow-[var(--shadow-border)]",
-				children: holiday ? `${holiday} — no classes.` : "Free day."
+				children: "Free day."
 			}) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ol", {
 				className: "flex flex-col gap-3",
 				children: dayBlocks.map((block) => {
 					const dimmed = focusCourseId !== null && focusCourseId !== block.course.id;
-					const band = bandOf(block.start);
 					return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", { children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
 						type: "button",
 						onClick: () => onSelect(block),
-						className: cn("flex w-full gap-4 rounded-lg p-4 text-left shadow-[var(--shadow-border)] transition-[transform,box-shadow,opacity] duration-150 ease-out", "hover:-translate-y-px hover:shadow-[var(--shadow-border-hover)]", "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink", block.campus === "South" ? "bg-south-fill" : "bg-north-fill", dimmed && "opacity-35"),
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							className: "w-16 shrink-0",
-							children: [
-								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-									className: "text-sm font-medium tabular-nums text-ink",
-									children: block.start
-								}),
-								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-									className: "text-xs tabular-nums text-ink-muted",
-									children: block.end
-								}),
-								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-									className: "mt-2 text-xs tracking-wide text-ink-faint",
-									children: band.label
-								})
-							]
-						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							className: "min-w-0 flex-1",
-							children: [
-								/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-									className: "text-base font-medium text-ink",
-									children: block.course.short
-								}),
-								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									className: "mt-1 flex items-center gap-1.5 text-sm text-ink-muted",
-									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(MapPin, { className: "size-3.5 shrink-0" }), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
-										block.campus,
-										" · ",
-										block.room
-									] })]
-								}),
-								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-									className: "mt-1 text-xs text-ink-faint",
-									children: [
-										sectionsLabel(block.sectionStart, block.sectionEnd),
-										block.flags.includes("once") ? " · this week only" : "",
-										block.flags.includes("biweekly") ? " · irregular" : ""
-									]
-								})
-							]
-						})]
+						className: cn("relative flex w-full gap-4 rounded-lg p-4 text-left shadow-[var(--shadow-border)] transition-[transform,box-shadow,opacity] duration-150 ease-out", "hover:-translate-y-px hover:shadow-[var(--shadow-border-hover)]", "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink", dimmed && "opacity-35"),
+						style: locFillStyle(schedule, block.campus),
+						children: [
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+								className: "absolute inset-y-3 left-0 w-1 rounded-full",
+								style: locSolidStyle(schedule, block.campus)
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "w-16 shrink-0 pl-1",
+								children: [
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+										className: "text-sm font-medium tabular-nums",
+										children: block.start
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+										className: "text-xs tabular-nums opacity-80",
+										children: block.end
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+										className: "mt-2 text-xs tracking-wide opacity-60",
+										children: daypartOf(block.start)
+									})
+								]
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "min-w-0 flex-1",
+								children: [
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+										className: "text-base font-medium",
+										children: block.course.short
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+										className: "mt-1 flex items-center gap-1.5 text-sm opacity-80",
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(MapPin, { className: "size-3.5 shrink-0" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { children: [block.campus, block.room].filter(Boolean).join(" · ") || "No location" })]
+									}),
+									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+										className: "mt-1 text-xs opacity-60",
+										children: [
+											sectionsLabel(block.sectionStart, block.sectionEnd),
+											block.flags.includes("once") ? " · this week only" : "",
+											block.flags.includes("biweekly") ? " · irregular" : ""
+										]
+									})
+								]
+							})
+						]
 					}) }, block.id);
 				})
 			})
@@ -728,17 +1002,19 @@ var NEW_COURSE = "__new__";
 function MeetingEditor({ target, schedule, onApply, onClose }) {
 	const open = target !== null;
 	const editing = target?.mode === "edit" ? target.block : null;
+	const termWeeks = schedule.term.weeks;
 	const [courseKey, setCourseKey] = (0, import_react.useState)(NEW_COURSE);
 	const [newCourseName, setNewCourseName] = (0, import_react.useState)("");
 	const [day, setDay] = (0, import_react.useState)("Mon");
 	const [start, setStart] = (0, import_react.useState)("08:30");
 	const [end, setEnd] = (0, import_react.useState)("10:05");
 	const [room, setRoom] = (0, import_react.useState)("");
-	const [campus, setCampus] = (0, import_react.useState)("South");
-	const [weeksSpec, setWeeksSpec] = (0, import_react.useState)(`1-${TERM.weeks}`);
+	const [campus, setCampus] = (0, import_react.useState)("");
+	const [weeksSpec, setWeeksSpec] = (0, import_react.useState)(`1-${termWeeks}`);
 	const [error, setError] = (0, import_react.useState)(null);
 	const [busy, setBusy] = (0, import_react.useState)(false);
 	const [confirmDelete, setConfirmDelete] = (0, import_react.useState)(false);
+	const knownCampuses = (0, import_react.useMemo)(() => Object.keys(schedule.campusTone), [schedule.campusTone]);
 	(0, import_react.useEffect)(() => {
 		if (!target) return;
 		setError(null);
@@ -761,20 +1037,25 @@ function MeetingEditor({ target, schedule, onApply, onClose }) {
 			setStart("08:30");
 			setEnd("10:05");
 			setRoom("");
-			setCampus("South");
-			setWeeksSpec(`1-${TERM.weeks}`);
+			setCampus(knownCampuses[0] ?? "");
+			setWeeksSpec(`1-${termWeeks}`);
 		}
-	}, [target, schedule]);
+	}, [
+		target,
+		schedule,
+		termWeeks,
+		knownCampuses
+	]);
 	const isNewCourse = !editing && courseKey === NEW_COURSE;
 	const weeks = (0, import_react.useMemo)(() => {
 		const parsed = expandWeeks(weeksSpec.replaceAll("–", "-").replaceAll("—", "-"));
-		return [...new Set(parsed.filter((w) => Number.isInteger(w) && w >= 1 && w <= TERM.weeks))].sort((a, b) => a - b);
-	}, [weeksSpec]);
+		return [...new Set(parsed.filter((w) => Number.isInteger(w) && w >= 1 && w <= termWeeks))].sort((a, b) => a - b);
+	}, [weeksSpec, termWeeks]);
 	function validate() {
 		if (isNewCourse && !newCourseName.trim()) return "Name the new course.";
 		if (!TIME_RE.test(start) || !TIME_RE.test(end)) return "Times use 24h HH:MM — e.g. 08:30.";
 		if (toMinutes(end) <= toMinutes(start)) return "End time must be after start time.";
-		if (weeks.length === 0) return `Weeks: use numbers or ranges within 1–${TERM.weeks}, e.g. "1-16" or "2,4,6".`;
+		if (weeks.length === 0) return `Weeks: use numbers or ranges within 1–${termWeeks}, e.g. "1-16" or "2,4,6".`;
 		return null;
 	}
 	function buildNext() {
@@ -783,7 +1064,7 @@ function MeetingEditor({ target, schedule, onApply, onClose }) {
 			setError(err);
 			return null;
 		}
-		const sections = sectionsForTime(start, end);
+		const sections = sectionsForTime(start, end, schedule);
 		const meetings = schedule.meetings.filter((m) => !editing || !editing.meetings.some((bm) => bm.id === m.id));
 		const courses = [...schedule.courses];
 		let courseId;
@@ -803,7 +1084,7 @@ function MeetingEditor({ target, schedule, onApply, onClose }) {
 		meetings.push({
 			id: `manual-${Date.now().toString(36)}`,
 			courseId,
-			campus,
+			campus: campus.trim(),
 			day,
 			sectionStart: sections.sectionStart,
 			sectionEnd: sections.sectionEnd,
@@ -895,7 +1176,7 @@ function MeetingEditor({ target, schedule, onApply, onClose }) {
 								children: DAYS.map((d) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
 									type: "button",
 									onClick: () => setDay(d),
-									className: cn("flex-1 rounded-sm py-2 text-sm font-medium transition-colors", day === d ? "bg-ink text-paper" : "text-ink-muted hover:bg-ink/5 hover:text-ink"),
+									className: cn("flex-1 rounded-sm py-2 text-xs font-medium transition-colors", day === d ? "bg-ink text-paper" : "text-ink-muted hover:bg-ink/5 hover:text-ink"),
 									children: d
 								}, d))
 							})
@@ -931,25 +1212,27 @@ function MeetingEditor({ target, schedule, onApply, onClose }) {
 									maxLength: 40,
 									className: "w-full rounded-md border border-line bg-paper px-3 py-2 text-sm text-ink outline-none placeholder:text-ink-faint focus-visible:ring-2 focus-visible:ring-seal/40"
 								})
-							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Field, {
-								label: "Campus",
-								children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-									className: "flex gap-1",
-									children: ["South", "North"].map((c) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
-										type: "button",
-										onClick: () => setCampus(c),
-										className: cn("flex-1 rounded-sm py-2 text-sm font-medium transition-colors", campus === c ? c === "South" ? "bg-south-fill text-south-fg ring-1 ring-south/40" : "bg-north-fill text-north-fg ring-1 ring-north/40" : "text-ink-muted hover:bg-ink/5 hover:text-ink"),
-										children: c
-									}, c))
-								})
+							}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Field, {
+								label: "Location (campus, site…)",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+									value: campus,
+									onChange: (e) => setCampus(e.target.value),
+									placeholder: "e.g. South, Main, online",
+									maxLength: 60,
+									list: "known-locations",
+									className: "w-full rounded-md border border-line bg-paper px-3 py-2 text-sm text-ink outline-none placeholder:text-ink-faint focus-visible:ring-2 focus-visible:ring-seal/40"
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("datalist", {
+									id: "known-locations",
+									children: knownCampuses.map((c) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("option", { value: c }, c))
+								})]
 							})]
 						}),
 						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Field, {
-							label: `Weeks it meets (1–${TERM.weeks})`,
+							label: `Weeks it meets (1–${termWeeks})`,
 							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
 								value: weeksSpec,
 								onChange: (e) => setWeeksSpec(e.target.value),
-								placeholder: `1-${TERM.weeks} or 2,4,6-10`,
+								placeholder: `1-${termWeeks} or 2,4,6-10`,
 								className: "w-full rounded-md border border-line bg-paper px-3 py-2 text-sm tabular-nums text-ink outline-none placeholder:text-ink-faint focus-visible:ring-2 focus-visible:ring-seal/40"
 							}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
 								className: "mt-1 text-xs text-ink-faint",
@@ -1002,34 +1285,26 @@ function MeetingPanel({ week, block, open, schedule, onOpenChange, onEdit }) {
 		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogContent, { children: block && course ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 			className: "min-h-0 flex-1 overflow-y-auto px-6 pt-6 pb-8",
 			children: [
-				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
-					className: cn("text-xs font-medium tracking-wide uppercase", block.campus === "South" ? "text-south" : "text-north"),
-					children: [block.campus, " campus"]
-				}),
+				block.campus ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+					className: "text-xs font-medium tracking-wide uppercase",
+					style: { color: locVar(locTone(schedule, block.campus), "") },
+					children: block.campus
+				}) : null,
 				/* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogTitle, {
 					className: "mt-2 pr-8",
 					children: course.name
 				}),
-				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(DialogDescription, {
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogDescription, {
 					className: "mt-2",
-					children: [
-						course.code,
-						" · ",
-						course.credits,
-						" ",
-						course.credits === 1 ? "credit" : "credits"
-					]
+					children: [course.code, course.credits ? `${course.credits} ${course.credits === 1 ? "credit" : "credits"}` : ""].filter(Boolean).join(" · ")
 				}),
 				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("dl", {
 					className: "mt-8 flex flex-col gap-5",
 					children: [
-						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Row, {
+						/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Row, {
 							icon: MapPin,
 							label: "Where",
-							children: [block.room, /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-								className: "text-ink-muted",
-								children: [" · ", block.campus]
-							})]
+							children: [block.room, block.campus].filter(Boolean).join(" · ") || "—"
 						}),
 						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Row, {
 							icon: Clock,
@@ -1046,11 +1321,11 @@ function MeetingPanel({ week, block, open, schedule, onOpenChange, onEdit }) {
 								})
 							]
 						}),
-						/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Row, {
+						course.teachers.length ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Row, {
 							icon: Users,
 							label: "Teachers",
 							children: course.teachers.join(" · ")
-						}),
+						}) : null,
 						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Row, {
 							icon: GraduationCap,
 							label: "This term",
@@ -1067,7 +1342,8 @@ function MeetingPanel({ week, block, open, schedule, onOpenChange, onEdit }) {
 						}),
 						/* @__PURE__ */ (0, import_jsx_runtime.jsx)(WeekDots, {
 							weeks: [...new Set(block.meetings.flatMap((m) => m.weeks))],
-							current: week
+							current: week,
+							termWeeks: schedule.term.weeks
 						}),
 						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
 							className: "mt-2 text-xs text-ink-muted",
@@ -1087,9 +1363,10 @@ function MeetingPanel({ week, block, open, schedule, onOpenChange, onEdit }) {
 					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("ul", {
 						className: "mt-3 flex flex-col gap-2",
 						children: others.map((m) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("li", {
-							className: cn("rounded-md px-3 py-2.5 text-sm shadow-[var(--shadow-border)]", block.meetings.some((x) => x.id === m.id) ? m.campus === "South" ? "bg-south-fill" : "bg-north-fill" : "bg-paper"),
+							className: cn("rounded-md px-3 py-2.5 text-sm shadow-[var(--shadow-border)]", !block.meetings.some((x) => x.id === m.id) && "bg-paper"),
+							style: block.meetings.some((x) => x.id === m.id) ? locFillStyle(schedule, m.campus) : void 0,
 							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "font-medium text-ink",
+								className: "font-medium",
 								children: [
 									DAY_LABEL[m.day],
 									" ",
@@ -1098,11 +1375,9 @@ function MeetingPanel({ week, block, open, schedule, onOpenChange, onEdit }) {
 									m.end
 								]
 							}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-								className: "text-xs text-ink-muted",
+								className: "text-xs opacity-70",
 								children: [
-									m.campus,
-									" ",
-									m.room,
+									[m.campus, m.room].filter(Boolean).join(" "),
 									" · weeks ",
 									m.weeksLabel
 								]
@@ -1135,17 +1410,17 @@ function Row({ icon: Icon, label, children }) {
 		})] })]
 	});
 }
-function WeekDots({ weeks, current }) {
+function WeekDots({ weeks, current, termWeeks }) {
 	const set = new Set(weeks);
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
 		className: "mt-3 grid gap-1",
-		style: { gridTemplateColumns: "repeat(17, minmax(0, 1fr))" },
-		children: Array.from({ length: TERM.weeks }, (_, i) => {
+		style: { gridTemplateColumns: `repeat(${Math.min(termWeeks, 26)}, minmax(0, 1fr))` },
+		children: Array.from({ length: termWeeks }, (_, i) => {
 			const w = i + 1;
 			const on = set.has(w);
 			return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 				title: `Week ${w}`,
-				className: cn("h-6 rounded-xs", on ? "bg-ink" : "bg-line", w === current && on && "ring-2 ring-ink ring-offset-2 ring-offset-paper-elevated")
+				className: cn("h-5 rounded-xs", on ? "bg-ink" : "bg-line", w === current && on && "ring-2 ring-ink ring-offset-2 ring-offset-paper-elevated")
 			}, w);
 		})
 	});
@@ -1155,15 +1430,20 @@ function getSpeechRecognition() {
 	const w = window;
 	return w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null;
 }
-var EXAMPLE = "Machine Learning Mon 08:30–10:05 G-514 South weeks 2–17, Computer Vision Tue 14:00–15:35 A-203 North, Algorithms Thu 10:25–12:00 …";
+var EXAMPLE = "Machine Learning Mon 08:30–10:05 G-514 weeks 2–17, Computer Vision Tue 14:00–15:35 A-203, Algorithms Thu 10:25–12:00 …";
 function Onboarding({ onDone }) {
 	const [text, setText] = (0, import_react.useState)("");
 	const [busy, setBusy] = (0, import_react.useState)(false);
+	const [reading, setReading] = (0, import_react.useState)(null);
 	const [listening, setListening] = (0, import_react.useState)(false);
 	const [preview, setPreview] = (0, import_react.useState)(null);
 	const [summary, setSummary] = (0, import_react.useState)("");
 	const [error, setError] = (0, import_react.useState)(null);
+	const [attachment, setAttachment] = (0, import_react.useState)(null);
+	const [termDraft, setTermDraft] = (0, import_react.useState)(() => defaultTerm());
 	const recognitionRef = (0, import_react.useRef)(null);
+	const fileRef = (0, import_react.useRef)(null);
+	const [dragging, setDragging] = (0, import_react.useState)(false);
 	const SpeechRecognition = getSpeechRecognition();
 	function toggleListening() {
 		if (!SpeechRecognition) return;
@@ -1186,22 +1466,44 @@ function Onboarding({ onDone }) {
 		setListening(true);
 		rec.start();
 	}
+	async function handleFile(file) {
+		setError(null);
+		setPreview(null);
+		setReading(file.name);
+		try {
+			const imported = await importFile(file);
+			if (imported.kind === "text") {
+				setText(imported.text);
+				setAttachment(null);
+			} else setAttachment(imported);
+		} catch (e) {
+			setError(e instanceof Error ? e.message : "Couldn't read that file. Try another.");
+		} finally {
+			setReading(null);
+		}
+	}
+	const canBuild = Boolean(text.trim()) || attachment?.kind === "image";
 	async function handleCreate() {
-		if (!text.trim()) {
-			setError("Describe your schedule first — or paste the school's notice.");
+		if (!canBuild) {
+			setError("Describe your schedule, paste the school's notice, or attach a file first.");
 			return;
 		}
 		setBusy(true);
 		setError(null);
 		setPreview(null);
 		try {
+			const term = normalizeTerm(termDraft);
+			const image = attachment?.kind === "image" ? attachment.dataUrl : void 0;
 			const result = await requestAi("replace", text.trim(), {
 				courses: [],
 				meetings: []
+			}, {
+				image,
+				term
 			});
 			if (!result.ok) setError(result.error);
 			else if (result.kind === "schedule") {
-				setPreview(buildScheduleData(result.schedule.courses, result.schedule.meetings));
+				setPreview(buildScheduleData(result.schedule.courses, result.schedule.meetings, term));
 				setSummary(result.summary);
 			} else setError("The assistant returned something unexpected. Try again.");
 		} catch {
@@ -1214,7 +1516,7 @@ function Onboarding({ onDone }) {
 		setBusy(true);
 		setError(null);
 		try {
-			await onDone(courses, meetings);
+			await onDone(courses, meetings, normalizeTerm(termDraft));
 		} catch {
 			setError("Could not save the schedule. Try again.");
 			setBusy(false);
@@ -1229,27 +1531,103 @@ function Onboarding({ onDone }) {
 				children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Logo, { size: 44 }), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("h1", {
 					className: "font-serif text-2xl leading-none font-black tracking-tight",
 					children: "Kebiao"
-				}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
+				}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
 					className: "mt-1.5 text-xs text-ink-faint",
-					children: ["课表 · ", TERM.label]
+					children: "课表 · your term, one file away"
 				})] })]
 			}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				className: "mt-6 rounded-xl bg-paper-elevated p-5 shadow-[var(--shadow-border)]",
+				className: cn("mt-6 rounded-xl bg-paper-elevated p-5 shadow-[var(--shadow-border)] transition-shadow", dragging && "ring-2 ring-seal/50"),
+				onDragOver: (e) => {
+					e.preventDefault();
+					setDragging(true);
+				},
+				onDragLeave: () => setDragging(false),
+				onDrop: (e) => {
+					e.preventDefault();
+					setDragging(false);
+					const file = e.dataTransfer.files?.[0];
+					if (file) handleFile(file);
+				},
 				children: [
-					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
-						htmlFor: "onboarding-text",
-						className: "text-xs font-medium tracking-wide text-ink-muted uppercase",
-						children: "Your schedule, in your own words"
-					}),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-						className: "relative mt-2",
+						className: "flex items-center justify-between gap-3",
+						children: [
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("label", {
+								htmlFor: "onboarding-text",
+								className: "text-xs font-medium tracking-wide text-ink-muted uppercase",
+								children: "Your schedule, your way"
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+								type: "button",
+								onClick: () => fileRef.current?.click(),
+								className: "inline-flex items-center gap-1.5 rounded-md border border-line bg-paper px-2.5 py-1.5 text-xs font-medium text-ink shadow-[var(--shadow-border)] transition-colors hover:border-seal hover:text-seal",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Paperclip, { className: "size-3.5" }), "Upload file"]
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+								ref: fileRef,
+								type: "file",
+								accept: IMPORT_ACCEPT,
+								className: "hidden",
+								onChange: (e) => {
+									const file = e.target.files?.[0];
+									if (file) handleFile(file);
+									e.target.value = "";
+								}
+							})
+						]
+					}),
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+						className: "mt-1.5 text-xs text-ink-faint",
+						children: "Drop a timetable file or a screenshot — PDF, Word, Excel, CSV, text or image — or just type it below."
+					}),
+					attachment?.kind === "image" ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						className: "mt-3 flex items-center gap-3 rounded-md border border-line bg-paper p-3",
+						children: [
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("img", {
+								src: attachment.dataUrl,
+								alt: attachment.name,
+								className: "h-16 w-16 rounded-sm border border-line object-cover"
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+								className: "min-w-0 flex-1",
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
+									className: "flex items-center gap-1.5 text-sm font-medium text-ink",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(FileText, { className: "size-3.5" }), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+										className: "truncate",
+										children: attachment.name
+									})]
+								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+									className: "mt-0.5 text-xs text-ink-faint",
+									children: "The assistant will read the timetable from this image."
+								})]
+							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+								type: "button",
+								"aria-label": "Remove attachment",
+								onClick: () => setAttachment(null),
+								className: "rounded-md p-1.5 text-ink-faint hover:text-ink",
+								children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(X, { className: "size-4" })
+							})
+						]
+					}) : null,
+					reading ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
+						className: "mt-3 flex items-center gap-2 text-xs text-ink-muted",
+						children: [
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)(LoaderCircle, { className: "size-3.5 animate-spin" }),
+							"Reading ",
+							reading,
+							"…"
+						]
+					}) : null,
+					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+						className: "relative mt-3",
 						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("textarea", {
 							id: "onboarding-text",
 							value: text,
 							onChange: (e) => setText(e.target.value),
 							placeholder: EXAMPLE,
 							rows: 5,
-							maxLength: 4e3,
+							maxLength: 19e3,
 							autoFocus: true,
 							className: "w-full resize-y rounded-md border border-line bg-paper px-3 py-2 pr-10 text-sm text-ink shadow-[var(--shadow-border)] outline-none placeholder:text-ink-faint focus-visible:ring-2 focus-visible:ring-seal/40"
 						}), SpeechRecognition ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
@@ -1257,7 +1635,7 @@ function Onboarding({ onDone }) {
 							onClick: toggleListening,
 							title: listening ? "Stop dictating" : "Dictate your schedule",
 							"aria-label": listening ? "Stop dictating" : "Dictate your schedule",
-							className: listening ? "absolute top-2 right-2 rounded-md p-1.5 text-seal-dark bg-seal-tint" : "absolute top-2 right-2 rounded-md p-1.5 text-ink-faint hover:text-ink",
+							className: listening ? "absolute top-2 right-2 rounded-md bg-seal-tint p-1.5 text-seal-dark" : "absolute top-2 right-2 rounded-md p-1.5 text-ink-faint hover:text-ink",
 							children: listening ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(MicOff, { className: "size-4" }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Mic, { className: "size-4" })
 						}) : null]
 					}),
@@ -1269,12 +1647,62 @@ function Onboarding({ onDone }) {
 						className: "mt-3 rounded-md bg-seal-tint px-3 py-2 text-sm text-seal-dark",
 						children: error
 					}) : null,
-					preview ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+					preview ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 						className: "mt-4",
-						children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PreviewCard, {
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(PreviewCard, {
 							schedule: preview,
 							summary
-						})
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							className: "mt-3 grid grid-cols-3 gap-2 rounded-md border border-line bg-paper p-3",
+							children: [
+								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+									className: "block",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+										className: "text-xs text-ink-faint",
+										children: "Term name"
+									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+										value: termDraft.label,
+										onChange: (e) => setTermDraft((t) => ({
+											...t,
+											label: e.target.value
+										})),
+										placeholder: "Autumn 2026",
+										maxLength: 60,
+										className: "mt-1 w-full rounded-md border border-line bg-paper px-2 py-1.5 text-xs text-ink outline-none placeholder:text-ink-faint focus-visible:ring-2 focus-visible:ring-seal/40"
+									})]
+								}),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+									className: "block",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+										className: "text-xs text-ink-faint",
+										children: "Week 1 starts"
+									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+										type: "date",
+										value: termDraft.startMonday,
+										onChange: (e) => setTermDraft((t) => ({
+											...t,
+											startMonday: e.target.value
+										})),
+										className: "mt-1 w-full rounded-md border border-line bg-paper px-2 py-1.5 text-xs tabular-nums text-ink outline-none focus-visible:ring-2 focus-visible:ring-seal/40"
+									})]
+								}),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+									className: "block",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+										className: "text-xs text-ink-faint",
+										children: "Weeks"
+									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+										value: termDraft.weeks,
+										onChange: (e) => setTermDraft((t) => ({
+											...t,
+											weeks: Math.min(52, Math.max(1, Number(e.target.value) || 1))
+										})),
+										inputMode: "numeric",
+										className: "mt-1 w-full rounded-md border border-line bg-paper px-2 py-1.5 text-xs tabular-nums text-ink outline-none focus-visible:ring-2 focus-visible:ring-seal/40"
+									})]
+								})
+							]
+						})]
 					}) : null,
 					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 						className: "mt-5 flex flex-wrap items-center justify-between gap-3",
@@ -1298,13 +1726,331 @@ function Onboarding({ onDone }) {
 							})]
 						}) : /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
 							onClick: () => void handleCreate(),
-							disabled: busy || !text.trim(),
+							disabled: busy || !canBuild,
 							children: [busy ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(LoaderCircle, { className: "size-4 animate-spin" }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Sparkles, { className: "size-4" }), "Build it"]
 						})]
 					})
 				]
 			})]
 		})
+	});
+}
+/**
+* Class reminders. On the web app they fire while the app is open (browsers
+* don't allow a page-free scheduled local notification); the Android APK gets
+* true always-on reminders natively through the `Kebiao` bridge — this module
+* mirrors the same prefs to it so both stay in sync.
+*/
+var PREFS_KEY = "my-schedule-reminders";
+var LEAD_OPTIONS = [
+	5,
+	10,
+	15,
+	30
+];
+function readReminderPrefs() {
+	if (typeof window === "undefined") return {
+		enabled: false,
+		leadMin: 10
+	};
+	try {
+		const raw = window.localStorage.getItem(PREFS_KEY);
+		if (!raw) return {
+			enabled: false,
+			leadMin: 10
+		};
+		const p = JSON.parse(raw);
+		return {
+			enabled: Boolean(p.enabled),
+			leadMin: typeof p.leadMin === "number" ? p.leadMin : 10
+		};
+	} catch {
+		return {
+			enabled: false,
+			leadMin: 10
+		};
+	}
+}
+function writeReminderPrefs(prefs) {
+	if (typeof window === "undefined") return;
+	window.localStorage.setItem(PREFS_KEY, JSON.stringify(prefs));
+}
+function notificationsSupported() {
+	return typeof window !== "undefined" && "Notification" in window;
+}
+/** Ask for the notification permission — must be called from a user gesture. */
+async function ensureNotificationPermission() {
+	if (!notificationsSupported()) return false;
+	if (Notification.permission === "granted") return true;
+	if (Notification.permission === "denied") return false;
+	return await Notification.requestPermission() === "granted";
+}
+var timers = [];
+/** Compute every upcoming class start within the next 7 days. */
+function upcomingReminders(data, leadMin) {
+	const now = /* @__PURE__ */ new Date();
+	const week = termWeekFromDate(now, data.term);
+	if (!week) return [];
+	const parts = localParts(now);
+	const dayIndex = DAYS.indexOf(parts.weekday);
+	const out = [];
+	const blocks = blocksForWeek(week, data);
+	for (const block of blocks) {
+		const bDay = DAYS.indexOf(block.day);
+		if (bDay < dayIndex) continue;
+		const daysAhead = bDay - dayIndex;
+		const fire = new Date(now);
+		fire.setDate(fire.getDate() + daysAhead);
+		const [h, m] = block.start.split(":").map(Number);
+		fire.setHours(h, m - leadMin, 0, 0);
+		if (fire.getTime() <= now.getTime()) continue;
+		const where = [block.campus, block.room].filter(Boolean).join(" ");
+		out.push({
+			at: fire.getTime(),
+			title: `${block.course.short} in ${leadMin} min`,
+			body: `${block.start}–${block.end}${where ? ` · ${where}` : ""}`
+		});
+	}
+	return out;
+}
+/**
+* (Re)schedule in-page timers for upcoming class reminders. Call on load, on
+* schedule change, and when the tab becomes visible again.
+*/
+function syncReminders(data) {
+	for (const t of timers) window.clearTimeout(t);
+	timers = [];
+	const prefs = readReminderPrefs();
+	if (!prefs.enabled || !notificationsSupported()) return;
+	if (Notification.permission !== "granted") return;
+	for (const r of upcomingReminders(data, prefs.leadMin)) {
+		const delay = r.at - Date.now();
+		if (delay < 0 || delay > 6048e5) continue;
+		timers.push(window.setTimeout(() => {
+			try {
+				new Notification(r.title, {
+					body: r.body,
+					tag: `kebiao-${r.at}`
+				});
+			} catch {}
+		}, delay));
+	}
+}
+/**
+* App settings: the term calendar (name, week-1 Monday, week count) and class
+* reminders. Term changes re-anchor every week number without touching the
+* meetings themselves.
+*/
+function SettingsDialog({ schedule, onApplyTerm, onRemindersChanged }) {
+	const [open, setOpen] = (0, import_react.useState)(false);
+	const [label, setLabel] = (0, import_react.useState)(schedule.term.label);
+	const [start, setStart] = (0, import_react.useState)(schedule.term.startMonday);
+	const [weeks, setWeeks] = (0, import_react.useState)(String(schedule.term.weeks));
+	const [busy, setBusy] = (0, import_react.useState)(false);
+	const [error, setError] = (0, import_react.useState)(null);
+	const [remOn, setRemOn] = (0, import_react.useState)(() => readReminderPrefs().enabled);
+	const [lead, setLead] = (0, import_react.useState)(() => readReminderPrefs().leadMin);
+	(0, import_react.useEffect)(() => {
+		if (open) {
+			setLabel(schedule.term.label);
+			setStart(schedule.term.startMonday);
+			setWeeks(String(schedule.term.weeks));
+			setError(null);
+			const prefs = readReminderPrefs();
+			setRemOn(prefs.enabled);
+			setLead(prefs.leadMin);
+		}
+	}, [open, schedule.term]);
+	async function handleSave() {
+		const weeksNum = Number(weeks);
+		if (!Number.isInteger(weeksNum) || weeksNum < 1 || weeksNum > 52) {
+			setError(`Weeks must be a number between 1 and 52.`);
+			return;
+		}
+		if (!/^\d{4}-\d{2}-\d{2}$/.test(start)) {
+			setError("Pick the date week 1 begins.");
+			return;
+		}
+		setBusy(true);
+		setError(null);
+		try {
+			await onApplyTerm(normalizeTerm({
+				label,
+				startMonday: start,
+				weeks: weeksNum
+			}));
+			setOpen(false);
+			toast("Term updated");
+		} catch {
+			setError("Could not save. Try again.");
+			setBusy(false);
+		}
+	}
+	async function toggleReminders(next) {
+		if (next && !isApkRuntime() && notificationsSupported()) {
+			if (!await ensureNotificationPermission()) {
+				toast("Notifications are blocked — allow them in your browser settings.");
+				return;
+			}
+		}
+		setRemOn(next);
+		writeReminderPrefs({
+			enabled: next,
+			leadMin: lead
+		});
+		onRemindersChanged?.();
+	}
+	function changeLead(next) {
+		setLead(next);
+		writeReminderPrefs({
+			enabled: remOn,
+			leadMin: next
+		});
+		onRemindersChanged?.();
+	}
+	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Dialog, {
+		open,
+		onOpenChange: setOpen,
+		children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogTrigger, {
+			asChild: true,
+			children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
+				variant: "ghost",
+				size: "icon-sm",
+				"aria-label": "Settings",
+				title: "Settings",
+				children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Settings, { className: "size-4" })
+			})
+		}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogContent, { children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+			className: "px-6 pt-6 pb-8",
+			children: [
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogTitle, {
+					className: "font-serif text-2xl",
+					children: "Settings"
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)(DialogDescription, {
+					className: "mt-1.5",
+					children: "Your term calendar and class reminders."
+				}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+					className: "mt-6 flex flex-col gap-6",
+					children: [
+						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", {
+							className: "flex flex-col gap-4",
+							children: [
+								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("h3", {
+									className: "flex items-center gap-2 text-xs font-medium tracking-wide text-ink-muted uppercase",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(CalendarDays, { className: "size-3.5" }), "Term"]
+								}),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+									className: "grid grid-cols-2 gap-3",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+										className: "block",
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+											className: "text-xs text-ink-faint",
+											children: "Name"
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+											value: label,
+											onChange: (e) => setLabel(e.target.value),
+											placeholder: "Autumn 2026",
+											maxLength: 60,
+											className: "mt-1 w-full rounded-md border border-line bg-paper px-3 py-2 text-sm text-ink outline-none placeholder:text-ink-faint focus-visible:ring-2 focus-visible:ring-seal/40"
+										})]
+									}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+										className: "block",
+										children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+											className: "text-xs text-ink-faint",
+											children: "Weeks"
+										}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+											value: weeks,
+											onChange: (e) => setWeeks(e.target.value),
+											inputMode: "numeric",
+											maxLength: 2,
+											className: "mt-1 w-full rounded-md border border-line bg-paper px-3 py-2 text-sm tabular-nums text-ink outline-none focus-visible:ring-2 focus-visible:ring-seal/40"
+										})]
+									})]
+								}),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("label", {
+									className: "block",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+										className: "text-xs text-ink-faint",
+										children: "Week 1 starts (any day — snapped to Monday)"
+									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("input", {
+										type: "date",
+										value: start,
+										onChange: (e) => setStart(e.target.value),
+										className: "mt-1 w-full rounded-md border border-line bg-paper px-3 py-2 text-sm tabular-nums text-ink outline-none focus-visible:ring-2 focus-visible:ring-seal/40"
+									})]
+								}),
+								start && /^\d{4}-\d{2}-\d{2}$/.test(start) ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
+									className: "text-xs text-ink-faint",
+									children: ["Week 1 Monday: ", mondayOf(/* @__PURE__ */ new Date(`${start}T12:00:00`))]
+								}) : null
+							]
+						}),
+						/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("section", {
+							className: "flex flex-col gap-3 border-t border-line pt-5",
+							children: [
+								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("h3", {
+									className: "flex items-center gap-2 text-xs font-medium tracking-wide text-ink-muted uppercase",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Bell, { className: "size-3.5" }), "Class reminders"]
+								}),
+								/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+									className: "flex items-center justify-between gap-4",
+									children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
+										className: "text-sm text-ink",
+										children: ["Remind me before class", /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+											className: "mt-0.5 block text-xs text-ink-faint",
+											children: isApkRuntime() ? "Scheduled on your phone — works even with the app closed." : "Fires while the app is open. The Android app reminds even when closed."
+										})]
+									}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", {
+										type: "button",
+										role: "switch",
+										"aria-checked": remOn,
+										onClick: () => void toggleReminders(!remOn),
+										className: cn("relative h-6 w-11 shrink-0 rounded-full transition-colors", remOn ? "bg-ink" : "bg-line"),
+										children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: cn("absolute top-0.5 size-5 rounded-full bg-paper shadow transition-transform", remOn ? "translate-x-[22px]" : "translate-x-0.5") })
+									})]
+								}),
+								remOn ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+									className: "flex items-center gap-2",
+									children: [
+										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+											className: "text-xs text-ink-faint",
+											children: "Remind"
+										}),
+										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+											className: "flex gap-1",
+											children: LEAD_OPTIONS.map((m) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+												type: "button",
+												onClick: () => changeLead(m),
+												className: cn("rounded-sm px-2.5 py-1.5 text-xs font-medium transition-colors", lead === m ? "bg-ink text-paper" : "text-ink-muted hover:bg-ink/5"),
+												children: [m, "m"]
+											}, m))
+										}),
+										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+											className: "text-xs text-ink-faint",
+											children: "before"
+										})
+									]
+								}) : null
+							]
+						}),
+						error ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
+							className: "rounded-md bg-seal-tint px-3 py-2 text-sm text-seal-dark",
+							children: error
+						}) : null,
+						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+							className: "flex justify-end",
+							children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Button, {
+								onClick: () => void handleSave(),
+								disabled: busy,
+								children: [busy ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(LoaderCircle, { className: "size-4 animate-spin" }) : null, "Save term"]
+							})
+						})
+					]
+				})
+			]
+		}) })]
 	});
 }
 function TooltipProvider({ delayDuration = 200, ...props }) {
@@ -1326,31 +2072,31 @@ function TooltipContent({ className, sideOffset = 6, ...props }) {
 		...props
 	}) });
 }
-var BAND_HEIGHT = {
-	morning: "h-52",
-	afternoon: "h-52",
-	evening: "h-36"
-};
+var PX_PER_MIN = 1.05;
 function WeekGrid({ week, blocks, focusCourseId, onSelect, schedule }) {
-	const now = shanghaiParts();
-	const isCurrentWeek = termWeekFromDate() === week;
-	const today = isCurrentWeek && DAYS.includes(now.weekday) ? now.weekday : null;
+	const now = localParts();
+	const isCurrentWeek = termWeekFromDate(/* @__PURE__ */ new Date(), schedule.term) === week;
+	const today = isCurrentWeek ? now.weekday : null;
 	const commute = new Set(commuteDays(week, schedule));
 	const nowMins = now.hour * 60 + now.minute;
+	const span = daySpan(schedule);
+	const colHeight = (span.endMin - span.startMin) * PX_PER_MIN;
+	const hours = [];
+	for (let t = span.startMin; t <= span.endMin; t += 60) hours.push(t);
+	const nowTop = isCurrentWeek && nowMins >= span.startMin && nowMins <= span.endMin ? (nowMins - span.startMin) * PX_PER_MIN : null;
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
 		className: "overflow-x-auto",
 		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-			className: "min-w-[56rem]",
+			className: "min-w-[52rem]",
 			children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				className: "grid grid-cols-[4.25rem_repeat(5,minmax(0,1fr))]",
+				className: "grid grid-cols-[4.25rem_repeat(7,minmax(0,1fr))]",
 				children: [
 					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {}),
 					DAYS.map((day) => {
-						const date = dateOf(week, day);
-						const holiday = holidayName(date.iso);
+						const date = dateOf(week, day, schedule.term);
 						const isToday = today === day;
 						return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-							className: cn("border-b border-line px-3 pb-3", isToday && "bg-paper-elevated"),
+							className: cn("border-b border-line px-2 pb-3", isToday && "bg-paper-elevated"),
 							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 								className: "flex items-baseline justify-between gap-2",
 								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
@@ -1358,7 +2104,7 @@ function WeekGrid({ week, blocks, focusCourseId, onSelect, schedule }) {
 									children: day
 								}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 									className: "text-sm tabular-nums text-ink-faint",
-									children: formatShortDate(week, day)
+									children: formatShortDate(week, day, schedule.term)
 								})]
 							}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 								className: "mt-1 flex min-h-5 items-center gap-2",
@@ -1367,123 +2113,105 @@ function WeekGrid({ week, blocks, focusCourseId, onSelect, schedule }) {
 										className: "text-xs font-medium tracking-wide text-ink",
 										children: "Today"
 									}) : null,
-									holiday ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-										className: "text-xs text-south",
-										children: holiday
-									}) : null,
 									commute.has(day) ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 										className: "text-xs text-ink-muted",
-										children: "Both campuses"
-									}) : null
+										children: "Multiple places"
+									}) : null,
+									/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+										className: "sr-only",
+										children: date.iso
+									})
 								]
 							})]
 						}, day);
 					}),
-					BANDS.map((band, bandIndex) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(BandRow, {
-						band,
-						blocks,
-						focusCourseId,
-						today,
-						nowMins: isCurrentWeek ? nowMins : null,
-						showRule: bandIndex > 0,
-						onSelect
-					}, band.id))
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+						className: "relative pr-3 pt-0 text-right",
+						style: { height: colHeight },
+						children: hours.map((t) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+							className: "absolute right-3 -translate-y-1/2 text-xs font-medium tabular-nums text-ink-faint",
+							style: { top: (t - span.startMin) * PX_PER_MIN },
+							children: minutesToLabel(t)
+						}, t))
+					}),
+					DAYS.map((day) => {
+						const cellBlocks = blocks.filter((b) => b.day === day);
+						const isToday = today === day;
+						return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
+							className: cn("relative border-l border-line", isToday && "bg-paper-elevated"),
+							style: { height: colHeight },
+							children: [
+								hours.slice(1).map((t) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+									className: "pointer-events-none absolute right-0 left-0 border-t border-line/60",
+									style: { top: (t - span.startMin) * PX_PER_MIN }
+								}, t)),
+								nowTop !== null && isToday ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+									className: "pointer-events-none absolute right-0 left-0 z-10 h-px bg-ink",
+									style: { top: nowTop },
+									children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "absolute -top-2 left-1 h-4 w-1 rounded-full bg-ink" })
+								}) : null,
+								cellBlocks.map((block) => {
+									const pos = dayPosition(block.start, block.end, span);
+									const compact = durationMinutes(block.start, block.end) <= 55;
+									const dimmed = focusCourseId !== null && focusCourseId !== block.course.id;
+									const tone = locTone(schedule, block.campus);
+									return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+										type: "button",
+										onClick: () => onSelect(block),
+										className: cn("absolute right-1.5 left-1.5 z-[1] overflow-hidden rounded-md px-2.5 py-1.5 text-left shadow-[var(--shadow-border)]", "transition-[transform,box-shadow,opacity] duration-150 ease-out", "hover:-translate-y-px hover:shadow-[var(--shadow-border-hover)]", "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink", dimmed && "opacity-30"),
+										style: {
+											top: pos.top * (colHeight / 100),
+											height: pos.height * (colHeight / 100),
+											...locFillStyle(schedule, block.campus)
+										},
+										children: [
+											/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+												className: "absolute inset-y-0 left-0 w-1",
+												style: { backgroundColor: locVar(tone, "") }
+											}),
+											/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+												className: "block text-sm leading-snug font-medium",
+												children: block.course.short
+											}),
+											!compact ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+												className: "mt-0.5 block text-xs tabular-nums opacity-80",
+												children: [
+													block.start,
+													"–",
+													block.end
+												]
+											}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+												className: "mt-0.5 block truncate text-xs opacity-80",
+												children: [[block.campus, block.room].filter(Boolean).join(" "), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+													className: "opacity-60",
+													children: [
+														" ",
+														"· ",
+														sectionsLabel(block.sectionStart, block.sectionEnd)
+													]
+												})]
+											})] }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+												className: "block truncate text-xs opacity-80",
+												children: [block.campus, block.room].filter(Boolean).join(" ")
+											}),
+											block.flags.includes("once") ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+												className: "mt-1 block text-xs opacity-80",
+												children: "This week only"
+											}) : null,
+											block.flags.includes("biweekly") && !block.flags.includes("once") ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+												className: "mt-1 block text-xs opacity-80",
+												children: "Irregular weeks"
+											}) : null
+										]
+									}, block.id);
+								})
+							]
+						}, day);
+					})
 				]
 			})
 		})
 	});
-}
-function BandRow({ band, blocks, focusCourseId, today, nowMins, showRule, onSelect }) {
-	const gutterLabel = band.id === "afternoon" ? "Lunch" : band.id === "evening" ? "Dinner" : null;
-	const gutterTime = band.id === "afternoon" ? "12:00" : band.id === "evening" ? "17:30" : null;
-	const nowTop = nowMins !== null && nowMins >= toMinutes(band.start) && nowMins < toMinutes(band.end) && nowMins !== null ? (nowMins - toMinutes(band.start)) / (toMinutes(band.end) - toMinutes(band.start)) * 100 : null;
-	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [
-		showRule && gutterLabel ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-			className: "flex h-9 items-center justify-end pr-3 text-xs tabular-nums text-ink-faint",
-			children: gutterTime
-		}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-			className: "col-span-5 flex h-9 items-center gap-3 px-2",
-			children: [
-				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "h-px flex-1 bg-line" }),
-				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-					className: "text-xs tracking-wide text-ink-faint",
-					children: gutterLabel
-				}),
-				/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "h-px flex-1 bg-line" })
-			]
-		})] }) : null,
-		/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-			className: cn("pr-3 pt-1 text-right", BAND_HEIGHT[band.id]),
-			children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-				className: "text-xs font-medium tabular-nums text-ink",
-				children: band.start
-			}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-				className: "mt-1 text-xs tracking-wide text-ink-faint",
-				children: band.label
-			})]
-		}),
-		DAYS.map((day) => {
-			const cellBlocks = blocks.filter((b) => b.day === day && bandOf(b.start).id === band.id);
-			const isToday = today === day;
-			return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
-				className: cn("relative border-l border-line", BAND_HEIGHT[band.id], isToday && "bg-paper-elevated"),
-				children: [nowTop !== null && isToday ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-					className: "pointer-events-none absolute right-0 left-0 z-10 h-px bg-ink",
-					style: { top: `${nowTop}%` },
-					children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "absolute -top-2 left-1 h-4 w-1 rounded-full bg-ink" })
-				}) : null, cellBlocks.map((block) => {
-					const pos = bandPosition(block.start, block.end, band);
-					const compact = durationMinutes(block.start, block.end) <= 55;
-					const dimmed = focusCourseId !== null && focusCourseId !== block.course.id;
-					return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
-						type: "button",
-						onClick: () => onSelect(block),
-						className: cn("absolute right-1.5 left-1.5 z-[1] overflow-hidden rounded-md px-2.5 py-2 text-left shadow-[var(--shadow-border)]", "transition-[transform,box-shadow,opacity] duration-150 ease-out", "hover:-translate-y-px hover:shadow-[var(--shadow-border-hover)]", "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink", block.campus === "South" ? "bg-south-fill" : "bg-north-fill", dimmed && "opacity-30"),
-						style: {
-							top: `${pos.top}%`,
-							height: `${pos.height}%`
-						},
-						children: [
-							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: cn("absolute inset-y-0 left-0 w-1", block.campus === "South" ? "bg-south" : "bg-north") }),
-							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-								className: "block text-sm font-medium leading-snug text-ink",
-								children: block.course.short
-							}),
-							!compact ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(import_jsx_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-								className: "mt-0.5 block text-xs tabular-nums text-ink-muted",
-								children: [
-									block.start,
-									"–",
-									block.end
-								]
-							}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-								className: "mt-0.5 block truncate text-xs text-ink-muted",
-								children: [block.room, /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-									className: "text-ink-faint",
-									children: [
-										" ",
-										"· ",
-										sectionsLabel(block.sectionStart, block.sectionEnd)
-									]
-								})]
-							})] }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-								className: "block truncate text-xs text-ink-muted",
-								children: block.room
-							}),
-							block.flags.includes("once") ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-								className: "mt-1 block text-xs text-ink-muted",
-								children: "This week only"
-							}) : null,
-							block.flags.includes("biweekly") && !block.flags.includes("once") ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-								className: "mt-1 block text-xs text-ink-muted",
-								children: "Irregular weeks"
-							}) : null
-						]
-					}, block.id);
-				})]
-			}, `${band.id}-${day}`);
-		})
-	] });
 }
 /**
 * Current user + loading state. Same behavior in live preview and when deployed:
@@ -1498,10 +2226,9 @@ function BandRow({ band, blocks, focusCourseId, today, nowMins, showRule, onSele
 * redirecting on `user: null` alone bounces signed-in visitors to sign-in on
 * every hard reload:
 *
-*   import { RedirectToSignIn } from "@/lib/auth/gates";
 *   const { user, isPending } = useCurrentUserState();
-*   if (isPending) return null;              // still resolving — don't redirect yet
-*   if (!user) return <RedirectToSignIn />;  // definitely signed out
+*   if (isPending) return null;                  // still resolving — don't redirect yet
+*   if (!user) return <Navigate to="/login" />;  // definitely signed out
 *
 * `authEnabled` is a module-level constant fixed at load, so the guarded hook
 * call keeps a stable hook order across every render of a given component.
@@ -1601,6 +2328,11 @@ var createSsrRpc = (functionId) => {
 		[TSS_SERVER_FUNCTION]: true
 	});
 };
+var termSchema = object({
+	label: string().max(80),
+	startMonday: string().regex(/^\d{4}-\d{2}-\d{2}$/),
+	weeks: number().int().min(1).max(52)
+}).optional();
 /** Read the signed-in user's saved schedule. Returns null when none is saved —
 *  the client keeps its localStorage copy in that case. */
 var getSchedule = createServerFn({ method: "GET" }).middleware([authMiddleware]).handler(createSsrRpc("da68ad683b6506403824f4548aa048531cf35a6ff6c597ce4068c249747161de"));
@@ -1612,27 +2344,30 @@ var saveInput = object({
 		code: string().max(40),
 		credits: number(),
 		teachers: array(string().max(120)).max(12)
-	})).max(60),
+	})).max(80),
 	meetings: array(object({
 		id: string().max(120),
 		courseId: string().max(80),
-		campus: _enum(["South", "North"]),
+		campus: string().max(60),
 		day: _enum([
 			"Mon",
 			"Tue",
 			"Wed",
 			"Thu",
-			"Fri"
+			"Fri",
+			"Sat",
+			"Sun"
 		]),
 		sectionStart: number(),
 		sectionEnd: number(),
 		start: string().max(8),
 		end: string().max(8),
-		weeks: array(number()).max(30),
+		weeks: array(number()).max(60),
 		weeksLabel: string().max(60),
 		room: string().max(80),
 		flag: _enum(["biweekly", "once"]).optional()
-	})).max(400)
+	})).max(500),
+	term: termSchema
 });
 /** Persist the signed-in user's schedule (sync layer for the hosted app). */
 var saveSchedule = createServerFn({ method: "POST" }).middleware([authMiddleware]).validator(saveInput).handler(createSsrRpc("0ed26409b7181a11164c7c16fa6a998c8ca2ba41d2eac28f760e4712291f1938"));
@@ -1650,14 +2385,25 @@ var resetSchedule = createServerFn({ method: "POST" }).middleware([authMiddlewar
 */
 var STORAGE_KEY = "my-schedule";
 var ONBOARDED_KEY = "my-schedule-onboarded";
+/**
+* Schedules stored before terms became per-user carried a fixed calendar.
+* Upgrade them to that same calendar so existing installs don't shift.
+*/
+var LEGACY_TERM = {
+	label: "Autumn 2026",
+	startMonday: "2026-09-07",
+	weeks: 17
+};
 function safeParse(raw) {
 	if (!raw) return null;
 	try {
 		const p = JSON.parse(raw);
 		if (!Array.isArray(p.courses) || !Array.isArray(p.meetings)) return null;
+		const term = p.term ? normalizeTerm(p.term) : p.meetings.length ? LEGACY_TERM : defaultTerm();
 		return {
 			courses: p.courses,
 			meetings: p.meetings,
+			term,
 			updatedAt: typeof p.updatedAt === "number" ? p.updatedAt : 0
 		};
 	} catch {
@@ -1668,10 +2414,12 @@ function readLocalSchedule() {
 	if (typeof window === "undefined") return null;
 	return safeParse(window.localStorage.getItem(STORAGE_KEY));
 }
-function writeLocalSchedule(courses, meetings, updatedAt = Date.now()) {
+function writeLocalSchedule(courses, meetings, term, updatedAt = Date.now()) {
+	const existing = readLocalSchedule();
 	const next = {
 		courses,
 		meetings,
+		term: term ?? existing?.term ?? defaultTerm(),
 		updatedAt
 	};
 	if (typeof window !== "undefined") window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
@@ -1715,14 +2463,16 @@ async function syncSchedule(canSync) {
 		if (!server) {
 			await saveSchedule({ data: {
 				courses: local.courses,
-				meetings: local.meetings
+				meetings: local.meetings,
+				term: local.term
 			} });
 			return local;
 		}
-		if (server.updatedAt > local.updatedAt) return writeLocalSchedule(server.courses, server.meetings, server.updatedAt);
+		if (server.updatedAt > local.updatedAt) return writeLocalSchedule(server.courses, server.meetings, server.term, server.updatedAt);
 		if (local.updatedAt > server.updatedAt) await saveSchedule({ data: {
 			courses: local.courses,
-			meetings: local.meetings
+			meetings: local.meetings,
+			term: local.term
 		} });
 		return local;
 	} catch {
@@ -1730,15 +2480,29 @@ async function syncSchedule(canSync) {
 	}
 }
 /** Persist a new schedule locally and to the cloud when signed in. */
-async function applySchedule(courses, meetings, canSync) {
-	writeLocalSchedule(courses, meetings);
+async function applySchedule(courses, meetings, canSync, term) {
+	const local = writeLocalSchedule(courses, meetings, term);
 	if (canSync) try {
 		await saveSchedule({ data: {
 			courses,
-			meetings
+			meetings,
+			term: local.term
 		} });
 	} catch {}
-	return buildScheduleData(courses, meetings);
+	return buildScheduleData(courses, meetings, local.term);
+}
+/** Persist just the term settings (schedule untouched). */
+async function applyTerm(term, canSync) {
+	const local = readLocalSchedule() ?? BASE_SCHEDULE;
+	const next = writeLocalSchedule(local.courses, local.meetings, term);
+	if (canSync) try {
+		await saveSchedule({ data: {
+			courses: next.courses,
+			meetings: next.meetings,
+			term
+		} });
+	} catch {}
+	return buildScheduleData(next.courses, next.meetings, term);
 }
 /** Clear the schedule everywhere and send the user back through onboarding. */
 async function resetScheduleEverywhere(canSync) {
@@ -1747,7 +2511,7 @@ async function resetScheduleEverywhere(canSync) {
 	if (canSync) try {
 		await resetSchedule();
 	} catch {}
-	return buildScheduleData([], []);
+	return buildScheduleData([], [], defaultTerm());
 }
 function ScheduleApp({ weekParam }) {
 	const navigate = useNavigate({ from: "/" });
@@ -1759,7 +2523,7 @@ function ScheduleApp({ weekParam }) {
 	const [onboarded, setOnboarded] = (0, import_react.useState)(true);
 	(0, import_react.useEffect)(() => {
 		const local = readLocalSchedule() ?? BASE_SCHEDULE;
-		setSchedule(buildScheduleData(local.courses, local.meetings));
+		setSchedule(buildScheduleData(local.courses, local.meetings, local.term));
 		setOnboarded(hasOnboarded() || local.meetings.length > 0);
 		setMounted(true);
 	}, []);
@@ -1767,7 +2531,7 @@ function ScheduleApp({ weekParam }) {
 		if (!mounted || sessionPending) return;
 		let cancelled = false;
 		syncSchedule(canSync).then((win) => {
-			if (!cancelled) setSchedule(buildScheduleData(win.courses, win.meetings));
+			if (!cancelled) setSchedule(buildScheduleData(win.courses, win.meetings, win.term));
 		});
 		return () => {
 			cancelled = true;
@@ -1777,51 +2541,73 @@ function ScheduleApp({ weekParam }) {
 		sessionPending,
 		canSync
 	]);
-	const liveWeek = defaultWeek(void 0, schedule ?? DEFAULT_SCHEDULE);
-	const [week, setWeekState] = (0, import_react.useState)(() => weekParam ?? liveWeek);
+	(0, import_react.useEffect)(() => {
+		if (!schedule) return;
+		syncReminders(schedule);
+		window.Kebiao?.setSchedule?.(JSON.stringify({
+			courses: schedule.courses,
+			meetings: schedule.meetings,
+			term: schedule.term,
+			reminders: readReminderPrefs()
+		}));
+	}, [schedule]);
+	(0, import_react.useEffect)(() => {
+		if (!schedule) return;
+		const onVisible = () => {
+			if (document.visibilityState === "visible") syncReminders(schedule);
+		};
+		document.addEventListener("visibilitychange", onVisible);
+		return () => document.removeEventListener("visibilitychange", onVisible);
+	}, [schedule]);
+	const termWeeks = schedule?.term.weeks ?? 16;
+	const liveWeek = defaultWeek(/* @__PURE__ */ new Date(), schedule ?? emptyFallback());
+	const [week, setWeekState] = (0, import_react.useState)(() => clampWeek(weekParam ?? liveWeek, termWeeks));
 	const [focusCourseId, setFocusCourseId] = (0, import_react.useState)(null);
 	const [selected, setSelected] = (0, import_react.useState)(null);
 	const [editorTarget, setEditorTarget] = (0, import_react.useState)(null);
-	const [day, setDay] = (0, import_react.useState)(() => {
-		const parts = shanghaiParts();
-		if (DAYS.includes(parts.weekday)) return parts.weekday;
-		return firstBusyDay(weekParam ?? liveWeek, DEFAULT_SCHEDULE);
-	});
+	const [day, setDay] = (0, import_react.useState)(() => localParts().weekday);
 	const initialized = (0, import_react.useRef)(false);
 	(0, import_react.useEffect)(() => {
 		if (!schedule || initialized.current) return;
 		initialized.current = true;
 		if (weekParam === void 0) {
-			const w = defaultWeek(void 0, schedule);
+			const w = defaultWeek(/* @__PURE__ */ new Date(), schedule);
 			setWeekState(w);
-			const parts = shanghaiParts();
-			setDay(DAYS.includes(parts.weekday) ? parts.weekday : firstBusyDay(w, schedule));
+			setDay(localParts().weekday);
 		}
 	}, [schedule, weekParam]);
 	const blocks = (0, import_react.useMemo)(() => schedule ? blocksForWeek(week, schedule) : [], [week, schedule]);
 	const load = schedule ? weekLoad(week, schedule) : {
-		south: 0,
-		north: 0,
 		total: 0,
-		count: 0
+		count: 0,
+		byCampus: {}
 	};
 	const commutes = schedule ? commuteDays(week, schedule) : [];
-	const upcoming = schedule ? nextUp(void 0, schedule) : null;
-	const currentTermWeek = termWeekFromDate();
+	const upcoming = schedule ? nextUp(/* @__PURE__ */ new Date(), schedule) : null;
+	const currentTermWeek = schedule ? termWeekFromDate(/* @__PURE__ */ new Date(), schedule.term) : null;
 	const peak = schedule ? maxWeekLoad(schedule) : 1;
 	const totalCredits = schedule ? schedule.courses.reduce((sum, c) => sum + c.credits, 0) : 0;
 	async function handleApply(courses, meetings) {
-		const next = await applySchedule(courses, meetings, canSync);
+		const next = await applySchedule(courses, meetings, canSync, schedule?.term);
 		setSchedule(next);
 		setFocusCourseId(null);
 		setSelected(null);
 		toast("Schedule updated");
 	}
 	/** Onboarding finished — mark the device, then persist like any apply. */
-	async function handleOnboarded(courses, meetings) {
+	async function handleOnboarded(courses, meetings, term) {
 		markOnboarded();
 		setOnboarded(true);
-		await handleApply(courses, meetings);
+		const next = await applySchedule(courses, meetings, canSync, term);
+		setSchedule(next);
+		setFocusCourseId(null);
+		setSelected(null);
+		toast("Schedule saved");
+	}
+	async function handleApplyTerm(term) {
+		const next = await applyTerm(term, canSync);
+		setSchedule(next);
+		setWeekState((w) => clampWeek(w, next.term.weeks));
 	}
 	async function handleReset() {
 		const next = await resetScheduleEverywhere(canSync);
@@ -1832,8 +2618,12 @@ function ScheduleApp({ weekParam }) {
 		toast("Schedule cleared — start fresh");
 	}
 	(0, import_react.useEffect)(() => {
-		if (weekParam !== void 0 && weekParam !== week) setWeekState(clampWeek(weekParam));
-	}, [weekParam, week]);
+		if (weekParam !== void 0 && weekParam !== week) setWeekState(clampWeek(weekParam, termWeeks));
+	}, [
+		weekParam,
+		week,
+		termWeeks
+	]);
 	(0, import_react.useEffect)(() => {
 		if (weekParam === void 0) navigate({
 			search: { week },
@@ -1849,13 +2639,13 @@ function ScheduleApp({ weekParam }) {
 		schedule
 	]);
 	const goWeek = (0, import_react.useCallback)((next) => {
-		const w = clampWeek(next);
+		const w = clampWeek(next, termWeeks);
 		setWeekState(w);
 		navigate({
 			search: { week: w },
 			replace: true
 		});
-	}, [navigate]);
+	}, [navigate, termWeeks]);
 	(0, import_react.useEffect)(() => {
 		function onKey(event) {
 			const target = event.target;
@@ -1897,6 +2687,7 @@ function ScheduleApp({ weekParam }) {
 		})
 	});
 	if (!onboarded && schedule.meetings.length === 0) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Onboarding, { onDone: handleOnboarded });
+	const campusLabels = Object.keys(schedule.campusTone);
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(TooltipProvider, { children: [
 		/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Toaster, {
 			position: "top-center",
@@ -1921,7 +2712,7 @@ function ScheduleApp({ weekParam }) {
 							}),
 							/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
 								className: "mt-1 hidden text-xs text-ink-faint lg:inline",
-								children: TERM.label
+								children: schedule.term.label
 							})
 						]
 					}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
@@ -1959,6 +2750,11 @@ function ScheduleApp({ weekParam }) {
 								onClick: () => window.print(),
 								children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Printer, { className: "size-4" })
 							}),
+							/* @__PURE__ */ (0, import_jsx_runtime.jsx)(SettingsDialog, {
+								schedule,
+								onApplyTerm: handleApplyTerm,
+								onRemindersChanged: () => schedule && syncReminders(schedule)
+							}),
 							/* @__PURE__ */ (0, import_jsx_runtime.jsx)(AppInfo, { isApk }),
 							/* @__PURE__ */ (0, import_jsx_runtime.jsx)(UserButton, {}),
 							/* @__PURE__ */ (0, import_jsx_runtime.jsx)(SignedOut, { children: !isApk ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Link, {
@@ -1981,7 +2777,7 @@ function ScheduleApp({ weekParam }) {
 									/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
 										className: "text-xs font-medium tracking-[0.18em] text-ink-faint uppercase",
 										children: [
-											TERM.label,
+											schedule.term.label,
 											" · ",
 											totalCredits,
 											" credits · ",
@@ -2006,13 +2802,13 @@ function ScheduleApp({ weekParam }) {
 												children: ["Week ", week]
 											}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
 												className: "mt-1 text-sm text-ink-muted",
-												children: formatWeekRange(week)
+												children: formatWeekRange(week, schedule.term)
 											})] }),
 											/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Button, {
 												variant: "ghost",
 												size: "icon-sm",
 												"aria-label": "Next week",
-												disabled: week >= TERM.weeks,
+												disabled: week >= termWeeks,
 												onClick: () => goWeek(week + 1),
 												className: "no-print",
 												children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(ChevronRight, { className: "size-5" })
@@ -2021,7 +2817,10 @@ function ScheduleApp({ weekParam }) {
 									}),
 									upcoming ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
 										className: "mt-2 text-sm text-ink-muted",
-										children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(NowLine, { upcoming })
+										children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(NowLine, {
+											upcoming,
+											term: schedule.term
+										})
 									}) : null
 								] }), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", {
 									className: "flex flex-wrap gap-x-6 gap-y-1 text-sm text-ink-muted",
@@ -2038,22 +2837,18 @@ function ScheduleApp({ weekParam }) {
 											className: "font-medium text-ink",
 											children: formatDuration(load.total)
 										}), " in class"] }),
-										load.south > 0 ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
-											/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-												className: "text-south",
-												children: "South"
-											}),
-											" ",
-											formatDuration(load.south)
-										] }) : null,
-										load.north > 0 ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", { children: [
-											/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-												className: "text-north",
-												children: "North"
-											}),
-											" ",
-											formatDuration(load.north)
-										] }) : null
+										Object.entries(load.byCampus).filter(([c]) => c).map(([campus, mins]) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+											className: "inline-flex items-center gap-1.5",
+											children: [
+												/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+													className: "size-2 rounded-xs",
+													style: locSolidStyle(schedule, campus)
+												}),
+												campus,
+												" ",
+												formatDuration(mins)
+											]
+										}, campus))
 									]
 								})]
 							}),
@@ -2080,16 +2875,16 @@ function ScheduleApp({ weekParam }) {
 								]
 							}) : null,
 							commutes.length > 0 ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
-								className: "rounded-md bg-south-fill px-4 py-3 text-sm text-south-fg",
+								className: "rounded-md bg-paper-elevated px-4 py-3 text-sm text-ink shadow-[var(--shadow-border)]",
 								children: [
-									"Both campuses this week — ",
+									"Multiple locations this week — ",
 									commutes.map((d) => DAY_LABEL[d]).join(" & "),
 									". Plan the commute."
 								]
 							}) : null,
 							!weekHasClasses(week, schedule) ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
 								className: "rounded-md bg-paper-elevated px-4 py-3 text-sm text-ink-muted shadow-[var(--shadow-border)]",
-								children: ["No classes this week.", week < TERM.weeks ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+								children: ["No classes this week.", week < termWeeks ? /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
 									type: "button",
 									className: "ml-2 font-medium text-ink underline-offset-2 hover:underline",
 									onClick: () => goWeek(week + 1),
@@ -2148,9 +2943,10 @@ function ScheduleApp({ weekParam }) {
 							className: "mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4",
 							children: schedule.courses.map((course) => {
 								const meetings = courseMeetings(course.id, schedule);
-								const campuses = [...new Set(meetings.map((m) => m.campus))];
+								const campuses = [...new Set(meetings.map((m) => m.campus).filter(Boolean))];
 								const active = focusCourseId === course.id;
 								const campus = campuses.length === 1 ? campuses[0] : null;
+								const tone = campus ? locTone(schedule, campus) : void 0;
 								return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("li", { children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
 									type: "button",
 									onClick: () => setFocusCourseId((id) => id === course.id ? null : course.id),
@@ -2161,11 +2957,15 @@ function ScheduleApp({ weekParam }) {
 											children: course.short
 										}),
 										/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-											className: cn("mt-1 text-xs", active ? "text-paper/70" : "text-ink-muted"),
+											className: cn("mt-1 inline-flex items-center gap-1.5 text-xs", active ? "text-paper/70" : "text-ink-muted"),
 											children: [
+												campus ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+													className: "size-2 rounded-xs",
+													style: { backgroundColor: locVar(tone, "") }
+												}) : null,
 												course.credits,
 												" cr · ",
-												campus ?? "Both campuses"
+												campus ?? (campuses.length > 1 ? "Multiple places" : "—")
 											]
 										}),
 										/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
@@ -2179,16 +2979,22 @@ function ScheduleApp({ weekParam }) {
 					}),
 					/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("footer", {
 						className: "flex flex-wrap items-center justify-between gap-3 border-t border-line pt-6 text-xs text-ink-faint",
-						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { children: "Week 1 starts 7 Sep 2026 · Xi’an time" }), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", {
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("p", { children: [
+							"Week 1 starts ",
+							formatShortDateInline(schedule.term.startMonday),
+							" · ",
+							schedule.term.weeks,
+							" weeks"
+						] }), campusLabels.length ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
 							className: "flex items-center gap-4",
-							children: [/* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
+							children: campusLabels.map((campus) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
 								className: "inline-flex items-center gap-1.5",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "size-2.5 rounded-xs bg-south" }), " South"]
-							}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-								className: "inline-flex items-center gap-1.5",
-								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "size-2.5 rounded-xs bg-north" }), " North"]
-							})]
-						})]
+								children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+									className: "size-2.5 rounded-xs",
+									style: locSolidStyle(schedule, campus)
+								}), campus]
+							}, campus))
+						}) : null]
 					})
 				]
 			})]
@@ -2217,7 +3023,19 @@ function ScheduleApp({ weekParam }) {
 		})
 	] });
 }
-function NowLine({ upcoming }) {
+function emptyFallback() {
+	return buildScheduleData([], []);
+}
+function formatShortDateInline(iso) {
+	const d = /* @__PURE__ */ new Date(`${iso}T12:00:00`);
+	if (Number.isNaN(d.getTime())) return iso;
+	return d.toLocaleDateString("en-GB", {
+		day: "numeric",
+		month: "short",
+		year: "numeric"
+	});
+}
+function NowLine({ upcoming, term }) {
 	if (upcoming.status === "now") return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
 		className: "text-ink",
 		children: [
@@ -2225,73 +3043,72 @@ function NowLine({ upcoming }) {
 			upcoming.block.course.short,
 			", until ",
 			upcoming.ends,
-			" at ",
-			upcoming.block.room,
+			" at",
+			" ",
+			[upcoming.block.campus, upcoming.block.room].filter(Boolean).join(" ") || "—",
 			"."
 		]
 	});
-	const sameWeek = upcoming.week === termWeekFromDate();
+	const sameWeek = upcoming.week === termWeekFromDate(/* @__PURE__ */ new Date(), term);
+	const where = [upcoming.block.campus, upcoming.block.room].filter(Boolean).join(" ");
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
 		className: "text-ink",
 		children: [
 			"Next up: ",
 			upcoming.block.course.short,
 			sameWeek ? ` ${upcoming.block.day} ${upcoming.block.start}` : ` week ${upcoming.week}`,
-			", ",
-			upcoming.block.campus,
-			" ",
-			upcoming.block.room,
+			where ? `, ${where}` : "",
 			"."
 		]
 	});
 }
 function Heatmap({ week, peak, currentTermWeek, onSelect, schedule }) {
+	const weeks = schedule.term.weeks;
 	return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
-		className: "grid gap-1",
-		style: { gridTemplateColumns: "repeat(17, minmax(0, 1fr))" },
-		children: Array.from({ length: TERM.weeks }, (_, i) => {
-			const w = i + 1;
-			const load = weekLoad(w, schedule);
-			const height = Math.max(6, Math.round(load.total / peak * 44));
-			const southH = load.total ? Math.round(load.south / load.total * height) : 0;
-			const northH = height - southH;
-			const selected = w === week;
-			return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Tooltip, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TooltipTrigger, {
-				asChild: true,
-				children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
-					type: "button",
-					"aria-label": `Week ${w}, ${load.count} classes`,
-					"aria-pressed": selected,
-					onClick: () => onSelect(w),
-					className: cn("flex h-14 min-w-0 flex-col items-center justify-end gap-1 overflow-hidden rounded-sm pt-1 transition-colors duration-150", selected ? "bg-ink/5" : "hover:bg-ink/5", currentTermWeek === w && !selected && "ring-1 ring-ink/20"),
-					children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-						className: "flex w-full flex-1 items-end justify-center",
-						children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("span", {
-							className: "flex w-1/2 min-w-1.5 flex-col overflow-hidden rounded-xs bg-line",
-							style: { height },
-							children: [northH > 0 ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-								className: "bg-north",
-								style: { height: northH }
-							}) : null, southH > 0 ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-								className: "bg-south",
-								style: { height: southH }
-							}) : null]
-						})
-					}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
-						className: cn("w-full truncate text-center text-xs leading-none tabular-nums", selected ? "font-medium text-ink" : "text-ink-faint"),
-						children: w
-					})]
-				})
-			}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(TooltipContent, { children: [
-				"Week ",
-				w,
-				" · ",
-				formatWeekRange(w),
-				" · ",
-				load.count,
-				" ",
-				load.count === 1 ? "class" : "classes"
-			] })] }, w);
+		className: cn(weeks > 22 && "overflow-x-auto pb-1"),
+		children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+			className: "grid gap-1",
+			style: { gridTemplateColumns: `repeat(${weeks}, minmax(${weeks > 22 ? "18px" : "0"}, 1fr))` },
+			children: Array.from({ length: weeks }, (_, i) => {
+				const w = i + 1;
+				const load = weekLoad(w, schedule);
+				const height = Math.max(6, Math.round(load.total / peak * 44));
+				const selected = w === week;
+				const entries = Object.entries(load.byCampus).filter(([c]) => c);
+				return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(Tooltip, { children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)(TooltipTrigger, {
+					asChild: true,
+					children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("button", {
+						type: "button",
+						"aria-label": `Week ${w}, ${load.count} classes`,
+						"aria-pressed": selected,
+						onClick: () => onSelect(w),
+						className: cn("flex h-14 min-w-0 flex-col items-center justify-end gap-1 overflow-hidden rounded-sm pt-1 transition-colors duration-150", selected ? "bg-ink/5" : "hover:bg-ink/5", currentTermWeek === w && !selected && "ring-1 ring-ink/20"),
+						children: [/* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+							className: "flex w-full flex-1 items-end justify-center",
+							children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+								className: "flex w-1/2 min-w-1.5 flex-col-reverse overflow-hidden rounded-xs bg-line",
+								style: { height },
+								children: entries.map(([campus, mins]) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: {
+									height: Math.round(mins / Math.max(load.total, 1) * height),
+									backgroundColor: locVar(locTone(schedule, campus), "")
+								} }, campus))
+							})
+						}), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", {
+							className: cn("w-full truncate text-center text-xs leading-none tabular-nums", selected ? "font-medium text-ink" : "text-ink-faint"),
+							children: w
+						})]
+					})
+				}), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(TooltipContent, { children: [
+					"Week ",
+					w,
+					" · ",
+					formatWeekRange(w, schedule.term),
+					" · ",
+					load.count,
+					" ",
+					load.count === 1 ? "class" : "classes"
+				] })] }, w);
+			})
 		})
 	});
 }
